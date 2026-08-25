@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DashboardShell } from "@/components/skillbridge/dashboard-shell";
+import { RoleLayout } from "@/components/skillbridge/portal";
 
 export const Route = createFileRoute("/student")({
-  component: () => <DashboardShell role="student" />,
+  component: () => <RoleLayout role="student" />,
 });

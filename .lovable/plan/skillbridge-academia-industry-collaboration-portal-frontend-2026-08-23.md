@@ -9,10 +9,12 @@ Professional SaaS dashboard with an academic-tech identity: light background, de
 ## Pages and routes
 
 Public
+
 - `/` Landing — hero, what academia–industry collaboration means, "Find Opportunities" and "For Industry" CTAs, four feature cards (Skill Mapping, AI Recommendations, Internships, Industry Talent Matching), how-it-works strip, footer.
 - `/login` — email, password, Student/Industry role selector, Login, and one-click demo login for each role.
 
 Student (sidebar shell)
+
 - `/student` Dashboard — profile completion ring, overall skill score, recommended internships count, applications count, skill overview bars, recommended internship previews, recent applications.
 - `/student/profile` — name, college, degree, branch, year, skills, projects, certifications, career interests, Edit profile (inline editable form, saved to local state).
 - `/student/assessment` — 10 questions, each rated Beginner → Expert, progress bar, "Analyze My Skills" at the end which routes to the analysis page.
@@ -22,6 +24,7 @@ Student (sidebar shell)
 - `/student/applications` — cards on mobile / table on desktop with company, internship, applied date, status badge (Applied, Under Review, Shortlisted, Rejected).
 
 Industry (sidebar shell)
+
 - `/industry` Dashboard — active internships, total applications, shortlisted candidates, average candidate match, recent applications list.
 - `/industry/post` — form: title, description, required skills (tag input), eligibility, duration, location, type, stipend, Post Internship (adds to mock list + toast + redirect to dashboard).
 - `/industry/applications` — applications received table with status controls.

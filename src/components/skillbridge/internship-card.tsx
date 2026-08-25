@@ -1,20 +1,62 @@
-import { Link } from "@tanstack/react-router";
-import { Clock, MapPin, Wallet } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Bookmark, BookmarkX, Clock, MapPin, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CompanyMark, SkillTag } from "@/components/skillbridge/primitives";
+import { CompanyMark, SkillTag, StatusBadge } from "@/components/skillbridge/primitives";
 import { useAppState } from "@/context/app-state";
 import type { Internship } from "@/types";
 
 export function InternshipCard({ internship }: { internship: Internship }) {
-  const { applyTo, hasApplied } = useAppState();
+  const navigate = useNavigate();
+  const {
+    saveInternship,
+    unsaveInternship,
+    isInternshipSaved,
+    applyToInternship,
+    advanceApplication,
+    hasApplied,
+    applications,
+  } = useAppState();
+
   const applied = hasApplied(internship.id);
+  const saved = isInternshipSaved(internship.id);
+  const application = applications.find((a) => a.internshipId === internship.id);
+
+  const handleApply = () => {
+    const added = applyToInternship(internship.id);
+    if (added) {
+      toast.success(`Applied to ${internship.title}`);
+    } else if (applied) {
+      toast.info("You have already applied to this internship");
+    }
+  };
+
+  const handleToggleSave = () => {
+    if (saved) {
+      unsaveInternship(internship.id);
+      toast.success(`Removed ${internship.title} from saved`);
+    } else {
+      saveInternship(internship.id);
+      toast.success(`Saved ${internship.title}`);
+    }
+  };
+
+  const handleAdvance = () => {
+    if (application) {
+      advanceApplication(application.id);
+      toast.success(`Application status advanced for ${internship.title}`);
+    }
+  };
 
   return (
     <article className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-soft">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="flex min-w-0 items-start gap-3">
-          <CompanyMark name={internship.company} hue={internship.logoHue} />
+          <CompanyMark
+            name={internship.company}
+            hue={internship.companyLogoHue ?? internship.logoHue}
+          />
           <div className="min-w-0">
             <h3 className="truncate font-display text-base font-semibold text-foreground">
               {internship.title}
@@ -22,9 +64,12 @@ export function InternshipCard({ internship }: { internship: Internship }) {
             <p className="truncate text-sm text-muted-foreground">{internship.company}</p>
           </div>
         </div>
-        <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold tabular-nums text-primary">
-          {internship.match}% match
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold tabular-nums text-primary">
+            {internship.match}% match
+          </span>
+          {application && <StatusBadge status={application.status} />}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-1.5">
@@ -48,23 +93,46 @@ export function InternshipCard({ internship }: { internship: Internship }) {
           <Wallet className="size-4 shrink-0" />
           <span className="truncate">{internship.stipend}</span>
         </div>
-        <div className="min-w-0 truncate">{internship.type}</div>
+        <div className="min-w-0">
+          <Badge variant="outline" className="rounded-full text-xs">
+            {internship.type}
+          </Badge>
+        </div>
       </dl>
 
-      <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
+      <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+        {!applied ? (
+          <Button size="sm" onClick={handleApply}>
+            Apply
+          </Button>
+        ) : (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate({ to: "/student/applications" })}
+            >
+              View Application
+            </Button>
+            {application &&
+              application.status !== "Selected" &&
+              application.status !== "Rejected" && (
+                <Button size="sm" variant="secondary" onClick={handleAdvance}>
+                  Advance Status
+                </Button>
+              )}
+          </>
+        )}
         <Button
-          size="sm"
-          disabled={applied}
-          onClick={() => {
-            if (applyTo(internship)) toast.success(`Applied to ${internship.title}`);
-          }}
+          size="icon"
+          variant="ghost"
+          onClick={handleToggleSave}
+          aria-label={saved ? "Unsave internship" : "Save internship"}
         >
-          {applied ? "Applied" : "Apply"}
+          {saved ? <BookmarkX className="size-4" /> : <Bookmark className="size-4" />}
         </Button>
         <Button asChild size="sm" variant="outline">
-          <Link to="/student/internships/$id" params={{ id: internship.id }}>
-            View details
-          </Link>
+          <Link to="/student/internships">View details</Link>
         </Button>
       </div>
     </article>

@@ -1,4 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { AuthPage } from "@/components/skillbridge/portal";
+
+export const Route = createFileRoute("/login")({ component: () => <AuthPage mode="login" /> });
+/* import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Building2, GraduationCap } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -13,16 +17,16 @@ import type { Role } from "@/types";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Log in — SkillBridge" },
+      { title: "Log in — VedaaX" },
       {
         name: "description",
         content:
-          "Log in to SkillBridge as a student to track skill matches, or as an industry partner to manage internships and candidates.",
+          "Log in to VedaaX as a student to track skill matches, or as an industry partner to manage internships and candidates.",
       },
-      { property: "og:title", content: "Log in — SkillBridge" },
+      { property: "og:title", content: "Log in — VedaaX" },
       {
         property: "og:description",
-        content: "Student and industry access to the SkillBridge collaboration portal.",
+        content: "Student and industry access to the VedaaX collaboration portal.",
       },
     ],
   }),
@@ -67,7 +71,7 @@ function LoginPage() {
             <span className="grid size-9 place-items-center rounded-xl bg-primary-foreground/15">
               <GraduationCap className="size-5" />
             </span>
-            <span className="font-display text-lg font-semibold">SkillBridge</span>
+            <span className="font-display text-lg font-semibold">VedaaX</span>
           </Link>
         </div>
         <div className="relative max-w-md">
@@ -93,7 +97,7 @@ function LoginPage() {
             Welcome back
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Log in to continue to your SkillBridge workspace.
+            Log in to continue to your VedaaX workspace.
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
@@ -171,4 +175,4 @@ function LoginPage() {
       </div>
     </div>
   );
-}
+} */

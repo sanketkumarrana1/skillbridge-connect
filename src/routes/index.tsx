@@ -1,4 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { LandingPage } from "@/components/skillbridge/portal";
+
+export const Route = createFileRoute("/")({ component: LandingPage });
+/* import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Brain,
@@ -14,13 +18,13 @@ import { BrandMark } from "@/components/skillbridge/dashboard-shell";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SkillBridge — Bridge Campus Skills to Industry Roles" },
+      { title: "VedaaX — Bridge Campus Skills to Industry Roles" },
       {
         name: "description",
         content:
-          "SkillBridge maps verified student skills to live internship requirements, so colleges and companies hire on evidence instead of resumes.",
+          "VedaaX maps verified student skills to live internship requirements, so colleges and companies hire on evidence instead of resumes.",
       },
-      { property: "og:title", content: "SkillBridge — Bridge Campus Skills to Industry Roles" },
+      { property: "og:title", content: "VedaaX — Bridge Campus Skills to Industry Roles" },
       {
         property: "og:description",
         content:
@@ -56,7 +60,7 @@ const features = [
 
 const steps = [
   { n: "01", t: "Build your skill profile", d: "Add projects, certifications and interests, then take a 10-question assessment." },
-  { n: "02", t: "Get analysed", d: "SkillBridge scores career readiness and surfaces the gaps holding your matches back." },
+  { n: "02", t: "Get analysed", d: "VedaaX scores career readiness and surfaces the gaps holding your matches back." },
   { n: "03", t: "Match and apply", d: "Apply to internships ranked by real skill overlap and track every application." },
 ];
 
@@ -97,7 +101,7 @@ function Landing() {
                   Campus skills, matched to real industry roles.
                 </h1>
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Colleges produce capable students; companies struggle to find them. SkillBridge
+                  Colleges produce capable students; companies struggle to find them. VedaaX
                   sits between the two — it turns coursework, projects and assessments into a
                   measurable skill profile, then matches that profile against live internship
                   requirements from industry partners.
@@ -238,10 +242,10 @@ function Landing() {
         <div className="mx-auto grid w-full max-w-6xl gap-4 px-4 py-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-6">
           <BrandMark />
           <p className="text-xs text-muted-foreground">
-            © 2026 SkillBridge · Academia–Industry Collaboration Portal
+            © 2026 VedaaX · Academia–Industry Collaboration Portal
           </p>
         </div>
       </footer>
     </div>
   );
-}
+} */

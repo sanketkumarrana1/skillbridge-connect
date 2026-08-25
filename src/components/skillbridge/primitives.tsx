@@ -18,9 +18,7 @@ export function PageHeader({
         <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {title}
         </h1>
-        {description ? (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        ) : null}
+        {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </header>
@@ -57,8 +55,7 @@ export function StatCard({
 }
 
 export function SkillBar({ name, score }: { name: string; score: number }) {
-  const tone =
-    score >= 75 ? "bg-success" : score >= 55 ? "bg-accent" : "bg-warning";
+  const tone = score >= 75 ? "bg-success" : score >= 55 ? "bg-accent" : "bg-warning";
   return (
     <div>
       <div className="flex items-center justify-between gap-3 text-sm">
@@ -125,6 +122,12 @@ const statusStyles: Record<ApplicationStatus, string> = {
   Applied: "border-border bg-muted text-muted-foreground",
   "Under Review": "border-warning/30 bg-warning/10 text-warning-foreground",
   Shortlisted: "border-success/30 bg-success/10 text-success-foreground",
+  Interview: "border-primary/30 bg-primary/10 text-primary",
+  "Interview Scheduled": "border-blue-500/30 bg-blue-500/10 text-blue-600",
+  "Interview Completed": "border-indigo-500/30 bg-indigo-500/10 text-indigo-600",
+  Offered: "border-amber-500/30 bg-amber-500/10 text-amber-600",
+  Selected: "border-success/30 bg-success/10 text-success-foreground",
+  Hired: "border-purple-500/30 bg-purple-500/10 text-purple-600",
   Rejected: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 
@@ -145,13 +148,14 @@ export function EmptyState({ title, description }: { title: string; description:
   );
 }
 
-export function CompanyMark({ name, hue = 255 }: { name: string; hue?: number }) {
+export function CompanyMark({ name, hue = 255 }: { name: string; hue?: number | undefined }) {
+  const finalHue = hue ?? 255;
   return (
     <span
       className="grid size-11 shrink-0 place-items-center rounded-xl font-display text-sm font-semibold"
       style={{
-        backgroundColor: `oklch(0.94 0.04 ${hue})`,
-        color: `oklch(0.42 0.16 ${hue})`,
+        backgroundColor: `oklch(0.94 0.04 ${finalHue})`,
+        color: `oklch(0.42 0.16 ${finalHue})`,
       }}
     >
       {name.slice(0, 2).toUpperCase()}

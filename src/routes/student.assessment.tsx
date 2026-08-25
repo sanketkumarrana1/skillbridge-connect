@@ -1,4 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { PortalPage } from "@/components/skillbridge/portal";
+
+export const Route = createFileRoute("/student/assessment")({
+  component: () => <PortalPage role="student" section="assessment" />,
+});
+/* import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,13 +18,13 @@ import { SKILL_LEVELS, type SkillLevel } from "@/types";
 export const Route = createFileRoute("/student/assessment")({
   head: () => ({
     meta: [
-      { title: "Skill Assessment — SkillBridge" },
+      { title: "Skill Assessment — VedaaX" },
       {
         name: "description",
         content:
           "Rate yourself across ten core engineering skills from Beginner to Expert and generate an AI skill analysis.",
       },
-      { property: "og:title", content: "Skill Assessment — SkillBridge" },
+      { property: "og:title", content: "Skill Assessment — VedaaX" },
       {
         property: "og:description",
         content: "A ten-question self-assessment that powers your career readiness score.",
@@ -119,4 +125,4 @@ function AssessmentPage() {
       </div>
     </>
   );
-}
+} */

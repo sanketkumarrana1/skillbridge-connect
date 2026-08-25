@@ -1,4 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { PortalPage } from "@/components/skillbridge/portal";
+
+export const Route = createFileRoute("/student/")({
+  component: () => <PortalPage role="student" />,
+});
+/* import { createFileRoute, Link } from "@tanstack/react-router";
 import { Briefcase, FileText, Gauge, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +20,13 @@ import { useAppState } from "@/context/app-state";
 export const Route = createFileRoute("/student/")({
   head: () => ({
     meta: [
-      { title: "Student Dashboard — SkillBridge" },
+      { title: "Student Dashboard — VedaaX" },
       {
         name: "description",
         content:
           "Track profile completion, overall skill score, recommended internships and recent applications in one student workspace.",
       },
-      { property: "og:title", content: "Student Dashboard — SkillBridge" },
+      { property: "og:title", content: "Student Dashboard — VedaaX" },
       {
         property: "og:description",
         content: "Your skill score, matches and applications at a glance.",
@@ -163,4 +169,4 @@ function StudentDashboard() {
       </section>
     </>
   );
-}
+} */

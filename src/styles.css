@@ -162,3 +162,77 @@
     color: var(--color-foreground);
   }
 }
+
+@layer components {
+  .hero-grid {
+    background-image:
+      linear-gradient(to right, oklch(0.55 0.18 265 / 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.55 0.18 265 / 0.08) 1px, transparent 1px),
+      radial-gradient(circle at 75% 20%, oklch(0.72 0.2 300 / 0.16), transparent 35%),
+      radial-gradient(circle at 20% 5%, oklch(0.72 0.2 265 / 0.14), transparent 35%);
+    background-size:
+      42px 42px,
+      42px 42px,
+      100% 100%,
+      100% 100%;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  }
+
+  .glass-panel {
+    border: 1px solid oklch(1 0 0 / 0.45);
+    background: oklch(1 0 0 / 0.62);
+    box-shadow: 0 24px 80px oklch(0.25 0.12 265 / 0.16);
+    backdrop-filter: blur(24px);
+  }
+
+  .text-gradient {
+    background: linear-gradient(110deg, oklch(0.52 0.19 265), oklch(0.58 0.2 300));
+    background-clip: text;
+    color: transparent;
+  }
+
+  .dark .glass-panel {
+    border-color: oklch(1 0 0 / 0.14);
+    background: oklch(0.2 0.04 265 / 0.72);
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide all app chrome, sidebars, navigation, alerts, modals */
+  nav,
+  header,
+  aside,
+  footer,
+  .no-print,
+  [data-sonner-toaster],
+  button {
+    display: none !important;
+  }
+
+  /* Ensure resume paper occupies clean A4 page without screen scaling */
+  #resume-print-root,
+  .resume-paper {
+    position: static !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
+  }
+}

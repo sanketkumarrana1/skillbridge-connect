@@ -50,7 +50,7 @@ export function BrandMark({ compact }: { compact?: boolean }) {
       </span>
       {!compact ? (
         <span className="min-w-0 truncate font-display text-lg font-semibold tracking-tight text-foreground">
-          SkillBridge
+          AcadIn
         </span>
       ) : null}
     </Link>
@@ -62,7 +62,8 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
   return (
     <nav className="flex flex-col gap-1">
       {items.map(({ to, label, icon: Icon }) => {
-        const active = to === pathname || (to !== "/student" && to !== "/industry" && pathname.startsWith(to));
+        const active =
+          to === pathname || (to !== "/student" && to !== "/industry" && pathname.startsWith(to));
         return (
           <Link
             key={to}
@@ -101,15 +102,28 @@ export function DashboardShell({ role }: { role: Role }) {
         <p className="mt-6 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {role === "student" ? "Student" : "Industry"}
         </p>
-        <div className="mt-2">
+        <div className="mt-2 flex-1 min-h-0 overflow-y-auto">
           <NavLinks items={items} />
         </div>
-        <div className="mt-auto space-y-3">
+        <div className="mt-5 border-t border-border pt-5 space-y-3">
           <div className="rounded-2xl border border-border bg-muted/50 p-3">
             <p className="truncate text-sm font-semibold text-foreground">{identity.name}</p>
             <p className="truncate text-xs text-muted-foreground">{identity.sub}</p>
           </div>
-          <Button asChild variant="ghost" className="w-full justify-start gap-3 text-muted-foreground">
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start gap-3 text-muted-foreground"
+          >
+            <Link to="/">
+              <GraduationCap className="size-4" /> Back to home
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start gap-3 text-muted-foreground"
+          >
             <Link to="/login">
               <LogOut className="size-4" /> Sign out
             </Link>
@@ -127,11 +141,37 @@ export function DashboardShell({ role }: { role: Role }) {
                   <span className="sr-only">Open navigation</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 bg-sidebar p-4">
+              <SheetContent side="left" className="flex h-full w-72 flex-col bg-sidebar p-4">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
                 <BrandMark />
-                <div className="mt-6">
+                <div className="flex-1 min-h-0 overflow-y-auto mt-6">
                   <NavLinks items={items} onNavigate={() => setOpen(false)} />
+                </div>
+                <div className="mt-5 border-t border-border pt-5 space-y-3">
+                  <div className="rounded-2xl border border-border bg-muted/50 p-3">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {identity.name}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">{identity.sub}</p>
+                  </div>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="w-full justify-start gap-3 text-muted-foreground"
+                  >
+                    <Link to="/" onClick={() => setOpen(false)}>
+                      <GraduationCap className="size-4" /> Back to home
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="w-full justify-start gap-3 text-muted-foreground"
+                  >
+                    <Link to="/login" onClick={() => setOpen(false)}>
+                      <LogOut className="size-4" /> Sign out
+                    </Link>
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>

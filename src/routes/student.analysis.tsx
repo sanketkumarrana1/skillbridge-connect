@@ -1,4 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { PortalPage } from "@/components/skillbridge/portal";
+
+export const Route = createFileRoute("/student/analysis")({
+  component: () => <PortalPage role="student" section="analysis" />,
+});
+/* import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowRight, CircleCheck, Lightbulb, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MatchRing, PageHeader, SkillBar, SkillTag } from "@/components/skillbridge/primitives";
@@ -9,13 +15,13 @@ import { SKILL_LEVELS } from "@/types";
 export const Route = createFileRoute("/student/analysis")({
   head: () => ({
     meta: [
-      { title: "AI Skill Analysis — SkillBridge" },
+      { title: "AI Skill Analysis — VedaaX" },
       {
         name: "description",
         content:
           "Career readiness score, strong skills, moderate skills, gaps and recommended skills to learn with reasoning.",
       },
-      { property: "og:title", content: "AI Skill Analysis — SkillBridge" },
+      { property: "og:title", content: "AI Skill Analysis — VedaaX" },
       {
         property: "og:description",
         content: "Where you are strong, where you are short, and what to learn next.",
@@ -146,4 +152,4 @@ function AnalysisPage() {
       </section>
     </>
   );
-}
+} */
