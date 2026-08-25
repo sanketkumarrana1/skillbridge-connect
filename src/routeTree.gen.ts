@@ -15,8 +15,11 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as StudentIndexRouteImport } from './routes/student.index'
 import { Route as StudentAnalysisRouteImport } from './routes/student.analysis'
+import { Route as StudentApplicationsRouteImport } from './routes/student.applications'
 import { Route as StudentAssessmentRouteImport } from './routes/student.assessment'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
+import { Route as StudentInternshipsIndexRouteImport } from './routes/student.internships.index'
+import { Route as StudentInternshipsIdRouteImport } from './routes/student.internships.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,6 +51,11 @@ const StudentAnalysisRoute = StudentAnalysisRouteImport.update({
   path: '/analysis',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentApplicationsRoute = StudentApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentAssessmentRoute = StudentAssessmentRouteImport.update({
   id: '/assessment',
   path: '/assessment',
@@ -58,6 +66,16 @@ const StudentProfileRoute = StudentProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentInternshipsIndexRoute = StudentInternshipsIndexRouteImport.update({
+  id: '/internships/',
+  path: '/internships/',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentInternshipsIdRoute = StudentInternshipsIdRouteImport.update({
+  id: '/internships/$id',
+  path: '/internships/$id',
+  getParentRoute: () => StudentRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,18 +83,24 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/student': typeof StudentRouteWithChildren
   '/student/analysis': typeof StudentAnalysisRoute
+  '/student/applications': typeof StudentApplicationsRoute
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/': typeof StudentIndexRoute
+  '/student/internships/$id': typeof StudentInternshipsIdRoute
+  '/student/internships/': typeof StudentInternshipsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/industry': typeof IndustryRoute
   '/login': typeof LoginRoute
   '/student/analysis': typeof StudentAnalysisRoute
+  '/student/applications': typeof StudentApplicationsRoute
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/profile': typeof StudentProfileRoute
   '/student': typeof StudentIndexRoute
+  '/student/internships/$id': typeof StudentInternshipsIdRoute
+  '/student/internships': typeof StudentInternshipsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,9 +109,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/student': typeof StudentRouteWithChildren
   '/student/analysis': typeof StudentAnalysisRoute
+  '/student/applications': typeof StudentApplicationsRoute
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/': typeof StudentIndexRoute
+  '/student/internships/$id': typeof StudentInternshipsIdRoute
+  '/student/internships/': typeof StudentInternshipsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,18 +124,24 @@ export interface FileRouteTypes {
     | '/login'
     | '/student'
     | '/student/analysis'
+    | '/student/applications'
     | '/student/assessment'
     | '/student/profile'
     | '/student/'
+    | '/student/internships/$id'
+    | '/student/internships/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/industry'
     | '/login'
     | '/student/analysis'
+    | '/student/applications'
     | '/student/assessment'
     | '/student/profile'
     | '/student'
+    | '/student/internships/$id'
+    | '/student/internships'
   id:
     | '__root__'
     | '/'
@@ -116,9 +149,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/student'
     | '/student/analysis'
+    | '/student/applications'
     | '/student/assessment'
     | '/student/profile'
     | '/student/'
+    | '/student/internships/$id'
+    | '/student/internships/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -172,6 +208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentAnalysisRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/applications': {
+      id: '/student/applications'
+      path: '/applications'
+      fullPath: '/student/applications'
+      preLoaderRoute: typeof StudentApplicationsRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/assessment': {
       id: '/student/assessment'
       path: '/assessment'
@@ -186,21 +229,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentProfileRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/internships/': {
+      id: '/student/internships/'
+      path: '/internships'
+      fullPath: '/student/internships/'
+      preLoaderRoute: typeof StudentInternshipsIndexRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/internships/$id': {
+      id: '/student/internships/$id'
+      path: '/internships/$id'
+      fullPath: '/student/internships/$id'
+      preLoaderRoute: typeof StudentInternshipsIdRouteImport
+      parentRoute: typeof StudentRoute
+    }
   }
 }
 
 interface StudentRouteChildren {
   StudentAnalysisRoute: typeof StudentAnalysisRoute
+  StudentApplicationsRoute: typeof StudentApplicationsRoute
   StudentAssessmentRoute: typeof StudentAssessmentRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentIndexRoute: typeof StudentIndexRoute
+  StudentInternshipsIdRoute: typeof StudentInternshipsIdRoute
+  StudentInternshipsIndexRoute: typeof StudentInternshipsIndexRoute
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAnalysisRoute: StudentAnalysisRoute,
+  StudentApplicationsRoute: StudentApplicationsRoute,
   StudentAssessmentRoute: StudentAssessmentRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentIndexRoute: StudentIndexRoute,
+  StudentInternshipsIdRoute: StudentInternshipsIdRoute,
+  StudentInternshipsIndexRoute: StudentInternshipsIndexRoute,
 }
 
 const StudentRouteWithChildren =
