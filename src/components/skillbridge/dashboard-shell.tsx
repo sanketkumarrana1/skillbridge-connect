@@ -1,6 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import {
-  BarChart3,
   Briefcase,
   ClipboardList,
   FileText,
@@ -44,13 +43,13 @@ const industryNav: NavItem[] = [
 
 export function BrandMark({ compact }: { compact?: boolean }) {
   return (
-    <Link to="/" className="flex min-w-0 items-center gap-2.5">
-      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+    <Link to="/" className="group flex min-w-0 items-center gap-3">
+      <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-transform duration-300 group-hover:scale-105">
         <GraduationCap className="size-5" />
       </span>
       {!compact ? (
-        <span className="min-w-0 truncate font-display text-lg font-semibold tracking-tight text-foreground">
-          AcadIn
+        <span className="min-w-0 truncate font-display text-xl font-bold tracking-tight text-white group-hover:text-indigo-300 transition-colors">
+          Acad<span className="text-gradient">In</span>
         </span>
       ) : null}
     </Link>
@@ -60,7 +59,7 @@ export function BrandMark({ compact }: { compact?: boolean }) {
 function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <nav className="flex flex-col gap-1">
+    <nav className="flex flex-col gap-1.5">
       {items.map(({ to, label, icon: Icon }) => {
         const active =
           to === pathname || (to !== "/student" && to !== "/industry" && pathname.startsWith(to));
@@ -70,13 +69,21 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
             to={to}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+              "group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200",
               active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ? "bg-gradient-to-r from-indigo-600/30 to-purple-600/20 text-white border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+                : "text-slate-400 hover:bg-slate-800/60 hover:text-white border border-transparent",
             )}
           >
-            <Icon className="size-4 shrink-0" />
+            {active && (
+              <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-gradient-to-b from-indigo-400 to-pink-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+            )}
+            <Icon
+              className={cn(
+                "size-4 shrink-0 transition-colors",
+                active ? "text-indigo-400" : "text-slate-400 group-hover:text-indigo-300",
+              )}
+            />
             <span className="min-w-0 truncate">{label}</span>
           </Link>
         );
@@ -96,33 +103,33 @@ export function DashboardShell({ role }: { role: Role }) {
       : { name: "Nexora Labs", sub: "Hiring Team" };
 
   return (
-    <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar px-4 py-5 lg:flex">
+    <div className="min-h-screen bg-[#070A13] text-white">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-white/10 bg-[#0B0F19]/90 px-4 py-5 backdrop-blur-2xl lg:flex">
         <BrandMark />
-        <p className="mt-6 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {role === "student" ? "Student" : "Industry"}
+        <p className="mt-6 px-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+          {role === "student" ? "Student Workspace" : "Industry Workspace"}
         </p>
-        <div className="mt-2 flex-1 min-h-0 overflow-y-auto">
+        <div className="mt-3 flex-1 min-h-0 overflow-y-auto">
           <NavLinks items={items} />
         </div>
-        <div className="mt-5 border-t border-border pt-5 space-y-3">
-          <div className="rounded-2xl border border-border bg-muted/50 p-3">
-            <p className="truncate text-sm font-semibold text-foreground">{identity.name}</p>
-            <p className="truncate text-xs text-muted-foreground">{identity.sub}</p>
+        <div className="mt-5 border-t border-white/10 pt-5 space-y-3">
+          <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-3 shadow-inner">
+            <p className="truncate text-sm font-semibold text-white">{identity.name}</p>
+            <p className="truncate text-xs text-slate-400">{identity.sub}</p>
           </div>
           <Button
             asChild
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground"
+            className="w-full justify-start gap-3 text-slate-400 hover:text-white hover:bg-slate-800/60"
           >
             <Link to="/">
-              <GraduationCap className="size-4" /> Back to home
+              <GraduationCap className="size-4 text-indigo-400" /> Back to home
             </Link>
           </Button>
           <Button
             asChild
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground"
+            className="w-full justify-start gap-3 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
           >
             <Link to="/login">
               <LogOut className="size-4" /> Sign out
@@ -132,72 +139,44 @@ export function DashboardShell({ role }: { role: Role }) {
       </aside>
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-white/10 bg-[#070A13]/80 px-4 py-3.5 backdrop-blur-xl sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 lg:hidden border-white/10 bg-slate-900/60 text-white"
+                >
                   <Menu className="size-4" />
-                  <span className="sr-only">Open navigation</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="flex h-full w-72 flex-col bg-sidebar p-4">
+              <SheetContent
+                side="left"
+                className="w-72 bg-[#0B0F19] p-5 border-white/10 text-white"
+              >
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
                 <BrandMark />
-                <div className="flex-1 min-h-0 overflow-y-auto mt-6">
+                <div className="mt-8 flex-1 min-h-0 overflow-y-auto">
                   <NavLinks items={items} onNavigate={() => setOpen(false)} />
-                </div>
-                <div className="mt-5 border-t border-border pt-5 space-y-3">
-                  <div className="rounded-2xl border border-border bg-muted/50 p-3">
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      {identity.name}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">{identity.sub}</p>
-                  </div>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="w-full justify-start gap-3 text-muted-foreground"
-                  >
-                    <Link to="/" onClick={() => setOpen(false)}>
-                      <GraduationCap className="size-4" /> Back to home
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="w-full justify-start gap-3 text-muted-foreground"
-                  >
-                    <Link to="/login" onClick={() => setOpen(false)}>
-                      <LogOut className="size-4" /> Sign out
-                    </Link>
-                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
-            <div className="min-w-0 lg:hidden">
-              <BrandMark />
-            </div>
-            <p className="hidden min-w-0 truncate text-sm text-muted-foreground lg:block">
-              {role === "student"
-                ? "Your skill-to-opportunity workspace"
-                : "Talent pipeline overview"}
-            </p>
+            <span className="truncate text-sm font-medium text-slate-400">
+              <span className="text-white font-semibold capitalize">{role}</span> Dashboard
+            </span>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-              <Link to={role === "student" ? "/industry" : "/student"}>
-                <BarChart3 className="size-4" />
-                {role === "student" ? "Industry view" : "Student view"}
-              </Link>
-            </Button>
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 font-display text-sm font-semibold text-primary">
-              {identity.name.slice(0, 2).toUpperCase()}
+
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live Workspace
             </span>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-          <Outlet />
+
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
+          {role ? <Outlet /> : null}
         </main>
       </div>
     </div>

@@ -2,17 +2,16 @@ import { useEffect } from "react";
 
 export function useTheme() {
   useEffect(() => {
-    // Permanently enforce light mode
-    document.documentElement.classList.remove("dark");
+    // Permanently enforce dark mode across the entire application
+    document.documentElement.classList.add("dark");
     try {
-      window.localStorage.removeItem("skillbridge-theme");
-      window.localStorage.removeItem("acadin-theme");
+      window.localStorage.setItem("acadin-theme", "dark");
     } catch {
       // ignore
     }
   }, []);
 
-  return { dark: false, toggle: () => {} };
+  return { dark: true, toggle: () => {} };
 }
 
 export function ThemeToggle() {

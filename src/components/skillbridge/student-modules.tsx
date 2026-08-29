@@ -934,7 +934,7 @@ export function FunctionalStudentModule({ section }: { section: string }) {
                             <Badge
                               key={s}
                               variant="outline"
-                              className="text-[10px] border-amber-200 bg-amber-50 text-amber-700"
+                              className="text-[10px] border-amber-500/30 bg-amber-500/10 text-amber-300"
                             >
                               {s}
                             </Badge>

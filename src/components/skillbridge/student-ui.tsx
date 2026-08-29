@@ -19,12 +19,12 @@ export function WorkspaceHeader({
     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
         {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">{eyebrow}</p>
+          <p className="text-xs font-bold uppercase tracking-[.2em] text-indigo-400">{eyebrow}</p>
         )}
-        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
           {title}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        <p className="mt-1.5 text-sm text-slate-400 max-w-2xl">{description}</p>
       </div>
       {action}
     </div>
@@ -41,16 +41,16 @@ export function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-      <div className="flex items-center justify-between gap-4">
+    <section className="glass-panel rounded-3xl p-6 sm:p-7">
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
         {typeof title === "string" ? (
-          <h2 className="font-display text-lg font-semibold">{title}</h2>
+          <h2 className="font-display text-lg font-bold text-white">{title}</h2>
         ) : (
           title
         )}
         {action}
       </div>
-      {children}
+      <div className="mt-6">{children}</div>
     </section>
   );
 }
@@ -67,22 +67,22 @@ export function Stat({
   icon: IconType;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="glass-card-interactive rounded-2xl p-5">
       <div className="flex items-center justify-between">
-        <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-4" />
+        <span className="grid size-10 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_12px_rgba(99,102,241,0.25)]">
+          <Icon className="size-5" />
         </span>
         <span
           className={cn(
             "text-xs font-semibold",
-            trend === "Pending" ? "text-muted-foreground" : "text-emerald-600",
+            trend === "Pending" ? "text-slate-400" : "text-emerald-400",
           )}
         >
           {trend}
         </span>
       </div>
-      <p className="mt-5 font-display text-3xl font-semibold">{value}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-4 font-display text-3xl font-bold text-white">{value}</p>
+      <p className="mt-1 text-xs text-slate-400">{label}</p>
     </div>
   );
 }

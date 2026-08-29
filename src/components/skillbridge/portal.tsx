@@ -11,21 +11,29 @@ import {
   ChevronRight,
   CircleUserRound,
   ClipboardCheck,
+  Compass,
+  Cpu,
   FileText,
   GraduationCap,
+  Layers,
   LayoutDashboard,
   Lightbulb,
   LineChart,
+  Lock,
   Menu,
   Pencil,
   Plus,
+  Rocket,
   Search,
   Settings,
+  ShieldCheck,
   Sparkles,
   Target,
+  UserCheck,
   UserRound,
   Users,
-  X,
+  Workflow,
+  Zap,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
@@ -46,7 +54,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/types";
 import { useAppState } from "@/context/app-state";
@@ -85,91 +92,97 @@ const roles: { value: Role; label: string; description: string; icon: typeof Gra
   {
     value: "student",
     label: "Student",
-    description: "Build skills and find your next opportunity.",
+    description: "Verify skills, construct ATS resume, and unlock high-fit internships.",
     icon: GraduationCap,
   },
   {
     value: "industry",
     label: "Industry",
-    description: "Find verified talent for high-impact teams.",
+    description: "Discover verified talent, manage pipelines, and sponsor R&D projects.",
     icon: Building2,
   },
   {
     value: "academician",
     label: "Academician",
-    description: "Turn learning outcomes into employability signals.",
+    description: "Access industry training, FDPs, consultancy, and student mentorship.",
     icon: BookOpen,
   },
   {
     value: "institution",
     label: "Institution",
-    description: "Coordinate outcomes across your campus.",
+    description:
+      "Monitor campus placement analytics, audit departments, and export NBA/NAAC reports.",
     icon: LineChart,
   },
 ];
 
 const students = [
-  ["Aarav Menon", "Frontend Engineering", "93%", "React · TypeScript"],
-  ["Priya Nair", "Machine Learning", "87%", "Python · SQL"],
-  ["Sanket Kumar Rana", "Product Engineering", "84%", "React · Python"],
+  ["Aarav Menon", "Frontend Engineering", "93%", "React · TypeScript · UI Systems"],
+  ["Priya Nair", "Machine Learning", "89%", "Python · PyTorch · Data Pipelines"],
+  ["Sanket Kumar Rana", "Product Engineering", "94%", "Full-Stack · Cloud · AI Models"],
 ];
 
 const jobs = [
-  ["Product Engineer", "Orbit Labs", "Bengaluru · Full-time", "₹12–18 LPA"],
-  ["Software Engineer I", "Northstar Cloud", "Remote · Full-time", "₹10–15 LPA"],
-  ["Data Analyst", "Meridian Retail", "Hyderabad · Hybrid", "₹7–11 LPA"],
+  ["Senior Product Engineer", "Orbit Labs", "Bengaluru · Full-time", "₹14–22 LPA"],
+  ["AI / Software Engineer", "Northstar Cloud", "Remote · Full-time", "₹12–18 LPA"],
+  ["Data Systems Analyst", "Meridian Retail", "Hyderabad · Hybrid", "₹9–14 LPA"],
 ];
 
 const internships = [
   ["Frontend Engineering Intern", "Nexora Labs", "94%", "Bengaluru · 6 months", "₹35k / month"],
-  ["Machine Learning Intern", "Quantile AI", "81%", "Remote · 3 months", "₹28k / month"],
-  [
-    "Product Engineering Intern",
-    "BrightPath EdTech",
-    "88%",
-    "Delhi NCR · 5 months",
-    "₹26k / month",
-  ],
-  ["Cloud Infrastructure Intern", "Vertex Cloudworks", "72%", "Remote · 6 months", "₹32k / month"],
+  ["Applied AI / ML Intern", "Quantile AI", "91%", "Remote · 3 months", "₹30k / month"],
+  ["Cloud Infrastructure Intern", "Vertex Cloudworks", "86%", "Remote · 6 months", "₹32k / month"],
+  ["Full-Stack Product Intern", "BrightPath Labs", "88%", "Delhi NCR · 5 months", "₹28k / month"],
 ];
 
-function Brand() {
+export function Brand() {
   return (
-    <Link to="/" className="flex items-center gap-2.5">
-      <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+    <Link to="/" className="group flex items-center gap-3">
+      <span className="relative grid size-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.45)] transition-transform duration-300 group-hover:scale-105">
         <GraduationCap className="size-5" />
       </span>
-      <span className="font-display text-lg font-semibold tracking-tight">AcadIn</span>
+      <span className="font-display text-xl font-bold tracking-tight text-white group-hover:text-indigo-300 transition-colors">
+        Acad<span className="text-gradient">In</span>
+      </span>
     </Link>
   );
 }
 
 function PublicHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070A13]/80 backdrop-blur-2xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
         <Brand />
-        <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
-          <Link to="/about" className="hover:text-foreground">
+        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-300 lg:flex">
+          <Link to="/about" className="transition hover:text-indigo-400">
             About
           </Link>
-          <Link to="/features" className="hover:text-foreground">
-            Features
+          <Link to="/features" className="transition hover:text-indigo-400">
+            Platform Capabilities
           </Link>
-          <Link to="/internships" className="hover:text-foreground">
+          <Link to="/internships" className="transition hover:text-indigo-400">
             Internships
           </Link>
-          <Link to="/jobs" className="hover:text-foreground">
-            Jobs
+          <Link to="/jobs" className="transition hover:text-indigo-400">
+            Career Postings
           </Link>
         </nav>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link to="/login">Log in</Link>
+        <div className="flex items-center gap-3">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hidden text-slate-300 hover:text-white hover:bg-white/5 sm:inline-flex"
+          >
+            <Link to="/login">Sign In</Link>
           </Button>
-          <Button asChild size="sm">
+          <Button
+            asChild
+            size="sm"
+            className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:brightness-110 hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] border-0"
+          >
             <Link to="/roles">
-              Get started <ArrowRight />
+              Launch Portal <ArrowRight className="size-4 ml-1.5" />
             </Link>
           </Button>
         </div>
@@ -180,10 +193,75 @@ function PublicHeader() {
 
 function PageFooter() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <Brand />
-        <span>Built for the next generation of academic and industry collaboration.</span>
+    <footer className="border-t border-white/10 bg-[#070A13] text-slate-400">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div className="grid gap-8 md:grid-cols-4">
+          <div className="md:col-span-2 space-y-3">
+            <Brand />
+            <p className="max-w-md text-sm text-slate-400 leading-relaxed">
+              AcadIn is the unified intelligence layer connecting higher education with industry
+              hiring, transforming curriculum outcomes into verified talent signals.
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-sm font-semibold uppercase tracking-wider text-white">
+              Workspaces
+            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              <li>
+                <Link to="/roles" className="hover:text-indigo-300">
+                  Student Portal
+                </Link>
+              </li>
+              <li>
+                <Link to="/roles" className="hover:text-indigo-300">
+                  Industry Recruiter
+                </Link>
+              </li>
+              <li>
+                <Link to="/roles" className="hover:text-indigo-300">
+                  Academician Suite
+                </Link>
+              </li>
+              <li>
+                <Link to="/roles" className="hover:text-indigo-300">
+                  Institution Analytics
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-display text-sm font-semibold uppercase tracking-wider text-white">
+              Platform
+            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              <li>
+                <Link to="/about" className="hover:text-indigo-300">
+                  About AcadIn
+                </Link>
+              </li>
+              <li>
+                <Link to="/features" className="hover:text-indigo-300">
+                  Features & Intelligence
+                </Link>
+              </li>
+              <li>
+                <Link to="/internships" className="hover:text-indigo-300">
+                  Browse Internships
+                </Link>
+              </li>
+              <li>
+                <Link to="/jobs" className="hover:text-indigo-300">
+                  Browse Jobs
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-slate-500 sm:flex-row">
+          <p>© 2026 AcadIn Platform. Built for academia and industry collaboration.</p>
+          <p className="text-slate-400">Dark Enterprise SaaS Edition</p>
+        </div>
       </div>
     </footer>
   );
@@ -191,7 +269,7 @@ function PageFooter() {
 
 function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#070A13] text-white">
       <PublicHeader />
       {children}
       <PageFooter />
@@ -200,147 +278,392 @@ function PublicLayout({ children }: { children: ReactNode }) {
 }
 
 export function LandingPage() {
+  const [activeEcosystem, setActiveEcosystem] = useState<Role>("student");
+
   return (
     <PublicLayout>
       <main>
-        <section className="relative overflow-hidden border-b border-border">
-          <div className="hero-grid absolute inset-0" />
-          <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:py-28">
+        {/* Futuristic Hero Section */}
+        <section className="relative overflow-hidden border-b border-white/10 py-20 sm:py-28">
+          <div className="hero-grid absolute inset-0 pointer-events-none" />
+          <div className="relative mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
             <motion.div
               initial="hidden"
               animate="show"
               variants={fade}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6 }}
             >
-              <Badge className="rounded-full border-primary/20 bg-primary/10 text-primary">
-                AI Skill & Placement Intelligence
-              </Badge>
-              <h1 className="mt-6 max-w-3xl font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
-                Make potential <span className="text-gradient">visible.</span>
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.25)] backdrop-blur-sm">
+                <Sparkles className="size-3.5 text-indigo-400 animate-pulse" />
+                AI Skill & Placement Intelligence Engine
+              </div>
+
+              <h1 className="mt-6 font-display text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-7xl">
+                Where Academia <br />
+                <span className="text-gradient">Meets Industry.</span>
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-                AcadIn connects student capability with the teams building tomorrow's innovations.
-                One intelligent platform for skills, opportunities, and outcomes.
+
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300">
+                The unified intelligence platform connecting students, academicians, industry
+                recruiters, and institutions in one living skills and placement ecosystem.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg">
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_25px_rgba(99,102,241,0.45)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)] border-0 h-12 px-6"
+                >
                   <Link to="/roles">
-                    Explore the platform <ArrowRight />
+                    Explore All Workspaces <ArrowRight className="size-4 ml-2" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/about">See how it works</Link>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 h-12 px-6 backdrop-blur-sm"
+                >
+                  <Link to="/features">Platform Architecture</Link>
                 </Button>
               </div>
-              <div className="mt-12 flex gap-8 border-t border-border pt-6">
+
+              {/* Connected Ecosystem Status Bar */}
+              <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 border-t border-white/10 pt-6">
                 <div>
-                  <p className="font-display text-2xl font-semibold">18k+</p>
-                  <p className="text-xs text-muted-foreground">Skills mapped</p>
+                  <p className="font-display text-2xl font-bold text-white">24k+</p>
+                  <p className="text-xs font-medium text-slate-400">Skills Mapped</p>
                 </div>
                 <div>
-                  <p className="font-display text-2xl font-semibold">420+</p>
-                  <p className="text-xs text-muted-foreground">Partner teams</p>
+                  <p className="font-display text-2xl font-bold text-indigo-400">520+</p>
+                  <p className="text-xs font-medium text-slate-400">Partner Companies</p>
                 </div>
                 <div>
-                  <p className="font-display text-2xl font-semibold">94%</p>
-                  <p className="text-xs text-muted-foreground">Match confidence</p>
+                  <p className="font-display text-2xl font-bold text-purple-400">96.4%</p>
+                  <p className="text-xs font-medium text-slate-400">Match Confidence</p>
+                </div>
+                <div>
+                  <p className="font-display text-2xl font-bold text-emerald-400">3.4x</p>
+                  <p className="text-xs font-medium text-slate-400">Placement Velocity</p>
                 </div>
               </div>
             </motion.div>
+
+            {/* Interactive Futuristic Live Signal Radar Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.65, delay: 0.15 }}
-              className="glass-panel relative overflow-hidden rounded-[2rem] p-5 sm:p-7"
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="glass-panel relative overflow-hidden rounded-3xl p-6 sm:p-8"
             >
-              <div className="absolute -right-12 -top-12 size-40 rounded-full bg-accent/20 blur-3xl" />
-              <div className="relative flex items-center justify-between">
+              <div className="absolute -right-16 -top-16 size-48 rounded-full bg-purple-500/20 blur-3xl" />
+              <div className="absolute -left-16 -bottom-16 size-48 rounded-full bg-cyan-500/20 blur-3xl" />
+
+              <div className="relative flex items-center justify-between border-b border-white/10 pb-5">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-                    Live talent signal
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-indigo-300">
+                      Live AI Talent Signal
+                    </p>
+                  </div>
+                  <p className="mt-1 font-display text-xl font-bold text-white">
+                    Frontend & Applied ML Specialist
                   </p>
-                  <p className="mt-2 font-display text-xl font-semibold">
-                    Frontend Engineering Intern
+                  <p className="text-xs text-slate-400">
+                    Candidate: Sanket Kumar Rana · NIT Raipur
                   </p>
-                  <p className="text-sm text-muted-foreground">Nexora Labs · Bengaluru</p>
                 </div>
-                <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
-                  <BriefcaseBusiness />
+                <span className="grid size-12 place-items-center rounded-2xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                  <Cpu className="size-6" />
                 </span>
               </div>
-              <div className="relative mt-8 grid grid-cols-[1fr_auto] items-center gap-6">
-                <div className="grid place-items-center rounded-full border-[12px] border-primary/15 p-5">
-                  <div className="grid size-28 place-items-center rounded-full border-[10px] border-primary/80 font-display text-3xl font-semibold">
-                    94<span className="text-sm">%</span>
+
+              <div className="relative mt-6 grid grid-cols-[auto_1fr] items-center gap-6">
+                <div className="relative grid place-items-center rounded-full border-[10px] border-indigo-500/15 p-4 shadow-[0_0_25px_rgba(99,102,241,0.2)]">
+                  <div className="grid size-24 place-items-center rounded-full border-[8px] border-indigo-500 bg-slate-950 font-display text-2xl font-extrabold text-white shadow-[0_0_15px_rgba(99,102,241,0.6)]">
+                    94<span className="text-xs text-indigo-300">%</span>
                   </div>
                 </div>
-                <div className="space-y-4">
+
+                <div className="space-y-3 text-xs">
                   <div>
-                    <p className="text-xs text-muted-foreground">Skill overlap</p>
-                    <p className="mt-1 text-sm font-semibold">React · TypeScript · APIs</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Candidate readiness</p>
-                    <div className="mt-2 h-2 w-40 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full w-[88%] rounded-full bg-accent" />
+                    <span className="text-slate-400 font-medium">Verified Capability Overlap</span>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {["React", "TypeScript", "PyTorch", "APIs"].map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-md border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 font-medium text-indigo-200"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">One gap to close</p>
-                    <p className="mt-1 text-sm font-semibold">Automated testing</p>
+                    <div className="flex justify-between text-slate-400">
+                      <span>Role Readiness Index</span>
+                      <span className="text-emerald-400 font-semibold">Tier 1 · High Fit</span>
+                    </div>
+                    <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                      <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-pink-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="relative mt-7 flex items-center gap-3 rounded-2xl bg-muted/80 p-4">
-                <Sparkles className="size-5 shrink-0 text-primary" />
-                <p className="text-sm text-muted-foreground">
-                  AI insight: this candidate’s project mirrors the team’s dashboard stack.
-                </p>
+
+              <div className="relative mt-6 rounded-2xl border border-white/10 bg-slate-900/80 p-4 shadow-inner">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="size-5 shrink-0 text-pink-400 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-semibold text-slate-200">
+                      Explainable AI Match Breakdown
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                      Project portfolio demonstrates hands-on distributed state and ATS parsing
+                      matching Nexora Labs' active requisition.
+                    </p>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
         </section>
+
+        {/* Four Connected Ecosystem Possibilities */}
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[.18em] text-primary">
-              One shared language
-            </p>
-            <h2 className="mt-3 font-display text-3xl font-semibold sm:text-5xl">
-              From learning signals to career outcomes.
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1 text-xs font-semibold text-purple-300">
+              <Workflow className="size-3.5 text-purple-400" />
+              Connected Ecosystem Architecture
+            </div>
+            <h2 className="mt-4 font-display text-4xl font-extrabold text-white sm:text-5xl">
+              One ecosystem. <span className="text-gradient">Four possibilities.</span>
             </h2>
+            <p className="mt-4 text-slate-300 leading-relaxed">
+              Every participant operates within a tailored workspace that feeds verified data back
+              into the network.
+            </p>
           </div>
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {(
-              [
-                [
-                  Target,
-                  "Map capability",
-                  "Turn projects, assessments, and coursework into a living skills graph.",
-                ],
-                [
-                  Users,
-                  "Match with intent",
-                  "Give students and hiring teams the context behind every recommendation.",
-                ],
-                [
-                  BarChart3,
-                  "Measure outcomes",
-                  "Help institutions see what is working and where the next intervention matters.",
-                ],
-              ] as const
-            ).map(([Icon, title, body]) => (
-              <motion.article
+
+          <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {roles.map(({ value, label, description, icon: Icon }) => (
+              <motion.div
+                key={value}
                 whileHover={{ y: -4 }}
-                key={title}
-                className="border-t-2 border-primary/20 pt-5"
+                className={cn(
+                  "glass-card-interactive group relative flex flex-col justify-between rounded-3xl p-6",
+                  activeEcosystem === value &&
+                    "border-indigo-500/50 shadow-[0_0_25px_rgba(99,102,241,0.25)]",
+                )}
+                onClick={() => setActiveEcosystem(value)}
               >
-                <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
-                  <Icon />
-                </span>
-                <h3 className="mt-5 font-display text-xl font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-              </motion.article>
+                <div>
+                  <span className="grid size-12 place-items-center rounded-2xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)] group-hover:scale-110 transition-transform">
+                    <Icon className="size-6" />
+                  </span>
+                  <h3 className="mt-6 font-display text-2xl font-bold text-white">{label}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{description}</p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/10">
+                  <Link
+                    to="/roles"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    Open {label} Suite <ChevronRight className="size-4" />
+                  </Link>
+                </div>
+              </motion.div>
             ))}
+          </div>
+        </section>
+
+        {/* Skill Intelligence Engine */}
+        <section className="border-y border-white/10 bg-slate-950/60 py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+              <div>
+                <Badge className="border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+                  Real-Time Competency Modeling
+                </Badge>
+                <h2 className="mt-4 font-display text-3xl font-extrabold text-white sm:text-5xl">
+                  Skill Intelligence <br />
+                  <span className="text-gradient">Engineered for Trust.</span>
+                </h2>
+                <p className="mt-4 text-slate-300 leading-relaxed">
+                  Assessments are no longer static scores. AcadIn models student problem-solving,
+                  code telemetry, and coursework into explainable radar vectors and growth roadmaps.
+                </p>
+                <div className="mt-8 space-y-4">
+                  {[
+                    [
+                      "AI-Adaptive 20-Question Assessments",
+                      "Evaluates core fundamentals, technical agility, and systems thinking in timed sessions.",
+                    ],
+                    [
+                      "Dynamic Employability Index",
+                      "Continuous scoring based on verifiable milestones, GitHub repos, and peer certifications.",
+                    ],
+                    [
+                      "Targeted Skill Gap Remedies",
+                      "Personalized week-by-week learning roadmaps to close high-impact gaps for target roles.",
+                    ],
+                  ].map(([title, desc]) => (
+                    <div key={title} className="flex items-start gap-3.5">
+                      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-indigo-500/20 text-indigo-400 mt-1">
+                        <Check className="size-3.5" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-white">{title}</p>
+                        <p className="text-xs text-slate-400 leading-relaxed mt-0.5">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Radar Graphic Card */}
+              <div className="glass-panel rounded-3xl p-6 sm:p-8">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Competency Vector
+                    </p>
+                    <p className="text-lg font-bold text-white">Full-Stack Intelligence Index</p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
+                  >
+                    Validated
+                  </Badge>
+                </div>
+                <div className="mt-6 h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart
+                      data={[
+                        { subject: "Problem Solving", A: 92 },
+                        { subject: "Full-Stack Web", A: 95 },
+                        { subject: "AI / ML Pipelines", A: 88 },
+                        { subject: "Cloud DevOps", A: 74 },
+                        { subject: "System Design", A: 82 },
+                        { subject: "Communication", A: 89 },
+                      ]}
+                    >
+                      <PolarGrid stroke="rgba(255, 255, 255, 0.1)" />
+                      <PolarAngleAxis dataKey="subject" tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                      <Radar
+                        name="Competency"
+                        dataKey="A"
+                        stroke="#818CF8"
+                        fill="#6366F1"
+                        fillOpacity={0.35}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Opportunity Engine Section */}
+        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <Badge className="border-purple-500/30 bg-purple-500/10 text-purple-300">
+                High-Fit Matching
+              </Badge>
+              <h2 className="mt-3 font-display text-3xl font-extrabold text-white sm:text-4xl">
+                Live Opportunity Engine
+              </h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Discover verified internships and jobs filtered by AI compatibility.
+              </p>
+            </div>
+            <Button
+              asChild
+              variant="outline"
+              className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+            >
+              <Link to="/internships">
+                View All Opportunities <ArrowRight className="size-4 ml-1.5" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {internships.slice(0, 3).map((item) => (
+              <div
+                key={item[0]}
+                className="glass-card-interactive rounded-3xl p-6 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Badge
+                      variant="outline"
+                      className="border-indigo-500/30 bg-indigo-500/15 text-indigo-300"
+                    >
+                      {item[2]} Match
+                    </Badge>
+                    <span className="text-xs font-semibold text-emerald-400">{item[4]}</span>
+                  </div>
+                  <h3 className="mt-4 font-display text-xl font-bold text-white">{item[0]}</h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {item[1]} · {item[3]}
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-400">Verified Recruiter</span>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white"
+                  >
+                    <Link to="/roles">Apply Now</Link>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* High-Impact Closing CTA Banner */}
+        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+          <div className="relative overflow-hidden rounded-3xl border border-indigo-500/40 bg-gradient-to-br from-indigo-950/80 via-slate-900/90 to-purple-950/80 p-8 sm:p-14 shadow-[0_0_50px_rgba(99,102,241,0.3)]">
+            <div className="absolute -right-20 -bottom-20 size-64 rounded-full bg-indigo-500/20 blur-3xl" />
+            <div className="relative max-w-2xl">
+              <Badge className="border-pink-500/30 bg-pink-500/15 text-pink-300">
+                Empowering Higher Ed & Enterprise
+              </Badge>
+              <h2 className="mt-4 font-display text-4xl font-extrabold text-white sm:text-5xl">
+                Ready to transform campus collaboration?
+              </h2>
+              <p className="mt-4 text-slate-300 leading-relaxed">
+                Join students, academicians, and hiring teams already leveraging AcadIn to make
+                potential visible.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_25px_rgba(99,102,241,0.5)] border-0"
+                >
+                  <Link to="/roles">
+                    Get Started Now <ArrowRight className="size-4 ml-2" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+                >
+                  <Link to="/login">Sign In to Workspace</Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </section>
       </main>
@@ -353,38 +676,40 @@ export function AboutPage() {
     <PublicLayout>
       <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <div className="max-w-3xl">
-          <Badge className="rounded-full bg-primary/10 text-primary">The bridge layer</Badge>
-          <h1 className="mt-5 font-display text-5xl font-semibold tracking-tight sm:text-6xl">
+          <Badge className="border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+            The Intelligence Layer
+          </Badge>
+          <h1 className="mt-5 font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
             A clearer path from campus to contribution.
           </h1>
-          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-6 text-lg leading-relaxed text-slate-300">
             AcadIn is a comprehensive academia–industry collaboration platform: a shared operating
             layer where students, educators, institutions, and industry partners work from the same
-            evidence.
+            verifiable evidence.
           </p>
         </div>
         <div className="mt-16 grid gap-6 md:grid-cols-3">
           {[
             [
               "01",
-              "For students",
-              "Build a profile that reflects what you can actually do, not just what you studied.",
+              "For Students",
+              "Build a living digital portfolio that proves what you can actually build, accompanied by verified skill assessments and an ATS resume studio.",
             ],
             [
               "02",
-              "For educators",
-              "Spot skills gaps early and guide cohorts with data instead of anecdotes.",
+              "For Educators",
+              "Access structured faculty internships, industrial training programs, sponsored R&D projects, and guide student cohorts with real data.",
             ],
             [
               "03",
-              "For industry",
-              "Reach relevant talent with explainable matching and less noise.",
+              "For Industry",
+              "Reach top-tier pre-screened talent with explainable AI matching, manage hiring pipelines, and sponsor real-world collegiate research.",
             ],
           ].map(([n, t, d]) => (
-            <div key={n} className="rounded-3xl border border-border bg-card p-7">
-              <span className="font-display text-sm font-semibold text-primary">{n}</span>
-              <h2 className="mt-8 font-display text-2xl font-semibold">{t}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{d}</p>
+            <div key={n} className="glass-card-interactive rounded-3xl p-8">
+              <span className="font-display text-sm font-bold text-indigo-400">{n}</span>
+              <h2 className="mt-6 font-display text-2xl font-bold text-white">{t}</h2>
+              <p className="mt-3 text-sm leading-relaxed text-slate-400">{d}</p>
             </div>
           ))}
         </div>
@@ -397,47 +722,48 @@ export function FeaturesPage() {
   const features = [
     [
       Sparkles,
-      "AI skill intelligence",
-      "A transparent readiness layer that turns assessments into actionable signals.",
+      "AI Skill Intelligence",
+      "Adaptive 20-question assessments that turn problem-solving telemetry into actionable readiness scores.",
     ],
     [
       BriefcaseBusiness,
-      "Opportunity marketplace",
-      "Internships and jobs ranked by fit, with the reasoning visible to every user.",
+      "Opportunity Marketplace",
+      "Internships, career jobs, and faculty training programs ranked with transparent reasoning.",
     ],
     [
-      GraduationCap,
-      "Institutional outcomes",
-      "Cohort-level insights for academicians and placement teams.",
+      LineChart,
+      "Institutional Outcomes",
+      "Campus-wide placement funnels, department audit metrics, and one-click NAAC/NBA compliance exports.",
     ],
     [
-      ShieldIcon,
-      "Trust by design",
-      "Role-aware workspaces and verification-ready records for high-confidence decisions.",
+      ShieldCheck,
+      "Verified Credential Vault",
+      "Role-aware security, verifiable certificate badges, and high-confidence recruiting pipelines.",
     ],
   ] as const;
+
   return (
     <PublicLayout>
       <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-        <p className="text-sm font-semibold uppercase tracking-[.18em] text-primary">
-          Platform capabilities
-        </p>
-        <h1 className="mt-4 max-w-3xl font-display text-5xl font-semibold tracking-tight sm:text-6xl">
-          Everything that makes a signal useful.
+        <Badge className="border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+          Platform Architecture
+        </Badge>
+        <h1 className="mt-4 max-w-3xl font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
+          Everything that makes a talent signal useful.
         </h1>
-        <div className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-border bg-border md:grid-cols-2">
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
           {features.map(([Icon, title, body]) => (
-            <article key={title} className="bg-card p-8 sm:p-10">
-              <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
-                <Icon />
+            <article key={title} className="glass-card-interactive rounded-3xl p-8 sm:p-10">
+              <span className="grid size-12 place-items-center rounded-2xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                <Icon className="size-6" />
               </span>
-              <h2 className="mt-8 font-display text-2xl font-semibold">{title}</h2>
-              <p className="mt-3 max-w-md leading-relaxed text-muted-foreground">{body}</p>
+              <h2 className="mt-8 font-display text-2xl font-bold text-white">{title}</h2>
+              <p className="mt-3 leading-relaxed text-slate-400 text-sm">{body}</p>
               <Link
                 to="/roles"
-                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-primary"
+                className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-indigo-400 hover:text-indigo-300"
               >
-                Try this workflow <ChevronRight className="size-4" />
+                Launch workspace demo <ChevronRight className="size-4" />
               </Link>
             </article>
           ))}
@@ -447,74 +773,94 @@ export function FeaturesPage() {
   );
 }
 
-function ShieldIcon() {
-  return <Check className="size-5" />;
-}
-
-function OpportunityCard({ item, job = false }: { item: string[]; job?: boolean }) {
+function OpportunityCard({
+  item,
+  job,
+}: {
+  item: readonly string[] | string[];
+  job?: boolean | undefined;
+}) {
   return (
-    <article className="rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-1 hover:shadow-xl">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-            {job ? <BriefcaseBusiness className="size-5" /> : <Building2 className="size-5" />}
-          </span>
-          <div>
-            <h3 className="font-display font-semibold">{item[0]}</h3>
-            <p className="text-sm text-muted-foreground">{item[1]}</p>
-          </div>
+    <article className="glass-card-interactive flex flex-col justify-between rounded-3xl p-6">
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <Badge
+            variant="outline"
+            className="border-indigo-500/30 bg-indigo-500/15 text-indigo-300"
+          >
+            {job ? "Full-Time" : item[2]}
+          </Badge>
+          <span className="text-xs font-semibold text-emerald-400">{item[4] ?? item[3]}</span>
         </div>
-        {!job && <Badge className="bg-primary/10 text-primary">{item[2]} fit</Badge>}
+        <h3 className="mt-4 font-display text-lg font-bold text-white">{item[0]}</h3>
+        <p className="mt-1 text-xs text-slate-400">{item[1]}</p>
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-        <span>{job ? item[2] : item[3]}</span>
-        <span className="text-right font-semibold text-foreground">{job ? item[3] : item[4]}</span>
+      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+        <span className="text-xs text-slate-400">{job ? item[2] : item[3]}</span>
+        <Button
+          asChild
+          size="sm"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
+        >
+          <Link to="/roles">Apply</Link>
+        </Button>
       </div>
-      <Button className="mt-5 w-full" variant="outline">
-        View opportunity <ArrowRight />
-      </Button>
     </article>
   );
 }
 
-export function MarketplacePage({ job = false }: { job?: boolean }) {
+export function MarketplacePage({ job }: { job?: boolean }) {
   const [query, setQuery] = useState("");
-  const data = (job ? jobs : internships).filter((item) =>
-    item.join(" ").toLowerCase().includes(query.toLowerCase()),
+  const raw = job ? jobs : internships;
+  const data = raw.filter((item) =>
+    query
+      ? item[0]?.toLowerCase().includes(query.toLowerCase()) ||
+        item[1]?.toLowerCase().includes(query.toLowerCase())
+      : true,
   );
+
   return (
     <PublicLayout>
-      <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <Badge className="rounded-full bg-primary/10 text-primary">
-              {job ? "Career marketplace" : "Internship marketplace"}
+            <Badge className="border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+              {job ? "Verified Careers" : "Industry Internships"}
             </Badge>
-            <h1 className="mt-4 font-display text-4xl font-semibold sm:text-5xl">
-              Find work that fits.
+            <h1 className="mt-3 font-display text-4xl font-extrabold text-white sm:text-5xl">
+              {job ? "Explore Career Opportunities" : "Discover Verified Internships"}
             </h1>
-            <p className="mt-3 max-w-xl text-muted-foreground">
-              Explore opportunities matched to your skills, interests, and next career move.
+            <p className="mt-2 text-sm text-slate-400">
+              Search roles with transparent requirements and AI fit scoring.
             </p>
           </div>
           <div className="relative w-full md:max-w-xs">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search roles or companies"
-              className="pl-9"
+              placeholder="Search roles or companies..."
+              className="pl-10 border-white/10 bg-slate-900/80 text-white placeholder:text-slate-500"
             />
           </div>
         </div>
-        <div className="mt-10 flex flex-wrap gap-2">
-          <Badge variant="outline">All opportunities</Badge>
-          <Badge variant="outline">Remote</Badge>
-          <Badge variant="outline">Engineering</Badge>
-          <Badge variant="outline">Data</Badge>
-          <Badge variant="outline">Product</Badge>
+        <div className="mt-8 flex flex-wrap gap-2">
+          {["All Opportunities", "Remote", "Engineering", "Machine Learning", "Product Design"].map(
+            (tag, idx) => (
+              <Badge
+                key={tag}
+                variant="outline"
+                className={cn(
+                  "cursor-pointer border-white/10 bg-slate-900/60 text-slate-300 hover:border-indigo-500/50 hover:text-white",
+                  idx === 0 && "border-indigo-500/50 bg-indigo-500/15 text-indigo-300",
+                )}
+              >
+                {tag}
+              </Badge>
+            ),
+          )}
         </div>
-        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {data.map((item) => (
             <OpportunityCard key={item[0]} item={item} job={job} />
           ))}
@@ -537,13 +883,14 @@ const studentItems = [
   ["/student/certificates", "Certificates", Award],
   ["/student/settings", "Profile Settings", Settings],
 ] as const;
+
 const roleItems: Record<
   Exclude<Role, "student">,
   readonly [string, string, typeof LayoutDashboard][]
 > = {
   industry: [
     ["/industry", "Company Overview", LayoutDashboard],
-    ["/industry/post", "Post Internship / Job", Plus],
+    ["/industry/post", "Post Opportunity", Plus],
     ["/industry/applications", "Applicants", FileText],
     ["/industry/candidates", "AI Shortlisting", Sparkles],
     ["/industry/interviews", "Interview Pipeline", ClipboardCheck],
@@ -576,23 +923,34 @@ function ShellNav({ role, close }: { role: Role; close?: () => void }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const items = role === "student" ? studentItems : roleItems[role];
   return (
-    <nav className="space-y-1">
-      {items.map(([to, label, Icon]) => (
-        <Link
-          key={to}
-          to={to}
-          onClick={close}
-          className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-            path === to
-              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/15"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          )}
-        >
-          <Icon className="size-4 shrink-0" />
-          <span>{label}</span>
-        </Link>
-      ))}
+    <nav className="space-y-1.5">
+      {items.map(([to, label, Icon]) => {
+        const active = path === to;
+        return (
+          <Link
+            key={to}
+            to={to}
+            onClick={close}
+            className={cn(
+              "group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200",
+              active
+                ? "bg-gradient-to-r from-indigo-600/30 to-purple-600/20 text-white border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+                : "text-slate-400 hover:bg-slate-800/60 hover:text-white border border-transparent",
+            )}
+          >
+            {active && (
+              <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-gradient-to-b from-indigo-400 to-pink-400 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+            )}
+            <Icon
+              className={cn(
+                "size-4 shrink-0 transition-colors",
+                active ? "text-indigo-400" : "text-slate-400 group-hover:text-indigo-300",
+              )}
+            />
+            <span>{label}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }
@@ -600,92 +958,103 @@ function ShellNav({ role, close }: { role: Role; close?: () => void }) {
 export function PortalShell({ role, children }: { role: Role; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const title = roles.find((item) => item.value === role)?.label ?? "Workspace";
+  const { profile } = useAppState();
+
   return (
-    <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex flex-col border-r border-border bg-card/80 px-5 py-6 backdrop-blur-xl lg:flex">
+    <div className="min-h-screen bg-[#070A13] text-white">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-white/10 bg-[#0B0F19]/90 px-5 py-6 backdrop-blur-2xl lg:flex">
         <Brand />
-        <p className="mb-3 mt-8 px-3 text-[10px] font-semibold uppercase tracking-[.2em] text-muted-foreground">
-          Workspace
+        <p className="mb-3 mt-8 px-3 text-[10px] font-bold uppercase tracking-[.2em] text-slate-500">
+          {title} Workspace
         </p>
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <ShellNav role={role} />
         </div>
-        <div className="mt-5 border-t border-border pt-5 space-y-3">
-          <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-              <CircleUserRound />
+        <div className="mt-5 border-t border-white/10 pt-5 space-y-3">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/80 p-3 shadow-inner">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300">
+              <CircleUserRound className="size-5" />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">Sanket Kumar Rana</p>
-              <p className="truncate text-xs text-muted-foreground">{title} workspace</p>
+              <p className="truncate text-sm font-semibold text-white">
+                {profile.name || "Sanket Kumar Rana"}
+              </p>
+              <p className="truncate text-xs text-slate-400 capitalize">{role} Account</p>
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
-              Back to home
+          <div className="flex items-center justify-between px-1">
+            <Link
+              to="/"
+              className="text-xs font-medium text-slate-400 hover:text-indigo-300 transition-colors"
+            >
+              ← Return Home
             </Link>
-            <ThemeToggle />
+            <Link
+              to="/login"
+              className="text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors"
+            >
+              Switch Role
+            </Link>
           </div>
         </div>
       </aside>
+
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/80 bg-background/85 px-4 backdrop-blur-xl sm:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/10 bg-[#070A13]/80 px-4 backdrop-blur-xl sm:px-6">
           <div className="flex items-center gap-3">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden border-white/10 bg-slate-900/60 text-white"
+                >
                   <Menu />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="flex h-full w-72 flex-col bg-card p-5">
+              <SheetContent
+                side="left"
+                className="flex h-full w-72 flex-col bg-[#0B0F19] border-white/10 p-5 text-white"
+              >
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
                 <Brand />
-                <div className="flex-1 min-h-0 overflow-y-auto mt-10">
+                <div className="flex-1 min-h-0 overflow-y-auto mt-8">
                   <ShellNav role={role} close={() => setOpen(false)} />
-                </div>
-                <div className="mt-5 border-t border-border pt-5 space-y-3">
-                  <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                      <CircleUserRound />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">Sanket Kumar Rana</p>
-                      <p className="truncate text-xs text-muted-foreground">{title} workspace</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Link
-                      to="/"
-                      onClick={() => setOpen(false)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Back to home
-                    </Link>
-                  </div>
                 </div>
               </SheetContent>
             </Sheet>
-            <span className="font-display text-lg font-semibold lg:hidden">AcadIn</span>
-            <div className="hidden items-center gap-2 text-sm text-muted-foreground lg:flex">
-              <span>{title} workspace</span>
+            <span className="font-display text-lg font-bold text-white lg:hidden">AcadIn</span>
+            <div className="hidden items-center gap-2 text-sm text-slate-400 lg:flex">
+              <span className="font-semibold text-white">{title}</span>
               <ChevronRight className="size-4" />
-              <span className="text-foreground">Today</span>
+              <span className="text-slate-400">Live Workspace</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Notifications">
-              <Bell />
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Connected
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Notifications"
+              className="text-slate-400 hover:text-white hover:bg-white/5"
+            >
+              <Bell className="size-4" />
             </Button>
-            <span className="grid size-9 place-items-center rounded-full bg-accent/15 text-sm font-semibold text-accent">
+            <span className="grid size-9 place-items-center rounded-full border border-purple-500/40 bg-purple-500/20 text-xs font-bold text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
               SK
             </span>
           </div>
         </header>
-        <main className="mx-auto max-w-7xl space-y-7 px-4 py-7 sm:px-6 lg:py-9">{children}</main>
+
+        <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:py-10">{children}</main>
       </div>
     </div>
   );
 }
+
 export function RoleLayout({ role }: { role: Role }) {
   const navigate = useNavigate();
   const { isAuthenticated, role: activeRole } = useAppState();
@@ -718,17 +1087,18 @@ export function WorkspaceHeader({
     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
         {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">{eyebrow}</p>
+          <p className="text-xs font-bold uppercase tracking-[.2em] text-indigo-400">{eyebrow}</p>
         )}
-        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
           {title}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        <p className="mt-2 text-sm text-slate-400 max-w-2xl">{description}</p>
       </div>
       {action}
     </div>
   );
 }
+
 export function Stat({
   label,
   value,
@@ -741,18 +1111,19 @@ export function Stat({
   icon: typeof Target;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="glass-card-interactive rounded-2xl p-5">
       <div className="flex items-center justify-between">
-        <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-4" />
+        <span className="grid size-10 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
+          <Icon className="size-5" />
         </span>
-        <span className="text-xs font-semibold text-emerald-600">{trend}</span>
+        <span className="text-xs font-semibold text-emerald-400">{trend}</span>
       </div>
-      <p className="mt-5 font-display text-3xl font-semibold">{value}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-4 font-display text-3xl font-bold text-white">{value}</p>
+      <p className="mt-1 text-xs text-slate-400">{label}</p>
     </div>
   );
 }
+
 export function SectionCard({
   title,
   action,
@@ -763,12 +1134,12 @@ export function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="font-display text-lg font-semibold">{title}</h2>
+    <section className="glass-panel rounded-3xl p-6 sm:p-7">
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <h2 className="font-display text-lg font-bold text-white">{title}</h2>
         {action}
       </div>
-      {children}
+      <div className="mt-6">{children}</div>
     </section>
   );
 }
@@ -777,49 +1148,59 @@ function StudentOverview() {
   return (
     <>
       <WorkspaceHeader
-        eyebrow="Student dashboard"
+        eyebrow="Student Command Center"
         title="Good morning, Sanket."
-        description="Your next opportunity is getting clearer by the day."
+        description="Your verified competency graph and live applications are actively matching top partner teams."
         action={
-          <Button asChild>
+          <Button
+            asChild
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+          >
             <Link to="/student/assessment">
-              Continue assessment <ArrowRight />
+              Take AI Assessment <ArrowRight className="size-4 ml-1.5" />
             </Link>
           </Button>
         }
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Profile strength" value="82%" trend="+12%" icon={UserRound} />
-        <Stat label="Skill readiness" value="78" trend="+8 pts" icon={Sparkles} />
-        <Stat label="Recommended roles" value="24" trend="+6 this week" icon={Target} />
-        <Stat label="Active applications" value="08" trend="2 shortlisted" icon={FileText} />
+        <Stat label="Profile Strength" value="94%" trend="+12% verified" icon={UserRound} />
+        <Stat label="Skill Readiness" value="88 pts" trend="+8 this month" icon={Sparkles} />
+        <Stat label="Recommended Roles" value="28" trend="6 high fit" icon={Target} />
+        <Stat label="Active Applications" value="08" trend="3 shortlisted" icon={FileText} />
       </div>
       <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
         <SectionCard
-          title="Your skill signal"
+          title="Capability Readiness Matrix"
           action={
-            <Button asChild variant="ghost" size="sm">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-indigo-400 hover:text-indigo-300"
+            >
               <Link to="/student/analysis">
-                View report <ArrowRight />
+                Full Report <ArrowRight className="size-4 ml-1" />
               </Link>
             </Button>
           }
         >
-          <div className="mt-6 space-y-4">
+          <div className="space-y-4">
             {[
-              ["Problem solving", 86],
-              ["Frontend engineering", 82],
-              ["Python & data", 74],
-              ["Cloud fundamentals", 48],
+              ["Problem Solving & DSA", 92],
+              ["Frontend & React Systems", 95],
+              ["Python & ML Pipelines", 86],
+              ["Cloud Infrastructure & APIs", 78],
             ].map(([name, value]) => (
               <div key={name as string}>
                 <div className="flex justify-between text-sm">
-                  <span>{name as string}</span>
-                  <span className="font-semibold">{value as number}%</span>
+                  <span className="font-medium text-slate-300">{name as string}</span>
+                  <span className="font-display font-semibold text-indigo-300">
+                    {value as number}%
+                  </span>
                 </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-900 border border-white/5">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
                     style={{ width: `${value}%` }}
                   />
                 </div>
@@ -827,21 +1208,27 @@ function StudentOverview() {
             ))}
           </div>
         </SectionCard>
-        <SectionCard title="Weekly focus">
-          <div className="mt-6 flex items-center gap-5">
-            <div className="grid size-28 place-items-center rounded-full border-[10px] border-primary/15">
-              <div className="font-display text-3xl font-semibold">
-                3<span className="text-sm">/5</span>
+        <SectionCard title="Targeted Weekly Focus">
+          <div className="flex items-center gap-6">
+            <div className="grid size-28 place-items-center rounded-full border-[8px] border-indigo-500/20 bg-slate-950 shadow-[0_0_20px_rgba(99,102,241,0.25)]">
+              <div className="font-display text-3xl font-extrabold text-white">
+                4<span className="text-sm text-indigo-300">/5</span>
               </div>
             </div>
             <div>
-              <p className="font-semibold">Keep the momentum</p>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Complete two roadmap tasks to unlock three higher-fit roles.
+              <p className="font-display text-base font-bold text-white">
+                High Placement Trajectory
               </p>
-              <Button asChild variant="link" className="mt-2 h-auto p-0">
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                Complete 1 cloud fundamentals module to unlock Tier-1 engineering requisitions.
+              </p>
+              <Button
+                asChild
+                variant="link"
+                className="mt-2 h-auto p-0 text-indigo-400 hover:text-indigo-300"
+              >
                 <Link to="/student/roadmap">
-                  Open roadmap <ArrowRight />
+                  Open Learning Roadmap <ArrowRight className="size-3.5 ml-1" />
                 </Link>
               </Button>
             </div>
@@ -849,153 +1236,26 @@ function StudentOverview() {
         </SectionCard>
       </div>
       <SectionCard
-        title="Recommended for you"
+        title="High-Fit Opportunities For You"
         action={
-          <Button asChild variant="ghost" size="sm">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="text-indigo-400 hover:text-indigo-300"
+          >
             <Link to="/student/internships">
-              View all <ArrowRight />
+              View All <ArrowRight className="size-4 ml-1" />
             </Link>
           </Button>
         }
       >
-        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           {internships.slice(0, 3).map((item) => (
             <OpportunityCard key={item[0]} item={item} />
           ))}
         </div>
       </SectionCard>
-    </>
-  );
-}
-
-function LegacyStudentAssessment() {
-  const [step, setStep] = useState(1);
-  return (
-    <>
-      <WorkspaceHeader
-        eyebrow="AI assessment"
-        title="Show what you can do."
-        description="A five-step reflection that sharpens your skill signal."
-        action={<Badge variant="outline">Step {step} of 5</Badge>}
-      />
-      <div className="h-2 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-primary transition-all"
-          style={{ width: `${step * 20}%` }}
-        />
-      </div>
-      <section className="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-6 sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-          {step === 1
-            ? "Problem solving"
-            : step === 2
-              ? "Technical craft"
-              : step === 3
-                ? "Collaboration"
-                : step === 4
-                  ? "Learning agility"
-                  : "Career direction"}
-        </p>
-        <h2 className="mt-5 font-display text-3xl font-semibold">
-          Tell us about a challenge you solved.
-        </h2>
-        <p className="mt-3 text-muted-foreground">
-          Think of a recent project, assignment, or moment where you had to make a meaningful
-          decision.
-        </p>
-        <div className="mt-8 grid gap-3">
-          {[
-            "I can explain the tradeoffs clearly",
-            "I found a solution with guidance",
-            "I am still learning this area",
-          ].map((answer) => (
-            <button
-              key={answer}
-              className="flex items-center justify-between rounded-2xl border border-border p-4 text-left text-sm transition hover:border-primary hover:bg-primary/5"
-              onClick={() => setStep((value) => Math.min(5, value + 1))}
-            >
-              {answer}
-              <ChevronRight className="size-4 text-muted-foreground" />
-            </button>
-          ))}
-        </div>
-        <div className="mt-8 flex justify-between">
-          <Button
-            variant="ghost"
-            disabled={step === 1}
-            onClick={() => setStep((value) => value - 1)}
-          >
-            Back
-          </Button>
-          <Button onClick={() => setStep((value) => Math.min(5, value + 1))}>
-            {step === 5 ? "Complete assessment" : "Save and continue"} <ArrowRight />
-          </Button>
-        </div>
-      </section>
-    </>
-  );
-}
-
-function LegacySkillReport() {
-  const data = [
-    { subject: "Frontend", A: 88 },
-    { subject: "Data", A: 74 },
-    { subject: "Cloud", A: 48 },
-    { subject: "Systems", A: 68 },
-    { subject: "Product", A: 82 },
-    { subject: "Communication", A: 79 },
-  ];
-  return (
-    <>
-      <WorkspaceHeader
-        eyebrow="Skill intelligence"
-        title="Your skill report"
-        description="A clear view of where you are strong and where focused practice compounds."
-        action={
-          <Button asChild>
-            <Link to="/student/roadmap">
-              Build my roadmap <ArrowRight />
-            </Link>
-          </Button>
-        }
-      />
-      <div className="grid gap-6 lg:grid-cols-[1fr_.8fr]">
-        <SectionCard title="Capability radar">
-          <div className="mt-4 h-[330px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={data}>
-                <PolarGrid stroke="hsl(var(--border))" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: "currentColor", fontSize: 12 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar
-                  name="Readiness"
-                  dataKey="A"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary))"
-                  fillOpacity={0.35}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </SectionCard>
-        <SectionCard title="Signal summary">
-          <div className="mt-5 space-y-4">
-            {[
-              ["Strongest signal", "Frontend engineering", "88%"],
-              ["Fastest lift", "Cloud fundamentals", "+18 pts"],
-              ["Role unlock", "System design", "2 roles"],
-            ].map(([label, value, score]) => (
-              <div key={label} className="border-b border-border pb-4 last:border-0">
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <div className="mt-1 flex justify-between gap-3">
-                  <span className="font-semibold">{value}</span>
-                  <span className="font-display text-primary">{score}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
-      </div>
     </>
   );
 }
@@ -1007,587 +1267,44 @@ function StudentSection({ section }: { section: string }) {
   return <FunctionalStudentModule section={section} />;
 }
 
-const enterpriseModules: Record<
-  string,
-  {
-    title: string;
-    description: string;
-    action: string;
-    rows: string[];
-    metric: string;
-    value: string;
-  }
-> = {
-  post: {
-    title: "Post Internship / Job",
-    description: "Create a structured opportunity that attracts the right signal.",
-    action: "Save opportunity",
-    rows: [
-      "Opportunity title",
-      "Type and work mode",
-      "Skills and eligibility",
-      "Compensation and timeline",
-    ],
-    metric: "Draft readiness",
-    value: "72%",
-  },
-  applications: {
-    title: "Applicants",
-    description: "Review incoming applications with fit, evidence, and next actions together.",
-    action: "Export applicants",
-    rows: [
-      "Aarav Menon · Frontend Engineering · 93%",
-      "Priya Nair · Machine Learning · 87%",
-      "Sanket Kumar Rana · Product Engineering · 84%",
-      "Meera Iyer · Cloud Infrastructure · 78%",
-    ],
-    metric: "Total applicants",
-    value: "146",
-  },
-  candidates: {
-    title: "AI Shortlisting",
-    description: "Use explainable matching to focus your team on the strongest candidates.",
-    action: "Run shortlist",
-    rows: ["Skill overlap", "Project evidence", "Role readiness", "Growth potential"],
-    metric: "High-confidence matches",
-    value: "24",
-  },
-  interviews: {
-    title: "Interview Pipeline",
-    description: "Move candidates from review to offer with a shared recruiting view.",
-    action: "Schedule interview",
-    rows: [
-      "New · 18 candidates",
-      "Screening · 12 candidates",
-      "Technical round · 8 candidates",
-      "Offer stage · 3 candidates",
-    ],
-    metric: "Time to next stage",
-    value: "2.4 days",
-  },
-  workshops: {
-    title: "Workshops & Mentorship",
-    description: "Build stronger pathways with focused sessions and mentor touchpoints.",
-    action: "Plan a session",
-    rows: [
-      "Modern frontend systems · 42 attendees",
-      "Resume studio · 28 attendees",
-      "Women in product engineering · 35 attendees",
-      "Mentor office hours · 16 bookings",
-    ],
-    metric: "Engagement this month",
-    value: "86%",
-  },
-  analytics: {
-    title: "Analytics",
-    description: "Understand where your hiring funnel is healthy and where it slows down.",
-    action: "Download report",
-    rows: [
-      "Applications increased 18% this month",
-      "Frontend roles have the highest fit",
-      "Shortlist conversion is up 11%",
-      "Cloud roles need broader outreach",
-    ],
-    metric: "Average match",
-    value: "86%",
-  },
-  internships: {
-    title: "Faculty Internships",
-    description: "Coordinate faculty-led industry exposure and student placements.",
-    action: "Add internship",
-    rows: [
-      "Industry immersion · 32 students",
-      "Faculty fellowship · 8 faculty",
-      "Summer research placement · 14 students",
-      "Partner review pending · 5 requests",
-    ],
-    metric: "Active programs",
-    value: "18",
-  },
-  training: {
-    title: "Industrial Training",
-    description: "Track training plans, attendance, outcomes, and employer feedback.",
-    action: "Create training plan",
-    rows: [
-      "CSE · Cloud engineering · 84% complete",
-      "ECE · Embedded systems · 71% complete",
-      "MBA · Product analytics · 92% complete",
-      "Assessment reviews due · 12 learners",
-    ],
-    metric: "Completion rate",
-    value: "84%",
-  },
-  fdps: {
-    title: "Faculty Development Programs",
-    description: "Plan and measure faculty development aligned to emerging industry skills.",
-    action: "Schedule FDP",
-    rows: [
-      "AI in curriculum · 48 registrations",
-      "Outcome-based education · 32 registrations",
-      "Industry co-teaching · 18 registrations",
-      "Certificates ready · 26 faculty",
-    ],
-    metric: "Faculty engaged",
-    value: "126",
-  },
-  consultancy: {
-    title: "Consultancy",
-    description: "Manage industry problem statements, experts, and delivery milestones.",
-    action: "Start engagement",
-    rows: [
-      "Nexora Labs · Product research",
-      "Vertex Cloudworks · Reliability audit",
-      "Meridian Retail · Data strategy",
-      "BrightPath EdTech · Learning analytics",
-    ],
-    metric: "Active engagements",
-    value: "09",
-  },
-  research: {
-    title: "Research Collaboration",
-    description: "Bring academic research and industry priorities into the same workspace.",
-    action: "Add collaboration",
-    rows: [
-      "Responsible AI lab · 4 partners",
-      "Climate data systems · 3 partners",
-      "Assistive technology · 2 partners",
-      "Proposals awaiting review · 6",
-    ],
-    metric: "Research partners",
-    value: "21",
-  },
-  lectures: {
-    title: "Guest Lectures",
-    description: "Give learners direct access to practitioners and domain leaders.",
-    action: "Invite speaker",
-    rows: [
-      "Building for Bharat · 240 attendees",
-      "From prototype to production · 180 attendees",
-      "Careers in data · 210 attendees",
-      "Upcoming speakers · 4 confirmed",
-    ],
-    metric: "Learner reach",
-    value: "1,240",
-  },
-  mentorship: {
-    title: "Student Mentorship",
-    description: "Match learners with mentors and keep every conversation actionable.",
-    action: "Match mentors",
-    rows: [
-      "Needs portfolio review · 18 learners",
-      "Interview preparation · 24 learners",
-      "Career direction · 12 learners",
-      "Mentor check-ins due · 31",
-    ],
-    metric: "Active mentees",
-    value: "284",
-  },
-  placements: {
-    title: "Placement Analytics",
-    description: "Track placement outcomes, offers, and department-level momentum.",
-    action: "Export placement report",
-    rows: [
-      "Computer Science · 91% placed",
-      "Electronics · 76% placed",
-      "Mechanical · 68% placed",
-      "Average package · ₹11.4 LPA",
-    ],
-    metric: "Placement rate",
-    value: "84%",
-  },
-  skills: {
-    title: "Skill Gap Analytics",
-    description: "See the capabilities employers need and where cohorts need support.",
-    action: "Create intervention",
-    rows: [
-      "Cloud & DevOps · 38% gap",
-      "System design · 31% gap",
-      "Communication · 18% gap",
-      "Data literacy · 14% gap",
-    ],
-    metric: "Skills mapped",
-    value: "18k+",
-  },
-  departments: {
-    title: "Department Reports",
-    description: "Compare department performance and turn findings into action plans.",
-    action: "Generate report",
-    rows: [
-      "CSE · 1,240 active learners",
-      "ECE · 684 active learners",
-      "Mechanical · 520 active learners",
-      "Civil · 396 active learners",
-    ],
-    metric: "Departments reporting",
-    value: "12",
-  },
-  recruiters: {
-    title: "Recruiter Engagement",
-    description: "Build a reliable partner network around relevant talent and outcomes.",
-    action: "Invite recruiter",
-    rows: [
-      "Nexora Labs · 8 open roles",
-      "Quantile AI · 4 open roles",
-      "BrightPath EdTech · 6 open roles",
-      "New partner requests · 7",
-    ],
-    metric: "Active recruiters",
-    value: "64",
-  },
-  reports: {
-    title: "Export Reports",
-    description: "Prepare clear, shareable reports for leadership, departments, and partners.",
-    action: "Generate export",
-    rows: [
-      "Placement outcomes · Updated today",
-      "Internship participation · Updated yesterday",
-      "Skill gap summary · Updated 3 days ago",
-      "Recruiter engagement · Updated 1 week ago",
-    ],
-    metric: "Reports ready",
-    value: "18",
-  },
-};
-
-function EnterpriseModule({ role, section }: { role: Exclude<Role, "student">; section: string }) {
-  const overview =
-    role === "industry"
-      ? {
-          title: "Company Overview",
-          description: "A focused view of your hiring activity, talent signals, and next actions.",
-          action: "Create opportunity",
-          rows: [
-            "18 open opportunities",
-            "146 applicants in review",
-            "24 high-confidence matches",
-            "3 interviews scheduled today",
-          ],
-          metric: "Open opportunities",
-          value: "18",
-        }
-      : role === "academician"
-        ? {
-            title: "Academician Overview",
-            description:
-              "Coordinate learning, industry exposure, and student outcomes from one workspace.",
-            action: "Create program",
-            rows: [
-              "24 active cohorts",
-              "126 faculty engaged",
-              "21 research partners",
-              "31 mentorship check-ins due",
-            ],
-            metric: "Active programs",
-            value: "24",
-          }
-        : {
-            title: "Institution Overview",
-            description:
-              "See placement momentum, skill gaps, and partner engagement across campus.",
-            action: "Generate report",
-            rows: [
-              "84% placement rate",
-              "18k+ skills mapped",
-              "64 active recruiters",
-              "12 departments reporting",
-            ],
-            metric: "Placement rate",
-            value: "84%",
-          };
-  const fallbackInfo = enterpriseModules["applications"] ?? {
-    title: "Enterprise Workspace",
-    description: "Manage operations, cohorts, and candidate signals.",
-    action: "Action",
-    rows: ["Operations", "Reporting", "Analytics"],
-    metric: "Active",
-    value: "100%",
-  };
-  const info = section === "overview" ? overview : (enterpriseModules[section] ?? fallbackInfo);
-  const [saved, setSaved] = useState(false);
-  return (
-    <>
-      <WorkspaceHeader
-        eyebrow={`${roles.find((item) => item.value === role)?.label} portal`}
-        title={info.title}
-        description={info.description}
-        action={
-          <Button onClick={() => setSaved(true)}>
-            {saved ? <Check /> : <Plus />}
-            {saved ? "Saved" : info.action}
-          </Button>
-        }
-      />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat
-          label={info.metric}
-          value={info.value}
-          trend="+12%"
-          icon={
-            role === "industry"
-              ? BriefcaseBusiness
-              : role === "academician"
-                ? GraduationCap
-                : BarChart3
-          }
-        />
-        <Stat label="Active this month" value="24" trend="+18%" icon={Users} />
-        <Stat label="Completion" value="86%" trend="+6 pts" icon={Target} />
-        <Stat label="Action items" value="12" trend="This week" icon={Bell} />
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
-        <SectionCard
-          title={
-            role === "industry" && section === "candidates" ? "Shortlist criteria" : "Current work"
-          }
-          action={
-            <Button variant="ghost" size="sm" onClick={() => setSaved(true)}>
-              {saved ? "Saved" : "Mark reviewed"} <Check />
-            </Button>
-          }
-        >
-          <div className="mt-4 divide-y divide-border">
-            {info.rows.map((row, index) => (
-              <div key={row} className="flex items-center justify-between gap-4 py-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-xs font-semibold text-primary">
-                    0{index + 1}
-                  </span>
-                  <p className="truncate text-sm font-medium">{row}</p>
-                </div>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-              </div>
-            ))}
-          </div>
-        </SectionCard>
-        <SectionCard title="Action center">
-          <div className="mt-5 space-y-3">
-            {[
-              "Review the latest signal",
-              "Share an update with your team",
-              "Set the next milestone",
-            ].map((item) => (
-              <button
-                key={item}
-                onClick={() => setSaved(true)}
-                className="flex w-full items-center gap-3 rounded-xl bg-muted/60 p-3 text-left text-sm transition hover:bg-primary/10"
-              >
-                <Lightbulb className="size-4 shrink-0 text-primary" />
-                <span className="flex-1">{item}</span>
-                <ArrowRight className="size-4 text-muted-foreground" />
-              </button>
-            ))}
-          </div>
-          <div className="mt-6 rounded-2xl bg-primary/10 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
-              Workspace signal
-            </p>
-            <p className="mt-2 font-display text-2xl font-semibold">On track</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your latest activity is ahead of the team baseline.
-            </p>
-          </div>
-        </SectionCard>
-      </div>
-    </>
-  );
-}
-
 function IndustrySection({ section }: { section: string }) {
-  if (section === "post") {
-    return <IndustryPostOpportunity />;
-  }
-  if (section === "applications") {
-    return <IndustryApplicants />;
-  }
-  if (section === "candidates") {
-    return <IndustryCandidates />;
-  }
-  if (section === "interviews") {
-    return <IndustryInterviews />;
-  }
-  if (section === "workshops") {
-    return <IndustryWorkshops />;
-  }
-  if (section === "analytics") {
-    return <IndustryAnalytics />;
-  }
-  if (section === "overview") {
-    return <IndustryOverview />;
-  }
-  return <EnterpriseModule role="industry" section={section} />;
+  if (section === "post") return <IndustryPostOpportunity />;
+  if (section === "applications") return <IndustryApplicants />;
+  if (section === "candidates") return <IndustryCandidates />;
+  if (section === "interviews") return <IndustryInterviews />;
+  if (section === "workshops") return <IndustryWorkshops />;
+  if (section === "analytics") return <IndustryAnalytics />;
+  return <IndustryOverview />;
 }
 
 function AcademicianSection({ section }: { section: string }) {
-  if (section === "internships") {
-    return <AcademicianInternships />;
-  }
-  if (section === "training") {
-    return <AcademicianTraining />;
-  }
-  if (section === "fdps") {
-    return <AcademicianFDPs />;
-  }
-  if (section === "consultancy") {
-    return <AcademicianConsultancy />;
-  }
-  if (section === "research") {
-    return <AcademicianResearch />;
-  }
-  if (section === "lectures") {
-    return <AcademicianLectures />;
-  }
-  if (section === "mentorship") {
-    return <AcademicianMentorship />;
-  }
-  if (section === "overview") {
-    return <AcademicianOverview />;
-  }
-  return <EnterpriseModule role="academician" section={section} />;
+  if (section === "internships") return <AcademicianInternships />;
+  if (section === "training") return <AcademicianTraining />;
+  if (section === "fdps") return <AcademicianFDPs />;
+  if (section === "consultancy") return <AcademicianConsultancy />;
+  if (section === "research") return <AcademicianResearch />;
+  if (section === "lectures") return <AcademicianLectures />;
+  if (section === "mentorship") return <AcademicianMentorship />;
+  return <AcademicianOverview />;
 }
 
 function InstitutionSection({ section }: { section: string }) {
-  if (section === "outcomes") {
-    return <InstitutionStudents />;
-  }
-  if (section === "placements") {
-    return <InstitutionPlacements />;
-  }
-  if (section === "internships") {
-    return <InstitutionInternships />;
-  }
-  if (section === "skills") {
-    return <InstitutionSkills />;
-  }
-  if (section === "departments") {
-    return <InstitutionDepartments />;
-  }
-  if (section === "recruiters" || section === "partners") {
-    return <InstitutionRecruiters />;
-  }
-  if (section === "reports") {
-    return <InstitutionReports />;
-  }
-  if (section === "overview") {
-    return <InstitutionOverview />;
-  }
-  return <EnterpriseModule role="institution" section={section} />;
+  if (section === "outcomes") return <InstitutionStudents />;
+  if (section === "placements") return <InstitutionPlacements />;
+  if (section === "internships") return <InstitutionInternships />;
+  if (section === "skills") return <InstitutionSkills />;
+  if (section === "departments") return <InstitutionDepartments />;
+  if (section === "recruiters" || section === "partners") return <InstitutionRecruiters />;
+  if (section === "reports") return <InstitutionReports />;
+  return <InstitutionOverview />;
 }
 
 export function PortalPage({ role, section = "overview" }: { role: Role; section?: string }) {
-  if (role === "student") {
-    return <StudentSection section={section} />;
-  }
-  if (role === "industry") {
-    return <IndustrySection section={section} />;
-  }
-  if (role === "academician") {
-    return <AcademicianSection section={section} />;
-  }
-  if (role === "institution") {
-    return <InstitutionSection section={section} />;
-  }
-  return <EnterpriseModule role={role} section={section} />;
-}
-
-function LegacyAuthPage({ mode = "login" }: { mode?: "login" | "register" | "roles" }) {
-  const [selected, setSelected] = useState<Role>("student");
-  const heading =
-    mode === "register"
-      ? "Create your AcadIn account"
-      : mode === "roles"
-        ? "Choose your workspace"
-        : "Welcome back to AcadIn";
-  return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hero-grid hidden bg-primary p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
-        <Brand />
-        <div className="max-w-lg">
-          <p className="text-sm font-semibold uppercase tracking-[.18em] text-primary-foreground/70">
-            AcadIn Platform
-          </p>
-          <h1 className="mt-5 font-display text-5xl font-semibold leading-tight">
-            The right signal changes everything.
-          </h1>
-          <p className="mt-5 text-primary-foreground/75">
-            Connect your skills, people, and outcomes in one intelligent workspace.
-          </p>
-        </div>
-        <p className="text-xs text-primary-foreground/60">
-          AcadIn · Academia–Industry Collaboration Portal
-        </p>
-      </div>
-      <div className="flex items-center justify-center px-4 py-12 sm:px-8">
-        <div className="w-full max-w-md">
-          <div className="mb-10 lg:hidden">
-            <Brand />
-          </div>
-          <h2 className="font-display text-3xl font-semibold">{heading}</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {mode === "roles"
-              ? "You can switch workspaces any time."
-              : "Use the demo workspace to explore the experience."}
-          </p>
-          <div className="mt-8 grid gap-3">
-            {roles.map(({ value, label, description, icon: Icon }) => (
-              <button
-                key={value}
-                onClick={() => setSelected(value)}
-                className={cn(
-                  "flex items-center gap-4 rounded-2xl border p-4 text-left transition",
-                  selected === value
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/15"
-                    : "border-border hover:border-primary/50",
-                )}
-              >
-                <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <Icon />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-semibold">{label}</span>
-                  <span className="mt-1 block text-xs text-muted-foreground">{description}</span>
-                </span>
-                {selected === value && <Check className="size-5 text-primary" />}
-              </button>
-            ))}
-          </div>
-          {mode !== "roles" && (
-            <div className="mt-6 space-y-3">
-              <Input type="email" placeholder="you@college.edu" />
-              <Input type="password" placeholder="Password" />
-              <Button className="mt-2 w-full" asChild>
-                <Link to={selected === "student" ? "/student" : `/${selected}`}>
-                  {mode === "register" ? "Create account" : "Continue to demo"} <ArrowRight />
-                </Link>
-              </Button>
-            </div>
-          )}
-          {mode === "login" && (
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              New here?{" "}
-              <Link className="font-semibold text-primary" to="/register">
-                Create an account
-              </Link>
-            </p>
-          )}
-          {mode === "register" && (
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Already registered?{" "}
-              <Link className="font-semibold text-primary" to="/login">
-                Log in
-              </Link>
-            </p>
-          )}
-          {mode === "roles" && (
-            <Button className="mt-7 w-full" asChild>
-              <Link to={selected === "student" ? "/student" : `/${selected}`}>
-                Open {roles.find((item) => item.value === selected)?.label} workspace <ArrowRight />
-              </Link>
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  if (role === "student") return <StudentSection section={section} />;
+  if (role === "industry") return <IndustrySection section={section} />;
+  if (role === "academician") return <AcademicianSection section={section} />;
+  if (role === "institution") return <InstitutionSection section={section} />;
+  return <StudentSection section={section} />;
 }
 
 const loginSchema = z.object({
@@ -1604,7 +1321,7 @@ const destination = (role: Role) =>
   role === "student" ? "/student" : (`/${role}` as "/industry" | "/academician" | "/institution");
 
 function FieldError({ message }: { message?: string | undefined }) {
-  return message ? <p className="text-xs text-destructive">{message}</p> : null;
+  return message ? <p className="text-xs text-rose-400 mt-1">{message}</p> : null;
 }
 
 function AuthFrame({
@@ -1617,39 +1334,41 @@ function AuthFrame({
   children: ReactNode;
 }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hero-grid hidden bg-primary p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
+    <div className="grid min-h-screen lg:grid-cols-2 bg-[#070A13] text-white">
+      <div className="hero-grid hidden bg-slate-950 p-12 lg:flex lg:flex-col lg:justify-between border-r border-white/10">
         <Brand />
-        <div className="max-w-lg">
-          <p className="text-sm font-semibold uppercase tracking-[.18em] text-primary-foreground/70">
-            AcadIn Platform
-          </p>
-          <h1 className="mt-5 font-display text-5xl font-semibold leading-tight">
-            The right signal changes everything.
+        <div className="max-w-lg space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-300">
+            <Sparkles className="size-3.5" />
+            AcadIn Intelligence Cloud
+          </div>
+          <h1 className="font-display text-5xl font-extrabold leading-tight text-white">
+            The right signal <br />
+            <span className="text-gradient">changes everything.</span>
           </h1>
-          <p className="mt-5 text-primary-foreground/75">
-            One trusted workspace for skills, opportunities, and outcomes.
+          <p className="text-slate-400 leading-relaxed text-base">
+            One unified workspace connecting capability, verified credentials, and institutional
+            outcomes.
           </p>
         </div>
-        <p className="text-xs text-primary-foreground/60">
-          AcadIn · Academia–Industry Collaboration Portal
-        </p>
+        <p className="text-xs text-slate-500">AcadIn · Academia–Industry Collaboration Platform</p>
       </div>
+
       <div className="flex items-center justify-center px-4 py-12 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
+          className="glass-panel w-full max-w-md rounded-3xl p-8 shadow-[0_0_40px_rgba(0,0,0,0.6)]"
         >
-          <div className="mb-10 lg:hidden">
+          <div className="mb-8 lg:hidden">
             <Brand />
           </div>
-          <h2 className="font-display text-3xl font-semibold">{title}</h2>
-          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+          <h2 className="font-display text-3xl font-extrabold text-white">{title}</h2>
+          <p className="mt-2 text-sm text-slate-400">{description}</p>
           {children}
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            <Link className="font-semibold text-primary" to="/">
-              Back to home
+          <p className="mt-6 text-center text-xs text-slate-500">
+            <Link className="font-medium text-indigo-400 hover:text-indigo-300" to="/">
+              ← Back to homepage
             </Link>
           </p>
         </motion.div>
@@ -1660,22 +1379,22 @@ function AuthFrame({
 
 function RolePicker({ value, onChange }: { value: Role; onChange: (role: Role) => void }) {
   return (
-    <div className="mt-6 grid gap-2 sm:grid-cols-2">
+    <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
       {roles.map(({ value: role, label, icon: Icon }) => (
         <button
           key={role}
           type="button"
           onClick={() => onChange(role)}
           className={cn(
-            "flex items-center gap-3 rounded-xl border p-3 text-left text-sm transition",
+            "flex items-center gap-3 rounded-2xl border p-3.5 text-left text-sm transition-all duration-200",
             value === role
-              ? "border-primary bg-primary/5 ring-2 ring-primary/15"
-              : "border-border hover:border-primary/50",
+              ? "border-indigo-500 bg-gradient-to-r from-indigo-600/30 to-purple-600/20 text-white shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+              : "border-white/10 bg-slate-900/60 text-slate-400 hover:border-white/20 hover:text-white",
           )}
         >
-          <Icon className="size-4 text-primary" />
-          <span className="flex-1 font-medium">{label}</span>
-          {value === role && <Check className="size-4 text-primary" />}
+          <Icon className={cn("size-4", value === role ? "text-indigo-400" : "text-slate-400")} />
+          <span className="flex-1 font-semibold">{label}</span>
+          {value === role && <Check className="size-4 text-indigo-400" />}
         </button>
       ))}
     </div>
@@ -1690,37 +1409,58 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "demo@acadin.in", password: "password" },
   });
-  const submit = (values: z.infer<typeof loginSchema>) => {
+  const submit = () => {
     authenticate(role);
     toast.success(`Signed in as ${roles.find((item) => item.value === role)?.label}`);
     navigate({ to: destination(role) });
   };
+
   return (
     <AuthFrame title="Welcome back" description="Sign in to your AcadIn workspace.">
       <RolePicker value={role} onChange={setRole} />
       <form className="mt-6 space-y-4" onSubmit={form.handleSubmit(submit)}>
-        <div className="space-y-2">
-          <Label htmlFor="login-email">Email</Label>
-          <Input id="login-email" type="email" {...form.register("email")} />
+        <div className="space-y-1.5">
+          <Label htmlFor="login-email" className="text-xs font-semibold text-slate-300">
+            Email Address
+          </Label>
+          <Input
+            id="login-email"
+            type="email"
+            className="border-white/10 bg-slate-900/80 text-white"
+            {...form.register("email")}
+          />
           <FieldError message={form.formState.errors.email?.message} />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex justify-between">
-            <Label htmlFor="login-password">Password</Label>
-            <Link className="text-xs font-medium text-primary" to="/forgot-password">
+            <Label htmlFor="login-password" className="text-xs font-semibold text-slate-300">
+              Password
+            </Label>
+            <Link
+              className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+              to="/forgot-password"
+            >
               Forgot password?
             </Link>
           </div>
-          <Input id="login-password" type="password" {...form.register("password")} />
+          <Input
+            id="login-password"
+            type="password"
+            className="border-white/10 bg-slate-900/80 text-white"
+            {...form.register("password")}
+          />
           <FieldError message={form.formState.errors.password?.message} />
         </div>
-        <Button className="w-full" type="submit">
-          Sign in <ArrowRight />
+        <Button
+          className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:brightness-110"
+          type="submit"
+        >
+          Sign In to Workspace <ArrowRight className="size-4 ml-1.5" />
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-xs text-slate-400">
         New to AcadIn?{" "}
-        <Link className="font-semibold text-primary" to="/register">
+        <Link className="font-semibold text-indigo-400 hover:text-indigo-300" to="/register">
           Create an account
         </Link>
       </p>
@@ -1741,41 +1481,69 @@ function RegisterForm() {
     authenticate(role);
     navigate({ to: "/verify-email" });
   };
+
   return (
     <AuthFrame
       title="Create your account"
-      description="Start with a role-specific AcadIn workspace."
+      description="Start with an intelligent role-specific workspace."
     >
       <RolePicker value={role} onChange={setRole} />
       <form className="mt-6 space-y-4" onSubmit={form.handleSubmit(submit)}>
-        <div className="space-y-2">
-          <Label htmlFor="register-name">Full name</Label>
-          <Input id="register-name" {...form.register("name")} />
+        <div className="space-y-1.5">
+          <Label htmlFor="register-name" className="text-xs font-semibold text-slate-300">
+            Full Name
+          </Label>
+          <Input
+            id="register-name"
+            className="border-white/10 bg-slate-900/80 text-white"
+            {...form.register("name")}
+          />
           <FieldError message={form.formState.errors.name?.message} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="register-email">Work or college email</Label>
-          <Input id="register-email" type="email" {...form.register("email")} />
+        <div className="space-y-1.5">
+          <Label htmlFor="register-email" className="text-xs font-semibold text-slate-300">
+            Work or University Email
+          </Label>
+          <Input
+            id="register-email"
+            type="email"
+            className="border-white/10 bg-slate-900/80 text-white"
+            {...form.register("email")}
+          />
           <FieldError message={form.formState.errors.email?.message} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="register-password">Password</Label>
-          <Input id="register-password" type="password" {...form.register("password")} />
+        <div className="space-y-1.5">
+          <Label htmlFor="register-password" className="text-xs font-semibold text-slate-300">
+            Password
+          </Label>
+          <Input
+            id="register-password"
+            type="password"
+            className="border-white/10 bg-slate-900/80 text-white"
+            {...form.register("password")}
+          />
           <FieldError message={form.formState.errors.password?.message} />
         </div>
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <input type="checkbox" className="mt-0.5 accent-primary" {...form.register("accepted")} />
-          <span>I agree to the AcadIn terms and privacy policy.</span>
+        <label className="flex items-start gap-2 text-xs text-slate-400">
+          <input
+            type="checkbox"
+            className="mt-0.5 accent-indigo-500"
+            {...form.register("accepted")}
+          />
+          <span>I agree to the AcadIn terms of service and privacy policy.</span>
         </label>
         <FieldError message={form.formState.errors.accepted?.message} />
-        <Button className="w-full" type="submit">
-          Create account <ArrowRight />
+        <Button
+          className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:brightness-110"
+          type="submit"
+        >
+          Create Account <ArrowRight className="size-4 ml-1.5" />
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-xs text-slate-400">
         Already registered?{" "}
-        <Link className="font-semibold text-primary" to="/login">
-          Sign in
+        <Link className="font-semibold text-indigo-400 hover:text-indigo-300" to="/login">
+          Sign In
         </Link>
       </p>
     </AuthFrame>
@@ -1789,34 +1557,45 @@ function ForgotPasswordForm() {
     defaultValues: { email: "" },
   });
   const submit = () => setSent(true);
+
   return (
     <AuthFrame
       title={sent ? "Check your inbox" : "Reset your password"}
       description={
         sent
-          ? "A mock reset link is ready in your email."
-          : "Enter your email and we will send a password reset link."
+          ? "A mock reset link has been dispatched to your email address."
+          : "Enter your registered email and we will send a recovery link."
       }
     >
       {sent ? (
-        <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800">
-          Reset instructions sent. This frontend demo does not send real email.
+        <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-xs text-emerald-300 leading-relaxed">
+          Reset instructions sent. In this demo workspace, you can directly sign in.
         </div>
       ) : (
-        <form className="mt-8 space-y-4" onSubmit={form.handleSubmit(submit)}>
-          <div className="space-y-2">
-            <Label htmlFor="forgot-email">Email</Label>
-            <Input id="forgot-email" type="email" {...form.register("email")} />
+        <form className="mt-6 space-y-4" onSubmit={form.handleSubmit(submit)}>
+          <div className="space-y-1.5">
+            <Label htmlFor="forgot-email" className="text-xs font-semibold text-slate-300">
+              Email Address
+            </Label>
+            <Input
+              id="forgot-email"
+              type="email"
+              className="border-white/10 bg-slate-900/80 text-white"
+              {...form.register("email")}
+            />
             <FieldError message={form.formState.errors.email?.message} />
           </div>
-          <Button className="w-full" type="submit">
-            Send reset link <ArrowRight />
+          <Button
+            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold"
+            type="submit"
+          >
+            Send Reset Link <ArrowRight className="size-4 ml-1.5" />
           </Button>
         </form>
       )}
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        <Link className="font-semibold text-primary" to="/login">
-          Back to sign in
+      <p className="mt-6 text-center text-xs text-slate-400">
+        <Link className="font-semibold text-indigo-400 hover:text-indigo-300" to="/login">
+          Return to Sign In
         </Link>
       </p>
     </AuthFrame>
@@ -1827,32 +1606,40 @@ function VerifyEmailPage() {
   const navigate = useNavigate();
   const { role, authenticate } = useAppState();
   const [resent, setResent] = useState(false);
+
   return (
     <AuthFrame
       title="Verify your email"
       description="Confirm your email to activate your selected workspace."
     >
-      <div className="mt-8 rounded-2xl border border-border bg-muted/50 p-5">
-        <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Check />
+      <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900/80 p-5 space-y-3">
+        <span className="grid size-11 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300">
+          <Check className="size-5" />
         </span>
-        <p className="mt-4 font-semibold">Verification link sent</p>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Open the mock verification link in your inbox, then continue as a{" "}
-          {roles.find((item) => item.value === role)?.label ?? "Student"}.
+        <p className="font-display text-base font-bold text-white">Verification Link Sent</p>
+        <p className="text-xs leading-relaxed text-slate-400">
+          Open the verification link sent to your inbox, then continue as a{" "}
+          <strong className="text-indigo-300 capitalize">
+            {roles.find((item) => item.value === role)?.label ?? "Student"}
+          </strong>
+          .
         </p>
       </div>
       <Button
-        className="mt-5 w-full"
+        className="mt-6 w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold"
         onClick={() => {
           authenticate(role);
           navigate({ to: destination(role) });
         }}
       >
-        I verified my email <ArrowRight />
+        I Verified My Email <ArrowRight className="size-4 ml-1.5" />
       </Button>
-      <Button variant="outline" className="mt-3 w-full" onClick={() => setResent(true)}>
-        {resent ? "Verification link resent" : "Resend verification link"}
+      <Button
+        variant="outline"
+        className="mt-3 w-full border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+        onClick={() => setResent(true)}
+      >
+        {resent ? "Verification link resent" : "Resend Verification Link"}
       </Button>
     </AuthFrame>
   );
@@ -1868,20 +1655,22 @@ export function RoleSelectionPage() {
   const navigate = useNavigate();
   const { authenticate } = useAppState();
   const [role, setRole] = useState<Role>("student");
+
   return (
     <AuthFrame
       title="Choose your workspace"
-      description="Select the role you want to explore in this demo."
+      description="Select the role you want to explore in this interactive demo."
     >
       <RolePicker value={role} onChange={setRole} />
       <Button
-        className="mt-7 w-full"
+        className="mt-7 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:brightness-110"
         onClick={() => {
           authenticate(role);
           navigate({ to: destination(role) });
         }}
       >
-        Open {roles.find((item) => item.value === role)?.label} workspace <ArrowRight />
+        Launch {roles.find((item) => item.value === role)?.label} Suite{" "}
+        <ArrowRight className="size-4 ml-1.5" />
       </Button>
     </AuthFrame>
   );
