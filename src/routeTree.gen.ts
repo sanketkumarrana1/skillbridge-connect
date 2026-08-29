@@ -61,6 +61,8 @@ import { Route as StudentPortfolioRouteImport } from './routes/student.portfolio
 import { Route as StudentResumeRouteImport } from './routes/student.resume'
 import { Route as StudentRoadmapRouteImport } from './routes/student.roadmap'
 import { Route as StudentSettingsRouteImport } from './routes/student.settings'
+import { Route as StudentInternshipsIndexRouteImport } from './routes/student.internships.index'
+import { Route as StudentInternshipsIdRouteImport } from './routes/student.internships.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -322,6 +324,16 @@ const StudentSettingsRoute = StudentSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentInternshipsIndexRoute = StudentInternshipsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentInternshipsRoute,
+} as any)
+const StudentInternshipsIdRoute = StudentInternshipsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StudentInternshipsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -366,7 +378,7 @@ export interface FileRoutesByFullPath {
   '/student/applications': typeof StudentApplicationsRoute
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/certificates': typeof StudentCertificatesRoute
-  '/student/internships': typeof StudentInternshipsRoute
+  '/student/internships': typeof StudentInternshipsRouteWithChildren
   '/student/jobs': typeof StudentJobsRoute
   '/student/portfolio': typeof StudentPortfolioRoute
   '/student/resume': typeof StudentResumeRoute
@@ -376,6 +388,8 @@ export interface FileRoutesByFullPath {
   '/industry/': typeof IndustryIndexRoute
   '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
+  '/student/internships/$id': typeof StudentInternshipsIdRoute
+  '/student/internships/': typeof StudentInternshipsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -416,7 +430,6 @@ export interface FileRoutesByTo {
   '/student/applications': typeof StudentApplicationsRoute
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/certificates': typeof StudentCertificatesRoute
-  '/student/internships': typeof StudentInternshipsRoute
   '/student/jobs': typeof StudentJobsRoute
   '/student/portfolio': typeof StudentPortfolioRoute
   '/student/resume': typeof StudentResumeRoute
@@ -426,6 +439,8 @@ export interface FileRoutesByTo {
   '/industry': typeof IndustryIndexRoute
   '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
+  '/student/internships/$id': typeof StudentInternshipsIdRoute
+  '/student/internships': typeof StudentInternshipsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -471,7 +486,7 @@ export interface FileRoutesById {
   '/student/applications': typeof StudentApplicationsRoute
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/certificates': typeof StudentCertificatesRoute
-  '/student/internships': typeof StudentInternshipsRoute
+  '/student/internships': typeof StudentInternshipsRouteWithChildren
   '/student/jobs': typeof StudentJobsRoute
   '/student/portfolio': typeof StudentPortfolioRoute
   '/student/resume': typeof StudentResumeRoute
@@ -481,6 +496,8 @@ export interface FileRoutesById {
   '/industry/': typeof IndustryIndexRoute
   '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
+  '/student/internships/$id': typeof StudentInternshipsIdRoute
+  '/student/internships/': typeof StudentInternshipsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -537,6 +554,8 @@ export interface FileRouteTypes {
     | '/industry/'
     | '/institution/'
     | '/student/'
+    | '/student/internships/$id'
+    | '/student/internships/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -577,7 +596,6 @@ export interface FileRouteTypes {
     | '/student/applications'
     | '/student/assessment'
     | '/student/certificates'
-    | '/student/internships'
     | '/student/jobs'
     | '/student/portfolio'
     | '/student/resume'
@@ -587,6 +605,8 @@ export interface FileRouteTypes {
     | '/industry'
     | '/institution'
     | '/student'
+    | '/student/internships/$id'
+    | '/student/internships'
   id:
     | '__root__'
     | '/'
@@ -641,6 +661,8 @@ export interface FileRouteTypes {
     | '/industry/'
     | '/institution/'
     | '/student/'
+    | '/student/internships/$id'
+    | '/student/internships/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1026,6 +1048,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentSettingsRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/internships/': {
+      id: '/student/internships/'
+      path: '/'
+      fullPath: '/student/internships/'
+      preLoaderRoute: typeof StudentInternshipsIndexRouteImport
+      parentRoute: typeof StudentInternshipsRoute
+    }
+    '/student/internships/$id': {
+      id: '/student/internships/$id'
+      path: '/$id'
+      fullPath: '/student/internships/$id'
+      preLoaderRoute: typeof StudentInternshipsIdRouteImport
+      parentRoute: typeof StudentInternshipsRoute
+    }
   }
 }
 
@@ -1113,12 +1149,25 @@ const InstitutionRouteWithChildren = InstitutionRoute._addFileChildren(
   InstitutionRouteChildren,
 )
 
+interface StudentInternshipsRouteChildren {
+  StudentInternshipsIdRoute: typeof StudentInternshipsIdRoute
+  StudentInternshipsIndexRoute: typeof StudentInternshipsIndexRoute
+}
+
+const StudentInternshipsRouteChildren: StudentInternshipsRouteChildren = {
+  StudentInternshipsIdRoute: StudentInternshipsIdRoute,
+  StudentInternshipsIndexRoute: StudentInternshipsIndexRoute,
+}
+
+const StudentInternshipsRouteWithChildren =
+  StudentInternshipsRoute._addFileChildren(StudentInternshipsRouteChildren)
+
 interface StudentRouteChildren {
   StudentAnalysisRoute: typeof StudentAnalysisRoute
   StudentApplicationsRoute: typeof StudentApplicationsRoute
   StudentAssessmentRoute: typeof StudentAssessmentRoute
   StudentCertificatesRoute: typeof StudentCertificatesRoute
-  StudentInternshipsRoute: typeof StudentInternshipsRoute
+  StudentInternshipsRoute: typeof StudentInternshipsRouteWithChildren
   StudentJobsRoute: typeof StudentJobsRoute
   StudentPortfolioRoute: typeof StudentPortfolioRoute
   StudentResumeRoute: typeof StudentResumeRoute
@@ -1132,7 +1181,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentApplicationsRoute: StudentApplicationsRoute,
   StudentAssessmentRoute: StudentAssessmentRoute,
   StudentCertificatesRoute: StudentCertificatesRoute,
-  StudentInternshipsRoute: StudentInternshipsRoute,
+  StudentInternshipsRoute: StudentInternshipsRouteWithChildren,
   StudentJobsRoute: StudentJobsRoute,
   StudentPortfolioRoute: StudentPortfolioRoute,
   StudentResumeRoute: StudentResumeRoute,
