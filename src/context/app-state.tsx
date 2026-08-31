@@ -128,6 +128,7 @@ import { INITIAL_RECRUITER_CANDIDATES } from "@/data/candidates-catalog";
 import { DEFAULT_FACULTY_PROFILE, INITIAL_COLLABORATIONS } from "@/data/academician-catalog";
 import { matchFacultyToOpportunity } from "@/utils/faculty-matching";
 import { hasPermission } from "@/utils/permissions";
+import { useAuth } from "@/context/auth-context";
 import { applicationLifecycle } from "@/services/application/application-lifecycle";
 import { notificationService } from "@/services/notifications/notification-service";
 import {
@@ -628,6 +629,48 @@ const avg = (nums: number[]): number => {
 
 const clamp = (n: number, min = 0, max = 100): number => Math.max(min, Math.min(max, n));
 
+const MIGRATION_VERSION_KEY = "acadin_storage_version_v5";
+
+// Purge any legacy demo data cached from previous prototype sessions
+if (typeof window !== "undefined") {
+  try {
+    if (!window.localStorage.getItem(MIGRATION_VERSION_KEY)) {
+      const keysToPurge = [
+        "acadin_student_profile",
+        "acadin_applications",
+        "acadin_industry_apps",
+        "acadin_candidates",
+        "acadin_interviews",
+        "acadin_saved_internships",
+        "acadin_saved_jobs",
+        "acadin_saved_opportunities",
+        "acadin_application_snapshots",
+        "acadin_mentorship_requests",
+        "acadin_mentorship_sessions",
+        "acadin_placement_history",
+        "acadin_corporate_offers",
+        "acadin_company_profile",
+        "acadin_faculty_profile",
+        "acadin_collaborations",
+        "acadin_recruiter_assignments",
+        "acadin_interview_feedback",
+        "acadin_recruiter_notifications",
+        "acadin_platform_notifications",
+        "acadin_assessment_attempts",
+        "acadin_assessment_submitted",
+        "acadin_assessment_scores",
+        "acadin_assessment_result",
+        "acadin_assessment_answers",
+        "acadin_dynamic_roadmap",
+      ];
+      keysToPurge.forEach((k) => window.localStorage.removeItem(k));
+      window.localStorage.setItem(MIGRATION_VERSION_KEY, "true");
+    }
+  } catch (e) {
+    console.error("Storage migration purge error:", e);
+  }
+}
+
 function loadFromStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -655,32 +698,39 @@ function saveToStorage<T>(key: string, value: T): void {
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
+  const { user: authUser, profile: authProfile } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState<Role>("student");
   const [profile, setProfile] = useState<StudentProfile>(() =>
     loadFromStorage("acadin_student_profile", seedProfile),
   );
+
+  // Synchronize authenticated user credentials from Supabase into student profile
+  useEffect(() => {
+    if (authUser) {
+      setIsAuthenticated(true);
+      const meta = authUser.user_metadata as Record<string, unknown> | undefined;
+      const metaName = typeof meta?.["full_name"] === "string" ? (meta["full_name"] as string) : "";
+      setProfile((prev) => ({
+        ...prev,
+        name: authProfile?.full_name || metaName || authUser.email?.split("@")[0] || prev.name,
+        email: authUser.email || prev.email,
+        phone: authProfile?.phone || prev.phone,
+        city: authProfile?.city || prev.city,
+        state: authProfile?.state || prev.state,
+      }));
+    }
+  }, [authUser, authProfile]);
   const [internships, setInternships] = useState<Internship[]>(seedInternships);
   const [applications, setApplications] = useState<Application[]>(() =>
-    loadFromStorage(
-      "acadin_applications",
-      INITIAL_RECRUITER_CANDIDATES.slice(0, 2).map((r) => r.application),
-    ),
     loadFromStorage("acadin_applications", []),
   );
   const [industryApps, setIndustryApps] = useState<Application[]>(() =>
-    loadFromStorage(
-      "acadin_industry_apps",
-      INITIAL_RECRUITER_CANDIDATES.map((r) => r.application),
-    ),
     loadFromStorage("acadin_industry_apps", []),
   );
-  const [candidates, setCandidates] = useState<Candidate[]>(
-    INITIAL_RECRUITER_CANDIDATES.map((r) => r.candidate),
   const [candidates, setCandidates] = useState<Candidate[]>(() =>
     loadFromStorage("acadin_candidates", []),
   );
-  const [interviews, setInterviews] = useState<InterviewSchedule[]>(initialInterviews);
   const [interviews, setInterviews] = useState<InterviewSchedule[]>(() =>
     loadFromStorage("acadin_interviews", []),
   );
@@ -689,24 +739,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [facultyProfile, setFacultyProfile] = useState<FacultyProfile>(() =>
     loadFromStorage("acadin_faculty_profile", DEFAULT_FACULTY_PROFILE),
   );
-  const [collaborations, setCollaborations] = useState<CollaborationRecord[]>(INITIAL_COLLABORATIONS);
-  const [facultyInternships, setFacultyInternships] =
-    useState<FacultyInternship[]>(initialFacultyInternships);
-  const [facultyTrainings, setFacultyTrainings] =
-    useState<FacultyTraining[]>(initialFacultyTrainings);
-  const [facultyFDPs, setFacultyFDPs] = useState<FacultyFDP[]>(initialFacultyFDPs);
-  const [consultancyProjects, setConsultancyProjects] = useState<ConsultancyProject[]>(
-    initialConsultancyProjects,
   const [collaborations, setCollaborations] = useState<CollaborationRecord[]>(() =>
     loadFromStorage("acadin_collaborations", []),
   );
-  const [researchProjects, setResearchProjects] =
-    useState<ResearchProject[]>(initialResearchProjects);
-  const [guestLectures, setGuestLectures] = useState<GuestLectureSession[]>(initialGuestLectures);
-  const [studentMentorships, setStudentMentorships] =
-    useState<StudentMentorship[]>(initialStudentMentorships);
-  const [institutionStudents, setInstitutionStudents] = useState<InstitutionStudent[]>(
-    initialInstitutionStudents,
   const [facultyInternships, setFacultyInternships] = useState<FacultyInternship[]>(() =>
     loadFromStorage("acadin_faculty_internships", []),
   );
@@ -735,26 +770,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     useState<DepartmentReport[]>(initialDepartmentReports);
   const [recruiterPartners, setRecruiterPartners] =
     useState<RecruiterPartner[]>(initialRecruiterPartners);
-  const [platformNotifications, setPlatformNotifications] = useState<PlatformNotification[]>([
-    {
-      id: "notif-p-01",
-      recipientRole: "all",
-      type: "collaboration_updated",
-      title: "New Academia–Industry Project Launched",
-      message: "Razorpay & NITK launched the Next-Gen UPI Fast-Checkout research lab.",
-      timestamp: "24 Aug 2026",
-      read: false,
-    },
-    {
-      id: "notif-p-02",
-      recipientRole: "student",
-      type: "new_recommendation",
-      title: "High-Fit Opportunity Matched",
-      message: "Razorpay Frontend Engineering Intern matches your profile with a 94% fit.",
-      timestamp: "25 Aug 2026",
-      read: false,
-    },
-  ]);
   const [platformNotifications, setPlatformNotifications] = useState<PlatformNotification[]>(() =>
     loadFromStorage("acadin_platform_notifications", []),
   );
@@ -2137,54 +2152,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   // Stage 5: Recruiter Decision Workflow & Actions
   const [recruiterAssessmentAssignments, setRecruiterAssessmentAssignments] = useState<
     RecruiterAssessmentAssignment[]
-  >([]);
   >(() => loadFromStorage("acadin_recruiter_assignments", []));
   const [interviewFeedbackRecords, setInterviewFeedbackRecords] = useState<
     InterviewFeedbackRecord[]
-  >([]);
-  const [corporateOffers, setCorporateOffers] = useState<CorporateOffer[]>([
-    {
-      id: "offer-init-01",
-      candidateId: "cand-neha-04",
-      candidateName: "Neha Gupta",
-      opportunityId: "opp-swiggy-ai-06",
-      opportunityTitle: "Machine Learning & Recommendation Intern",
-      designation: "Applied ML Engineer Intern",
-      company: "Swiggy",
-      joiningDate: "01 Oct 2026",
-      compensation: "₹55,000 / mo",
-      workMode: "Hybrid",
-      location: "Bengaluru, Karnataka",
-      offerExpiry: "07 Sep 2026",
-      status: "Sent",
-      terms: "Full health coverage, flexible hours, and pre-placement offer (PPO) conversion track.",
-      sentAt: "24 Aug 2026",
-    },
-  ]);
   >(() => loadFromStorage("acadin_interview_feedback", []));
   const [corporateOffers, setCorporateOffers] = useState<CorporateOffer[]>(() =>
     loadFromStorage("acadin_corporate_offers", []),
   );
   const [recruiterNotifications, setRecruiterNotifications] = useState<
     RecruiterNotificationEvent[]
-  >([
-    {
-      id: "notif-init-1",
-      type: "application_received",
-      title: "New Application Received",
-      message: "Aditi Sharma applied for Frontend Engineering Intern with a 92% Match score.",
-      timestamp: "24 Aug 2026",
-      read: false,
-    },
-    {
-      id: "notif-init-2",
-      type: "interview_scheduled",
-      title: "Interview Scheduled",
-      message: "Technical Round scheduled with Rahul Verma for 31 Aug at 2:00 PM.",
-      timestamp: "25 Aug 2026",
-      read: true,
-    },
-  ]);
   >(() => loadFromStorage("acadin_recruiter_notifications", []));
 
   const markRecruiterNotificationRead = useCallback((id: string) => {

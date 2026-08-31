@@ -218,11 +218,6 @@ export function StudentPlacementTimeline() {
           <span className="text-xs text-slate-400">Synchronized with Recruiter ATS</span>
         </div>
 
-        <div className="space-y-4">
-          {applications.map((app) => {
-            const currentStageIndex = getStageIndex(app.status);
-            const isHired = app.status === "Hired";
-            const isRejected = app.status === "Rejected";
         {applications.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center space-y-3 bg-slate-900/40">
             <Layers className="size-10 text-slate-500 mx-auto" />
@@ -246,11 +241,6 @@ export function StudentPlacementTimeline() {
               const isHired = app.status === "Hired";
               const isRejected = app.status === "Rejected";
 
-            return (
-              <Card
-                key={app.id}
-                className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 space-y-6 hover:border-indigo-500/30 transition-all"
-              >
               return (
                 <Card
                   key={app.id}

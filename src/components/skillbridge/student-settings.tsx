@@ -9,6 +9,7 @@ import {
   Compass,
   GraduationCap,
   Plus,
+  RotateCcw,
   Save,
   Search,
   Sparkles,
@@ -167,6 +168,29 @@ export function StudentSettings() {
         >
           <Save className="size-4 mr-1.5" /> Save Changes
         </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                if (window.confirm("Start completely fresh? This will clear any cached test progress in this browser and reload a clean slate.")) {
+                  window.localStorage.clear();
+                  window.location.reload();
+                }
+              }
+            }}
+            className="border-white/10 text-slate-300 hover:bg-white/5 font-medium text-xs h-10 px-4"
+          >
+            <RotateCcw className="size-3.5 mr-1.5" /> Start Fresh
+          </Button>
+          <Button
+            onClick={handleSaveAll}
+            className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] h-10 px-5"
+          >
+            <Save className="size-4 mr-1.5" /> Save Changes
+          </Button>
+        </div>
       </div>
 
       {/* Tabs Layout */}
