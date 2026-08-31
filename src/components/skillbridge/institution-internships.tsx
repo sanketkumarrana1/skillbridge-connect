@@ -113,26 +113,26 @@ export function InstitutionInternships() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Applied for Internships"
-          value={`${appliedCount} Students`}
-          trend="Summer & Fall cycles"
+          value={appliedCount.toString()}
+          trend="Active Candidates"
           icon={Briefcase}
         />
         <Stat
           label="Active in Corporate Labs"
-          value={`${activeCount} Active`}
-          trend="Currently engaged"
+          value={activeCount.toString()}
+          trend="Currently Engaged"
           icon={Clock}
         />
         <Stat
           label="Completed Fellowships"
-          value={`${completedCount} Certified`}
-          trend="With project credits"
+          value={completedCount.toString()}
+          trend="Certified Outcome"
           icon={CheckCircle2}
         />
         <Stat
           label="Avg Monthly Stipend"
-          value="₹28,500 / mo"
-          trend="Corporate sponsored"
+          value="₹28,500"
+          trend="Corporate Sponsored"
           icon={Award}
         />
       </div>

@@ -69,11 +69,128 @@ export interface SocialLinks {
   twitter?: string | undefined;
 }
 
+export type SkillProficiency = "beginner" | "intermediate" | "advanced";
+
+export type SkillCategory =
+  | "Programming Languages"
+  | "Web & Frontend"
+  | "Backend & APIs"
+  | "Databases & Storage"
+  | "Data & Analytics"
+  | "AI & Machine Learning"
+  | "Cloud Computing"
+  | "DevOps & Platform"
+  | "Cybersecurity"
+  | "Computer Science Fundamentals"
+  | "Software Engineering Practices"
+  | "UI / UX & Product Design"
+  | "Emerging & Specialized Technologies";
+
+export interface SkillDefinition {
+  id: string;
+  name: string;
+  category: SkillCategory;
+  aliases: string[];
+  relatedSkills: string[];
+  description: string;
+  tags: string[];
+  isActive?: boolean | undefined;
+}
+
+export type SkillEvidenceType =
+  | "project"
+  | "internship"
+  | "certificate"
+  | "hackathon"
+  | "academic_project"
+  | "research"
+  | "freelance"
+  | "open_source"
+  | "self_learning"
+  | "work_experience";
+
+export interface SkillEvidenceItem {
+  id: string;
+  type: SkillEvidenceType;
+  title: string;
+  description?: string | undefined;
+  url?: string | undefined;
+  linkedEntityId?: string | undefined;
+  date?: string | undefined;
+}
+
+export * from "./assessment";
+export * from "./career-readiness";
+
+export interface DeclaredSkill {
+  id: string;
+  skillId: string;
+  name: string;
+  category: SkillCategory;
+  proficiency: SkillProficiency;
+  proficiencyLevel: number; // 0-100 score
+  selfDeclared: boolean;
+  verificationStatus: "self_declared" | "evidence_added" | "pending_verification" | "assessed";
+  assessedScore?: number | undefined;
+  assessedLevel?: SkillProficiency | undefined;
+  assessedAt?: string | undefined;
+  gapStatus?:
+    | "Confirmed"
+    | "Above Self-Assessment"
+    | "Below Self-Assessment"
+    | "Needs More Evidence"
+    | undefined;
+  evidence: SkillEvidenceItem[];
+  addedAt: string;
+}
+
+export interface CareerInterest {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  popularRoles: string[];
+}
+
+export interface TargetRole {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  recommendedSkills: string[];
+  demandLevel: "high" | "very_high" | "emerging";
+}
+
+export interface AcademicProfile {
+  institution: string;
+  degree: string;
+  program: string;
+  department?: string | undefined;
+  currentYear: string;
+  graduationYear: string;
+  academicStatus: string;
+  grade?: string | undefined;
+}
+
+export interface CareerPreferences {
+  careerInterests: string[];
+  targetRoles: string[];
+  preferredWorkTypes: ("Internship" | "Full-time" | "Part-time" | "Freelance" | "Apprenticeship")[];
+  preferredLocations: ("On-site" | "Hybrid" | "Remote")[];
+  preferredCities: string[];
+  availability: string;
+  targetOpportunityTypes: ("Internship" | "Job" | "Live Project" | "Training" | "Mentorship")[];
+}
+
 export interface StudentProfile {
+  id?: string | undefined;
   name: string;
   email: string;
   phone?: string | undefined;
   location?: string | undefined;
+  city?: string | undefined;
+  state?: string | undefined;
+  country?: string | undefined;
   avatar?: string | undefined;
   headline?: string | undefined;
   college: string;
@@ -83,12 +200,17 @@ export interface StudentProfile {
   about: string;
   socialLinks?: SocialLinks | undefined;
   skills: Skill[];
+  declaredSkills?: DeclaredSkill[] | undefined;
+  academicProfile?: AcademicProfile | undefined;
+  careerPreferences?: CareerPreferences | undefined;
+  assessmentAttempts?: import("./assessment").AssessmentAttempt[] | undefined;
   projects: Project[];
   certifications: Certification[];
   achievements?: Achievement[] | undefined;
   experience?: WorkExperience[] | undefined;
   education?: Education[] | undefined;
   interests: string[];
+  onboardingCompleted?: boolean | undefined;
 }
 
 export type AssessmentCategory =
@@ -302,7 +424,13 @@ export interface Candidate {
   gaps?: string[] | undefined;
   match: number;
   appliedFor: string;
-  opportunityType?: ("Internship" | "Job") | undefined;
+  opportunityType?:
+    | "Internship"
+    | "Job"
+    | "Live Project"
+    | "Apprenticeship"
+    | "Training Program"
+    | undefined;
   shortlisted: boolean;
   status?: ApplicationStatus | undefined;
   employabilityScore?: number | undefined;
@@ -315,14 +443,7 @@ export interface Candidate {
   avatar?: string | undefined;
 }
 
-export interface CompanyProfile {
-  name: string;
-  industry: string;
-  location: string;
-  logoHue: number;
-  description: string;
-  website?: string | undefined;
-}
+
 
 export interface AssessmentQuestion {
   id: string;
@@ -529,3 +650,30 @@ export interface RecruiterPartner {
   website: string;
   description: string;
 }
+
+export interface Department {
+  id: string;
+  name: string;
+  code?: string | undefined;
+  institutionId?: string | undefined;
+}
+
+export interface InstitutionReportSnapshot {
+  id: string;
+  institutionId: string;
+  reportType: string;
+  periodStart: string;
+  periodEnd: string;
+  dataPayload: any;
+  generatedBy?: string | undefined;
+  createdAt: string;
+}
+
+export * from "./career-readiness";
+export * from "./opportunity";
+export * from "./academician";
+export * from "./collaboration";
+export * from "./permissions";
+export * from "./ai-boundaries";
+export * from "./mentorship";
+export * from "./admin";

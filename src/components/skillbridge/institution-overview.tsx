@@ -125,7 +125,7 @@ export function InstitutionOverview() {
         <Stat
           label="Total Enrolled"
           value={totalStudentsCount.toLocaleString()}
-          trend="Across 5 Depts"
+          trend="5 Departments"
           icon={Users}
         />
         <Stat
@@ -137,24 +137,24 @@ export function InstitutionOverview() {
         <Stat
           label="Internship Reach"
           value={`${internshipRate}%`}
-          trend="Tier 1 & Tier 2"
+          trend="Cohort Placed"
           icon={Briefcase}
         />
         <Stat
           label="Employability Index"
-          value={`${avgEmployabilityScore} / 100`}
-          trend="Assessment signal"
+          value={`${avgEmployabilityScore}%`}
+          trend="Assessed Score"
           icon={Target}
         />
         <Stat
           label="Active Recruiters"
-          value={`${recruiterPartners.length}+ Enterprises`}
-          trend="Google, L&T, Nexora"
+          value={`${recruiterPartners.length}+`}
+          trend="Enterprise Network"
           icon={Building2}
         />
         <Stat
           label="Faculty Immersion"
-          value={`${facultyEngagementCount} Engagements`}
+          value={facultyEngagementCount.toString()}
           trend="Fellowships & FDPs"
           icon={Award}
         />

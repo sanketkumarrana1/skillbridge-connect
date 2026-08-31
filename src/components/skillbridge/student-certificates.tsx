@@ -41,6 +41,7 @@ import { Label } from "@/components/ui/label";
 import { SkillTag } from "@/components/skillbridge/primitives";
 import { SectionCard, WorkspaceHeader } from "@/components/skillbridge/student-ui";
 import { useAppState } from "@/context/app-state";
+import { validateDocumentFile, formatBytes } from "@/utils/document-validator";
 import type { CertificateVerificationStatus, Certification } from "@/types";
 
 export function StudentCertificates() {
@@ -86,7 +87,12 @@ export function StudentCertificates() {
     });
   }, [profile.certifications, searchQuery, statusFilter]);
 
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadedFileSize, setUploadedFileSize] = useState<string | null>(null);
+
   const handleOpenForm = (cert?: Certification) => {
+    setUploadedFileName(null);
+    setUploadedFileSize(null);
     if (cert) {
       setEditingCert(cert);
       setCertName(cert.name || cert.title || "");
@@ -527,6 +533,38 @@ export function StudentCertificates() {
                 onChange={(e) => setCertSkills(e.target.value)}
                 placeholder="React, JavaScript, Cloud Architecture"
               />
+            </div>
+
+            <div className="grid gap-1.5 pt-1 border-t border-border">
+              <Label htmlFor="cert-file" className="text-xs">
+                Attach Certificate Document (PDF, PNG, JPG — Max 10MB)
+              </Label>
+              <Input
+                id="cert-file"
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const res = validateDocumentFile(file);
+                  if (!res.valid) {
+                    toast.error(res.error || "Invalid file");
+                    e.target.value = "";
+                    setUploadedFileName(null);
+                    setUploadedFileSize(null);
+                  } else {
+                    setUploadedFileName(res.fileName || file.name);
+                    setUploadedFileSize(res.fileSizeFormatted || formatBytes(file.size));
+                    toast.success(`Attached ${res.fileName} (${res.fileSizeFormatted})`);
+                  }
+                }}
+                className="text-xs h-9 cursor-pointer"
+              />
+              {uploadedFileName && (
+                <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="size-3" /> Attached: {uploadedFileName} ({uploadedFileSize})
+                </p>
+              )}
             </div>
           </div>
 

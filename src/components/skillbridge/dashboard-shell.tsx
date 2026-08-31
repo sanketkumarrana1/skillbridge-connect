@@ -8,6 +8,8 @@ import {
   LogOut,
   Menu,
   PlusCircle,
+  Settings,
+  ShieldCheck,
   Sparkles,
   User,
   Users,
@@ -27,11 +29,13 @@ interface NavItem {
 
 const studentNav: NavItem[] = [
   { to: "/student", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/student/passport", label: "Skill Passport", icon: ShieldCheck },
   { to: "/student/profile", label: "Profile", icon: User },
   { to: "/student/assessment", label: "Skill Assessment", icon: ClipboardList },
   { to: "/student/analysis", label: "Skill Analysis", icon: Sparkles },
   { to: "/student/internships", label: "Internships", icon: Briefcase },
   { to: "/student/applications", label: "Applications", icon: FileText },
+  { to: "/student/settings", label: "Settings", icon: Settings },
 ];
 
 const industryNav: NavItem[] = [

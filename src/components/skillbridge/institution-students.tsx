@@ -86,27 +86,27 @@ export function InstitutionStudents() {
       {/* KPI Ribbon */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
-          label="Total Student Roster"
+          label="Student Roster"
           value={institutionStudents.length.toString()}
-          trend="Profiles in Database"
+          trend="Active Profiles"
           icon={Users}
         />
         <Stat
           label="Confirmed Placed"
           value={placedCount.toString()}
-          trend="Tier 1 & Dream Offers"
+          trend="Tier 1 & Dream"
           icon={CheckCircle2}
         />
         <Stat
           label="High Readiness Cohort"
           value={highReadinessCount.toString()}
-          trend="Employability Score &gt;85"
+          trend="Score > 85%"
           icon={Target}
         />
         <Stat
           label="Avg Employability"
-          value="82.5 / 100"
-          trend="Assessment verified"
+          value="82.5%"
+          trend="AI Assessed"
           icon={Sparkles}
         />
       </div>

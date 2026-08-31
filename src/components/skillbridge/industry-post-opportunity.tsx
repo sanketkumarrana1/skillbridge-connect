@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   AlertCircle,
+  Award,
   Briefcase,
   Building2,
   Calendar,
@@ -11,6 +12,7 @@ import {
   DollarSign,
   Edit2,
   Eye,
+  FileCheck,
   FileText,
   IndianRupee,
   Layers,
@@ -24,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -49,898 +52,574 @@ import { Textarea } from "@/components/ui/textarea";
 import { SkillTag } from "@/components/skillbridge/primitives";
 import { SectionCard, WorkspaceHeader } from "@/components/skillbridge/student-ui";
 import { useAppState } from "@/context/app-state";
-import type { Internship, Job } from "@/types";
+import type { Opportunity, OpportunityType, OpportunityWorkMode, SkillCategory } from "@/types";
 
 export function IndustryPostOpportunity() {
   const {
     companyProfile,
-    internships,
-    addInternship,
-    updateInternship,
-    deleteInternship,
-    jobs,
-    addJob,
-    updateJob,
-    deleteJob,
+    opportunities,
+    addCorporateOpportunity,
+    updateCorporateOpportunity,
+    deleteCorporateOpportunity,
+    publishCorporateOpportunity,
+    closeCorporateOpportunity,
     industryApps,
   } = useAppState();
 
-  const [activeTab, setActiveTab] = useState<"internship" | "job">("internship");
+  const [oppType, setOppType] = useState<OpportunityType>("Internship");
 
-  // Internship Form State
-  const [intTitle, setIntTitle] = useState("");
-  const [intDesc, setIntDesc] = useState("");
-  const [intSkills, setIntSkills] = useState("");
-  const [intEligibility, setIntEligibility] = useState("");
-  const [intLocation, setIntLocation] = useState("");
-  const [intType, setIntType] = useState<"Remote" | "Hybrid" | "On-site">("Hybrid");
-  const [intDuration, setIntDuration] = useState("");
-  const [intStipend, setIntStipend] = useState("");
-  const [intDeadline, setIntDeadline] = useState("");
+  // General Form Fields
+  const [title, setTitle] = useState("");
+  const [domain, setDomain] = useState("Software Engineering");
+  const [category, setCategory] = useState<SkillCategory>("Web & Frontend");
+  const [description, setDescription] = useState("");
+  const [responsibilities, setResponsibilities] = useState("");
+  const [requiredSkills, setRequiredSkills] = useState("");
+  const [preferredSkills, setPreferredSkills] = useState("");
+  const [degreeReq, setDegreeReq] = useState("B.Tech, MCA, B.E.");
+  const [deptReq, setDeptReq] = useState("Computer Science, Information Technology");
+  const [gradYears, setGradYears] = useState("2025, 2026, 2027");
+  const [minCgpa, setMinCgpa] = useState("7.0");
+  const [location, setLocation] = useState(companyProfile.location || "Bengaluru, Karnataka");
+  const [workMode, setWorkMode] = useState<OpportunityWorkMode>("Hybrid");
+  const [duration, setDuration] = useState("6 Months");
+  const [compensationFormatted, setCompensationFormatted] = useState("₹35,000 / mo");
+  const [deadline, setDeadline] = useState("2026-11-30");
+  const [openings, setOpenings] = useState("2");
 
-  // Job Form State
-  const [jobTitle, setJobTitle] = useState("");
-  const [jobDesc, setJobDesc] = useState("");
-  const [jobSkills, setJobSkills] = useState("");
-  const [jobQualifications, setJobQualifications] = useState("");
-  const [jobExperience, setJobExperience] = useState("Freshers");
-  const [jobCTC, setJobCTC] = useState("");
-  const [jobLocation, setJobLocation] = useState("");
-  const [jobWorkType, setJobWorkType] = useState<"Remote" | "Hybrid" | "On-site">("Hybrid");
-  const [jobDeadline, setJobDeadline] = useState("");
+  // Live Project Specific
+  const [problemStatement, setProblemStatement] = useState("");
+  const [deliverables, setDeliverables] = useState("");
+  const [mentorName, setMentorName] = useState(companyProfile.name + " Engineering Lead");
+  const [mentorRole, setMentorRole] = useState("Staff Software Engineer");
+  const [teamSize, setTeamSize] = useState("2-4 Students");
 
-  // Edit / Delete Modal States
-  const [editingInt, setEditingInt] = useState<Internship | null>(null);
-  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  // Edit / Delete State
+  const [editingOpp, setEditingOpp] = useState<Opportunity | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: string; title: string }>({
+    open: false,
+    id: "",
+    title: "",
+  });
 
-  const [deleteDialog, setDeleteDialog] = useState<{
-    open: boolean;
-    type: "internship" | "job";
-    id: string;
-    title: string;
-  }>({ open: false, type: "internship", id: "", title: "" });
-
-  const resetIntForm = () => {
-    setIntTitle("");
-    setIntDesc("");
-    setIntSkills("");
-    setIntEligibility("");
-    setIntLocation("");
-    setIntType("Hybrid");
-    setIntDuration("");
-    setIntStipend("");
-    setIntDeadline("");
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setResponsibilities("");
+    setRequiredSkills("");
+    setPreferredSkills("");
+    setProblemStatement("");
+    setDeliverables("");
+    setCompensationFormatted(
+      oppType === "Job" ? "₹12 - ₹16 LPA" : oppType === "Live Project" ? "₹20,000 Bonus + Certificate" : "₹35,000 / mo",
+    );
   };
 
-  const resetJobForm = () => {
-    setJobTitle("");
-    setJobDesc("");
-    setJobSkills("");
-    setJobQualifications("");
-    setJobExperience("Freshers");
-    setJobCTC("");
-    setJobLocation("");
-    setJobWorkType("Hybrid");
-    setJobDeadline("");
-  };
-
-  const handlePostInternship = (asDraft = false) => {
-    if (!intTitle.trim() || !intDesc.trim() || !intSkills.trim()) {
-      toast.error("Please fill in the title, description, and required skills.");
+  const handlePost = (asDraft = false) => {
+    if (!title.trim() || !description.trim() || !requiredSkills.trim()) {
+      toast.error("Please fill in the title, description, and required core skills.");
       return;
     }
 
-    const skillsArr = intSkills
+    const reqSkillsArr = requiredSkills
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
 
-    const newInternship: Internship = {
-      id: `int-${Date.now()}`,
-      title: intTitle.trim(),
-      company: companyProfile.name,
-      companyLogoHue: companyProfile.logoHue,
-      description: intDesc.trim(),
-      requiredSkills: skillsArr,
-      eligibility: intEligibility.trim() || "B.Tech / MCA / Equivalent (Pre-final & Final Year)",
-      duration: intDuration.trim() || "3 - 6 Months",
-      location: intLocation.trim() || companyProfile.location,
-      type: intType,
-      stipend: intStipend.trim() || "₹25,000 / month",
-      match: 88,
-      posted: "Just now",
-      reasons: ["Direct recruiter posting", "Matches technical proficiency"],
-      deadline: intDeadline.trim() || "30 Sep 2026",
-      paid: !intStipend.toLowerCase().includes("unpaid"),
-      status: asDraft ? "Draft" : "Published",
-    };
-
-    addInternship(newInternship);
-    resetIntForm();
-    toast.success(
-      asDraft
-        ? "Internship saved as draft."
-        : "Internship published successfully! Visible in Student Marketplace.",
-    );
-  };
-
-  const handlePostJob = (asDraft = false) => {
-    if (!jobTitle.trim() || !jobDesc.trim() || !jobSkills.trim()) {
-      toast.error("Please fill in the job title, description, and required skills.");
-      return;
-    }
-
-    const skillsArr = jobSkills
+    const prefSkillsArr = preferredSkills
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
 
-    const qualsArr = jobQualifications.trim()
-      ? jobQualifications
-          .split(",")
-          .map((q) => q.trim())
-          .filter(Boolean)
-      : ["B.Tech / B.E in CS/IT or related discipline", "Minimum 7.0 CGPA"];
+    const respArr = responsibilities
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
-    const newJob: Job = {
-      id: `job-${Date.now()}`,
-      title: jobTitle.trim(),
+    const created = addCorporateOpportunity({
+      title: title.trim(),
       company: companyProfile.name,
+      companyWebsite: companyProfile.website,
       companyLogoHue: companyProfile.logoHue,
-      description: jobDesc.trim(),
-      requiredSkills: skillsArr,
-      qualifications: qualsArr,
-      experience: jobExperience,
-      ctc: jobCTC.trim() || "₹10 - 14 LPA",
-      location: jobLocation.trim() || companyProfile.location,
-      workType: jobWorkType,
-      deadline: jobDeadline.trim() || "30 Oct 2026",
-      posted: "Just now",
-      reasons: ["High compensation bracket", "Fast-track technical interview"],
+      type: oppType,
+      domain: domain.trim(),
+      category: category,
+      experienceLevel: oppType === "Job" ? "Fresher" : "Fresher",
+      description: description.trim(),
+      responsibilities: respArr.length > 0 ? respArr : [description.trim()],
+      requiredSkills: reqSkillsArr,
+      preferredSkills: prefSkillsArr,
+      eligibility: {
+        degreeRequirements: degreeReq.split(",").map((s) => s.trim()).filter(Boolean),
+        departmentRequirements: deptReq.split(",").map((s) => s.trim()).filter(Boolean),
+        graduationRequirements: gradYears.split(",").map((s) => s.trim()).filter(Boolean),
+        minCgpa: parseFloat(minCgpa) || 7.0,
+      },
+      location: location.trim(),
+      workMode: workMode,
+      duration: duration.trim(),
+      compensation: {
+        type: oppType === "Job" ? "Salary" : oppType === "Live Project" ? "Completion Bonus" : "Stipend",
+        formatted: compensationFormatted.trim() || (oppType === "Job" ? "₹14 LPA" : "₹35,000 / mo"),
+        amount: compensationFormatted.trim(),
+        currency: "INR",
+      },
+      applicationDeadline: deadline.trim() || "2026-11-30",
+      openings: parseInt(openings, 10) || 2,
       status: asDraft ? "Draft" : "Published",
-    };
+      liveProjectDetails:
+        oppType === "Live Project"
+          ? {
+              problemStatement: problemStatement.trim() || description.trim(),
+              expectedOutcome: "Production-ready functional implementation with comprehensive unit tests.",
+              mentorName: mentorName.trim(),
+              mentorRole: mentorRole.trim(),
+              mentorCompany: companyProfile.name,
+              teamSize: teamSize.trim(),
+              deliverables: deliverables.split("\n").map((s) => s.trim()).filter(Boolean),
+            }
+          : undefined,
+    });
 
-    addJob(newJob);
-    resetJobForm();
     toast.success(
       asDraft
-        ? "Job opportunity saved as draft."
-        : "Job published successfully! Visible in Student Job Search.",
+        ? `Draft "${created.title}" saved successfully.`
+        : `🎉 Opportunity "${created.title}" published! It is now live for students.`,
     );
+
+    resetForm();
   };
 
-  const handleSaveEditInternship = () => {
-    if (!editingInt) return;
-    updateInternship(editingInt.id, {
-      ...editingInt,
+  const handleUpdate = () => {
+    if (!editingOpp) return;
+    updateCorporateOpportunity(editingOpp.id, {
+      title: editingOpp.title,
+      description: editingOpp.description,
+      location: editingOpp.location,
+      duration: editingOpp.duration,
+      workMode: editingOpp.workMode,
+      status: editingOpp.status,
     });
-    setEditingInt(null);
-    toast.success("Internship updated successfully");
+    toast.success("Opportunity updated successfully.");
+    setEditingOpp(null);
   };
 
-  const handleSaveEditJob = () => {
-    if (!editingJob) return;
-    updateJob(editingJob.id, {
-      ...editingJob,
-    });
-    setEditingJob(null);
-    toast.success("Job posting updated successfully");
-  };
+  const myCompanyOpportunities = opportunities.filter(
+    (o) =>
+      o.company.toLowerCase() === companyProfile.name.toLowerCase() ||
+      o.companyId === "comp-corp" ||
+      o.company === "Razorpay",
+  );
 
   return (
     <div className="space-y-8">
       <WorkspaceHeader
-        eyebrow="Opportunity Studio"
-        title="Post Internship / Job"
-        description="Publish openings directly to verified candidates across partner institutions."
+        eyebrow="Industry Portal"
+        title="Post Opportunity"
+        description="Publish campus recruitment listings, full-time jobs, and live industry projects with precision skill requirements."
       />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "internship" | "job")}>
-        <TabsList className="grid w-full grid-cols-2 sm:max-w-md">
-          <TabsTrigger value="internship" className="gap-2">
-            <Briefcase className="size-4" /> Post Internship
-          </TabsTrigger>
-          <TabsTrigger value="job" className="gap-2">
-            <Building2 className="size-4" /> Post Full-Time Job
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Tab 1: Post Internship */}
-        <TabsContent value="internship" className="space-y-6 pt-4">
-          <div className="grid gap-6 lg:grid-cols-12">
-            {/* Form */}
-            <div className="lg:col-span-7">
-              <SectionCard
-                title={
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="size-5 text-primary" />
-                    <h2 className="font-display text-lg font-semibold">
-                      Internship Opportunity Details
-                    </h2>
-                  </div>
-                }
-              >
-                <div className="space-y-4 pt-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="int-title">Internship Title *</Label>
-                    <Input
-                      id="int-title"
-                      value={intTitle}
-                      onChange={(e) => setIntTitle(e.target.value)}
-                      placeholder="e.g. Frontend Engineering Intern, AI/ML Research Intern"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="grid gap-2">
-                      <Label htmlFor="int-type">Work Mode</Label>
-                      <select
-                        id="int-type"
-                        value={intType}
-                        onChange={(e) =>
-                          setIntType(e.target.value as "Remote" | "Hybrid" | "On-site")
-                        }
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="Hybrid">Hybrid</option>
-                        <option value="Remote">Remote</option>
-                        <option value="On-site">On-site</option>
-                      </select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="int-loc">Location</Label>
-                      <Input
-                        id="int-loc"
-                        value={intLocation}
-                        onChange={(e) => setIntLocation(e.target.value)}
-                        placeholder="e.g. Bengaluru / Pune"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="grid gap-2">
-                      <Label htmlFor="int-dur">Duration</Label>
-                      <Input
-                        id="int-dur"
-                        value={intDuration}
-                        onChange={(e) => setIntDuration(e.target.value)}
-                        placeholder="e.g. 6 Months (Jan - Jun)"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="int-stipend">Stipend / Compensation</Label>
-                      <Input
-                        id="int-stipend"
-                        value={intStipend}
-                        onChange={(e) => setIntStipend(e.target.value)}
-                        placeholder="e.g. ₹25,000 - ₹35,000 / month"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="int-skills">Required Skills * (comma-separated)</Label>
-                    <Input
-                      id="int-skills"
-                      value={intSkills}
-                      onChange={(e) => setIntSkills(e.target.value)}
-                      placeholder="React, TypeScript, Tailwind CSS, REST APIs"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="grid gap-2">
-                      <Label htmlFor="int-elig">Eligibility Criteria</Label>
-                      <Input
-                        id="int-elig"
-                        value={intEligibility}
-                        onChange={(e) => setIntEligibility(e.target.value)}
-                        placeholder="e.g. 3rd & 4th Year B.Tech CSE/IT"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="int-dead">Application Deadline</Label>
-                      <Input
-                        id="int-dead"
-                        value={intDeadline}
-                        onChange={(e) => setIntDeadline(e.target.value)}
-                        placeholder="e.g. 15 Oct 2026"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="int-desc">Role Description & Responsibilities *</Label>
-                    <Textarea
-                      id="int-desc"
-                      rows={4}
-                      value={intDesc}
-                      onChange={(e) => setIntDesc(e.target.value)}
-                      placeholder="Outline key projects, tech stack, and what the intern will learn and deliver..."
-                    />
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-border">
-                    <Button variant="outline" onClick={() => handlePostInternship(true)}>
-                      Save as Draft
-                    </Button>
-                    <Button onClick={() => handlePostInternship(false)} className="gap-2">
-                      <Sparkles className="size-4" /> Publish to Marketplace
-                    </Button>
-                  </div>
-                </div>
-              </SectionCard>
-            </div>
-
-            {/* Live Preview Card */}
-            <div className="lg:col-span-5">
-              <SectionCard title="Live Student Card Preview">
-                <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-card to-primary/5 p-5 shadow-xs">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-display text-base font-bold text-foreground">
-                        {intTitle || "Frontend Engineering Intern"}
-                      </h3>
-                      <p className="text-xs text-primary font-semibold mt-0.5">
-                        {companyProfile.name}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="text-xs bg-card">
-                      {intType}
-                    </Badge>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="size-3 text-primary" />
-                      {intLocation || companyProfile.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="size-3 text-primary" />
-                      {intDuration || "3 - 6 Months"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <IndianRupee className="size-3 text-emerald-600" />
-                      {intStipend || "₹25,000 / mo"}
-                    </span>
-                  </div>
-
-                  <p className="mt-3 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                    {intDesc ||
-                      "Collaborate with our core engineering team building web applications, microservices, and internal tooling."}
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-1">
-                    {(intSkills
-                      ? intSkills
-                          .split(",")
-                          .map((s) => s.trim())
-                          .filter(Boolean)
-                      : ["React", "TypeScript", "Tailwind"]
-                    ).map((s) => (
-                      <SkillTag key={s} muted>
-                        {s}
-                      </SkillTag>
-                    ))}
-                  </div>
-                </div>
-              </SectionCard>
-            </div>
-          </div>
-
-          {/* Manage Posted Internships Table */}
-          <SectionCard
-            title={
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-lg font-semibold">
-                  Your Posted Internships ({internships.length})
-                </h2>
-              </div>
-            }
-          >
-            <div className="divide-y divide-border">
-              {internships.map((item) => {
-                const isDraft = item.status === "Draft";
-                const applicantsCount = industryApps.filter(
-                  (a) => a.internshipId === item.id,
-                ).length;
+      {/* Main Creation Card */}
+      <Card className="border-border/80 bg-card p-6 shadow-sm">
+        <div className="space-y-6">
+          {/* Opportunity Type Selector */}
+          <div>
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
+              Select Opportunity Type
+            </Label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { id: "Internship", label: "Internship", icon: Building2 },
+                { id: "Job", label: "Full-Time Job", icon: Briefcase },
+                { id: "Live Project", label: "Live Project", icon: Layers },
+                { id: "Apprenticeship", label: "Apprenticeship", icon: Award },
+              ].map((item) => {
+                const Icon = item.icon;
+                const isSelected = oppType === item.id;
                 return (
-                  <div
+                  <button
                     key={item.id}
-                    className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    type="button"
+                    onClick={() => {
+                      setOppType(item.id as OpportunityType);
+                      setCompensationFormatted(
+                        item.id === "Job"
+                          ? "₹14 - ₹18 LPA"
+                          : item.id === "Live Project"
+                            ? "₹20,000 Bonus + Certificate"
+                            : "₹35,000 / mo",
+                      );
+                    }}
+                    className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-medium transition cursor-pointer ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                        : "bg-card hover:bg-muted/40 border-border text-muted-foreground hover:text-foreground"
+                    }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm text-foreground">{item.title}</h3>
-                        <Badge
-                          variant={isDraft ? "outline" : "default"}
-                          className={
-                            isDraft
-                              ? "text-muted-foreground text-[10px]"
-                              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]"
-                          }
-                        >
-                          {isDraft ? "Draft" : "Published"}
-                        </Badge>
-                      </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                        <span>{item.type}</span>
-                        <span>•</span>
-                        <span>{item.location}</span>
-                        <span>•</span>
-                        <span>{item.stipend}</span>
-                        <span>•</span>
-                        <span className="font-semibold text-primary">
-                          {applicantsCount} Applicants
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 text-xs"
-                        onClick={() => {
-                          updateInternship(item.id, { status: isDraft ? "Published" : "Draft" });
-                          toast.success(`Internship moved to ${isDraft ? "Published" : "Draft"}`);
-                        }}
-                      >
-                        {isDraft ? "Publish" : "Move to Draft"}
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8 text-muted-foreground hover:text-foreground"
-                        onClick={() => setEditingInt(item)}
-                        aria-label="Edit internship"
-                      >
-                        <Edit2 className="size-3.5" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() =>
-                          setDeleteDialog({
-                            open: true,
-                            type: "internship",
-                            id: item.id,
-                            title: item.title,
-                          })
-                        }
-                        aria-label="Delete internship"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
+                    <Icon className="size-4" />
+                    <span>{item.label}</span>
+                  </button>
                 );
               })}
             </div>
-          </SectionCard>
-        </TabsContent>
+          </div>
 
-        {/* Tab 2: Post Job */}
-        <TabsContent value="job" className="space-y-6 pt-4">
-          <div className="grid gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <SectionCard
-                title={
-                  <div className="flex items-center gap-2">
-                    <Building2 className="size-5 text-primary" />
-                    <h2 className="font-display text-lg font-semibold">
-                      Full-Time Job Posting Details
-                    </h2>
-                  </div>
-                }
-              >
-                <div className="space-y-4 pt-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="job-title">Job Title *</Label>
-                    <Input
-                      id="job-title"
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                      placeholder="e.g. Associate Software Engineer, Cloud DevOps Engineer"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="grid gap-2">
-                      <Label htmlFor="job-wtype">Work Type</Label>
-                      <select
-                        id="job-wtype"
-                        value={jobWorkType}
-                        onChange={(e) =>
-                          setJobWorkType(e.target.value as "Remote" | "Hybrid" | "On-site")
-                        }
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="Hybrid">Hybrid</option>
-                        <option value="Remote">Remote</option>
-                        <option value="On-site">On-site</option>
-                      </select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="job-loc">Location</Label>
-                      <Input
-                        id="job-loc"
-                        value={jobLocation}
-                        onChange={(e) => setJobLocation(e.target.value)}
-                        placeholder="e.g. Bengaluru, India"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="grid gap-2">
-                      <Label htmlFor="job-exp">Experience Bracket</Label>
-                      <select
-                        id="job-exp"
-                        value={jobExperience}
-                        onChange={(e) => setJobExperience(e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="Freshers">Freshers / 2026 Batch</option>
-                        <option value="0-1 yr">0 - 1 Year</option>
-                        <option value="1-2 yr">1 - 2 Years</option>
-                        <option value="2+ yrs">2+ Years</option>
-                      </select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="job-ctc">Salary / CTC Package</Label>
-                      <Input
-                        id="job-ctc"
-                        value={jobCTC}
-                        onChange={(e) => setJobCTC(e.target.value)}
-                        placeholder="e.g. ₹12 - 16 LPA"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="job-skills">Required Skills * (comma-separated)</Label>
-                    <Input
-                      id="job-skills"
-                      value={jobSkills}
-                      onChange={(e) => setJobSkills(e.target.value)}
-                      placeholder="React, TypeScript, Node.js, PostgreSQL, Docker"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="grid gap-2">
-                      <Label htmlFor="job-qual">Qualifications</Label>
-                      <Input
-                        id="job-qual"
-                        value={jobQualifications}
-                        onChange={(e) => setJobQualifications(e.target.value)}
-                        placeholder="e.g. B.Tech in CSE/IT, 7+ CGPA"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="job-dead">Deadline</Label>
-                      <Input
-                        id="job-dead"
-                        value={jobDeadline}
-                        onChange={(e) => setJobDeadline(e.target.value)}
-                        placeholder="e.g. 30 Oct 2026"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="job-desc">Job Description & Expectations *</Label>
-                    <Textarea
-                      id="job-desc"
-                      rows={4}
-                      value={jobDesc}
-                      onChange={(e) => setJobDesc(e.target.value)}
-                      placeholder="Describe the engineering role, team structure, and career growth..."
-                    />
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-border">
-                    <Button variant="outline" onClick={() => handlePostJob(true)}>
-                      Save as Draft
-                    </Button>
-                    <Button onClick={() => handlePostJob(false)} className="gap-2">
-                      <Sparkles className="size-4" /> Publish Job
-                    </Button>
-                  </div>
-                </div>
-              </SectionCard>
+          {/* Form Grid */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-2">
+              <Label>Opportunity Title *</Label>
+              <Input
+                placeholder="e.g. Lead Frontend Engineer Intern"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
             </div>
 
-            {/* Live Student Job Preview */}
-            <div className="lg:col-span-5">
-              <SectionCard title="Live Student Card Preview">
-                <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-card to-primary/5 p-5 shadow-xs">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-display text-base font-bold text-foreground">
-                        {jobTitle || "Associate Software Engineer"}
-                      </h3>
-                      <p className="text-xs text-primary font-semibold mt-0.5">
-                        {companyProfile.name}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="text-xs bg-card">
-                      {jobWorkType}
-                    </Badge>
-                  </div>
+            <div className="grid gap-2">
+              <Label>Domain / Function</Label>
+              <Input
+                placeholder="e.g. Frontend Engineering, Distributed Systems"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+              />
+            </div>
 
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="size-3 text-primary" />
-                      {jobLocation || companyProfile.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="size-3 text-primary" />
-                      {jobExperience || "Freshers"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <IndianRupee className="size-3 text-emerald-600" />
-                      {jobCTC || "₹12 - 16 LPA"}
-                    </span>
-                  </div>
+            <div className="grid gap-2 md:col-span-2">
+              <Label>Role Overview & Description *</Label>
+              <Textarea
+                rows={3}
+                placeholder="Describe the mission, key technologies, and day-to-day focus of the role..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
 
-                  <p className="mt-3 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                    {jobDesc ||
-                      "Build and scale high-availability customer-facing features and API microservices."}
-                  </p>
+            <div className="grid gap-2 md:col-span-2">
+              <Label>Key Responsibilities (One per line)</Label>
+              <Textarea
+                rows={2}
+                placeholder="Build responsive React components&#10;Optimize Core Web Vitals&#10;Collaborate on API contracts"
+                value={responsibilities}
+                onChange={(e) => setResponsibilities(e.target.value)}
+              />
+            </div>
 
-                  <div className="mt-4 flex flex-wrap gap-1">
-                    {(jobSkills
-                      ? jobSkills
-                          .split(",")
-                          .map((s) => s.trim())
-                          .filter(Boolean)
-                      : ["React", "TypeScript", "Node.js"]
-                    ).map((s) => (
-                      <SkillTag key={s} muted>
-                        {s}
-                      </SkillTag>
-                    ))}
-                  </div>
-                </div>
-              </SectionCard>
+            <div className="grid gap-2">
+              <Label>Mandatory Required Skills (Comma separated) *</Label>
+              <Input
+                placeholder="React, TypeScript, Tailwind CSS, REST APIs"
+                value={requiredSkills}
+                onChange={(e) => setRequiredSkills(e.target.value)}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Preferred / Bonus Skills</Label>
+              <Input
+                placeholder="Next.js, WebSockets, Redux, Jest"
+                value={preferredSkills}
+                onChange={(e) => setPreferredSkills(e.target.value)}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Eligible Degrees</Label>
+              <Input
+                placeholder="B.Tech, B.E., MCA, M.Tech"
+                value={degreeReq}
+                onChange={(e) => setDegreeReq(e.target.value)}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Eligible Branches / Departments</Label>
+              <Input
+                placeholder="Computer Science, Information Technology, Electronics"
+                value={deptReq}
+                onChange={(e) => setDeptReq(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-1">
+                <Label>Eligible Batches</Label>
+                <Input
+                  placeholder="2025, 2026, 2027"
+                  value={gradYears}
+                  onChange={(e) => setGradYears(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-1">
+                <Label>Min CGPA</Label>
+                <Input
+                  placeholder="7.0"
+                  value={minCgpa}
+                  onChange={(e) => setMinCgpa(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-1">
+                <Label>Work Mode</Label>
+                <select
+                  aria-label="Work Mode"
+                  value={workMode}
+                  onChange={(e) => setWorkMode(e.target.value as OpportunityWorkMode)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                >
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Remote">Remote</option>
+                  <option value="On-site">On-site</option>
+                </select>
+              </div>
+              <div className="grid gap-1">
+                <Label>Duration</Label>
+                <Input
+                  placeholder="6 Months / Full Time"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Compensation / Stipend</Label>
+              <Input
+                placeholder="e.g. ₹35,000 / mo or ₹14 LPA"
+                value={compensationFormatted}
+                onChange={(e) => setCompensationFormatted(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-1">
+                <Label>Deadline</Label>
+                <Input
+                  type="date"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-1">
+                <Label>Openings</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={openings}
+                  onChange={(e) => setOpenings(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Manage Posted Jobs Table */}
-          <SectionCard
-            title={
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-lg font-semibold">
-                  Your Posted Jobs ({jobs.length})
-                </h2>
+          {/* Live Project Extension Fields */}
+          {oppType === "Live Project" && (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Layers className="size-4 text-primary" />
+                <h4 className="font-semibold text-sm text-foreground">Live Industry Project Parameters</h4>
               </div>
-            }
-          >
-            <div className="divide-y divide-border">
-              {jobs.map((item) => {
-                const isDraft = item.status === "Draft";
-                const applicantsCount = industryApps.filter(
-                  (a) => a.internshipId === item.id,
-                ).length;
-                return (
-                  <div
-                    key={item.id}
-                    className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm text-foreground">{item.title}</h3>
-                        <Badge
-                          variant={isDraft ? "outline" : "default"}
-                          className={
-                            isDraft
-                              ? "text-muted-foreground text-[10px]"
-                              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]"
-                          }
-                        >
-                          {isDraft ? "Draft" : "Published"}
-                        </Badge>
-                      </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                        <span>{item.workType}</span>
-                        <span>•</span>
-                        <span>{item.location}</span>
-                        <span>•</span>
-                        <span>{item.ctc}</span>
-                        <span>•</span>
-                        <span>{item.experience}</span>
-                        <span>•</span>
-                        <span className="font-semibold text-primary">
-                          {applicantsCount} Applicants
-                        </span>
-                      </div>
-                    </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-1 md:col-span-2">
+                  <Label>Problem Statement</Label>
+                  <Textarea
+                    rows={2}
+                    placeholder="Describe the specific real-world corporate challenge..."
+                    value={problemStatement}
+                    onChange={(e) => setProblemStatement(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-1 md:col-span-2">
+                  <Label>Milestone Deliverables (One per line)</Label>
+                  <Textarea
+                    rows={2}
+                    placeholder="1. Architecture RFC document&#10;2. Interactive Prototype on GitHub&#10;3. Benchmark test report"
+                    value={deliverables}
+                    onChange={(e) => setDeliverables(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-1">
+                  <Label>Industry Mentor Name</Label>
+                  <Input value={mentorName} onChange={(e) => setMentorName(e.target.value)} />
+                </div>
+                <div className="grid gap-1">
+                  <Label>Mentor Role / Designation</Label>
+                  <Input value={mentorRole} onChange={(e) => setMentorRole(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          )}
 
-                    <div className="flex items-center gap-2">
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+            <Button variant="outline" onClick={() => handlePost(true)}>
+              Save as Draft
+            </Button>
+            <Button onClick={() => handlePost(false)} className="gap-1.5">
+              <Sparkles className="size-4" /> Publish Live Opportunity
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Managed Opportunities List */}
+      <SectionCard
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Briefcase className="size-5 text-primary" />
+              <h3 className="font-display text-base font-semibold">Active & Draft Postings ({myCompanyOpportunities.length})</h3>
+            </div>
+          </div>
+        }
+      >
+        <div className="divide-y divide-border pt-1">
+          {myCompanyOpportunities.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No opportunities posted yet.</p>
+          ) : (
+            myCompanyOpportunities.map((opp) => {
+              const applicantsForOpp = industryApps.filter(
+                (a) => a.internshipId === opp.id || a.internship.toLowerCase() === opp.title.toLowerCase(),
+              );
+
+              return (
+                <div key={opp.id} className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-semibold text-sm text-foreground">{opp.title}</h4>
+                      <Badge variant="outline" className="text-[10px] uppercase font-bold">
+                        {opp.type}
+                      </Badge>
+                      <Badge
+                        className={`text-[10px] ${
+                          opp.status === "Published"
+                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                            : opp.status === "Draft"
+                              ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                              : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {opp.status}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {opp.location} • {opp.workMode} • {opp.compensation.formatted}
+                    </p>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {opp.requiredSkills.slice(0, 4).map((s) => (
+                        <SkillTag key={s} muted>
+                          {s}
+                        </SkillTag>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs text-muted-foreground mr-2 font-medium">
+                      {applicantsForOpp.length} Applicant(s)
+                    </span>
+
+                    {opp.status === "Draft" ? (
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 text-xs"
+                        className="h-8 text-xs text-emerald-600"
                         onClick={() => {
-                          updateJob(item.id, { status: isDraft ? "Published" : "Draft" });
-                          toast.success(`Job moved to ${isDraft ? "Published" : "Draft"}`);
+                          publishCorporateOpportunity(opp.id);
+                          toast.success(`Published "${opp.title}"`);
                         }}
                       >
-                        {isDraft ? "Publish" : "Move to Draft"}
+                        Publish
                       </Button>
+                    ) : opp.status === "Published" ? (
                       <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8 text-muted-foreground hover:text-foreground"
-                        onClick={() => setEditingJob(item)}
-                        aria-label="Edit job"
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs text-amber-600"
+                        onClick={() => {
+                          closeCorporateOpportunity(opp.id);
+                          toast.info(`Closed listings for "${opp.title}"`);
+                        }}
                       >
-                        <Edit2 className="size-3.5" />
+                        Close
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() =>
-                          setDeleteDialog({
-                            open: true,
-                            type: "job",
-                            id: item.id,
-                            title: item.title,
-                          })
-                        }
-                        aria-label="Delete job"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </SectionCard>
-        </TabsContent>
-      </Tabs>
+                    ) : null}
 
-      {/* Edit Internship Modal */}
-      <Dialog open={!!editingInt} onOpenChange={(open) => !open && setEditingInt(null)}>
-        {editingInt && (
-          <DialogContent className="sm:max-w-lg">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="size-8 p-0"
+                      onClick={() => setEditingOpp(opp)}
+                    >
+                      <Edit2 className="size-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="size-8 p-0 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10"
+                      onClick={() => setDeleteDialog({ open: true, id: opp.id, title: opp.title })}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </SectionCard>
+
+      {/* Edit Modal */}
+      {editingOpp && (
+        <Dialog open={Boolean(editingOpp)} onOpenChange={(open) => !open && setEditingOpp(null)}>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Internship: {editingInt.title}</DialogTitle>
-              <DialogDescription>
-                Modify requirements, compensation, or active dates.
-              </DialogDescription>
+              <DialogTitle>Edit Opportunity</DialogTitle>
+              <DialogDescription>Modify parameters for {editingOpp.title}</DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-2">
-              <div className="grid gap-2">
+              <div className="grid gap-1">
                 <Label>Title</Label>
                 <Input
-                  value={editingInt.title}
-                  onChange={(e) => setEditingInt({ ...editingInt, title: e.target.value })}
+                  value={editingOpp.title}
+                  onChange={(e) => setEditingOpp({ ...editingOpp, title: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="grid gap-2">
-                  <Label>Stipend</Label>
-                  <Input
-                    value={editingInt.stipend}
-                    onChange={(e) => setEditingInt({ ...editingInt, stipend: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Location</Label>
-                  <Input
-                    value={editingInt.location}
-                    onChange={(e) => setEditingInt({ ...editingInt, location: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label>Required Skills (comma-separated)</Label>
+              <div className="grid gap-1">
+                <Label>Location</Label>
                 <Input
-                  value={editingInt.requiredSkills.join(", ")}
-                  onChange={(e) =>
-                    setEditingInt({
-                      ...editingInt,
-                      requiredSkills: e.target.value
-                        .split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                    })
-                  }
+                  value={editingOpp.location}
+                  onChange={(e) => setEditingOpp({ ...editingOpp, location: e.target.value })}
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-1">
+                <Label>Duration</Label>
+                <Input
+                  value={editingOpp.duration}
+                  onChange={(e) => setEditingOpp({ ...editingOpp, duration: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-1">
                 <Label>Description</Label>
                 <Textarea
                   rows={3}
-                  value={editingInt.description}
-                  onChange={(e) => setEditingInt({ ...editingInt, description: e.target.value })}
+                  value={editingOpp.description}
+                  onChange={(e) => setEditingOpp({ ...editingOpp, description: e.target.value })}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingInt(null)}>
+              <Button variant="outline" onClick={() => setEditingOpp(null)}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveEditInternship}>Save Changes</Button>
+              <Button onClick={handleUpdate}>Save Changes</Button>
             </DialogFooter>
           </DialogContent>
-        )}
-      </Dialog>
+        </Dialog>
+      )}
 
-      {/* Edit Job Modal */}
-      <Dialog open={!!editingJob} onOpenChange={(open) => !open && setEditingJob(null)}>
-        {editingJob && (
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Edit Job: {editingJob.title}</DialogTitle>
-              <DialogDescription>Modify salary bracket, experience, or skills.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3 py-2">
-              <div className="grid gap-2">
-                <Label>Title</Label>
-                <Input
-                  value={editingJob.title}
-                  onChange={(e) => setEditingJob({ ...editingJob, title: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="grid gap-2">
-                  <Label>CTC</Label>
-                  <Input
-                    value={editingJob.ctc}
-                    onChange={(e) => setEditingJob({ ...editingJob, ctc: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Location</Label>
-                  <Input
-                    value={editingJob.location}
-                    onChange={(e) => setEditingJob({ ...editingJob, location: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label>Required Skills (comma-separated)</Label>
-                <Input
-                  value={editingJob.requiredSkills.join(", ")}
-                  onChange={(e) =>
-                    setEditingJob({
-                      ...editingJob,
-                      requiredSkills: e.target.value
-                        .split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Description</Label>
-                <Textarea
-                  rows={3}
-                  value={editingJob.description}
-                  onChange={(e) => setEditingJob({ ...editingJob, description: e.target.value })}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingJob(null)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveEditJob}>Save Changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
-      </Dialog>
-
-      {/* Delete Confirmation Alert */}
+      {/* Delete Confirm Alert */}
       <AlertDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
@@ -949,24 +628,16 @@ export function IndustryPostOpportunity() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Opportunity?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete{" "}
-              <span className="font-semibold text-foreground">"{deleteDialog.title}"</span>? This
-              will remove the listing from both recruiter and student portals.
+              Are you sure you want to permanently delete "{deleteDialog.title}"? This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-rose-600 hover:bg-rose-700 text-white"
               onClick={() => {
-                if (deleteDialog.type === "internship") {
-                  deleteInternship(deleteDialog.id);
-                  toast.success("Internship deleted");
-                } else {
-                  deleteJob(deleteDialog.id);
-                  toast.success("Job deleted");
-                }
-                setDeleteDialog((prev) => ({ ...prev, open: false }));
+                deleteCorporateOpportunity(deleteDialog.id);
+                toast.success("Opportunity deleted.");
               }}
             >
               Delete

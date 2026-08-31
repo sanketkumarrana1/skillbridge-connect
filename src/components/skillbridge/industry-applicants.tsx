@@ -24,6 +24,7 @@ import {
   UserCheck,
   UserRound,
   UserX,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -41,6 +42,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -54,620 +56,497 @@ export function IndustryApplicants() {
   const {
     industryApps,
     candidates,
-    setIndustryStatus,
+    opportunities,
+    setCandidateApplicationStatus,
+    bulkShortlistCandidates,
     shortlistCandidate,
     rejectCandidate,
-    internships,
-    jobs,
     profile,
+    careerReadiness,
   } = useAppState();
 
   const [query, setQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [opportunityFilter, setOpportunityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [skillFilter, setSkillFilter] = useState("");
-  const [sortBy, setSortBy] = useState<"match-desc" | "match-asc" | "recent">("match-desc");
+  const [minMatchFilter, setMinMatchFilter] = useState<number>(0);
+  const [sortBy, setSortBy] = useState<"match-desc" | "match-asc" | "recent" | "readiness-desc">(
+    "match-desc",
+  );
 
-  // Dossier Modal states
+  // Bulk Selection State
+  const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
+
+  // Dossier Modal State
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
-  const [modalType, setModalType] = useState<"resume" | "portfolio" | null>(null);
+  const [dossierOpen, setDossierOpen] = useState(false);
 
-  // Combine application with rich candidate dossier
+  // Merge each application with full candidate profile and stage 4/5 match scores
   const applicantRows = useMemo(() => {
     return industryApps.map((app) => {
-      const candidateInfo = candidates.find(
-        (c) =>
+      const candidateInfo = (candidates as Candidate[]).find(
+        (c: Candidate) =>
           c.name.toLowerCase() === app.candidate?.toLowerCase() ||
           c.id === app.candidate ||
           c.id === app.id,
       );
 
-      // If matches the logged-in student, combine live profile
       const isStudentProfile = app.candidate?.toLowerCase() === profile.name.toLowerCase();
 
-      const candidateData: Candidate = candidateInfo || {
-        id: `cand-${app.id}`,
-        name: app.candidate || "Student Applicant",
-        college: app.branch || "Partner Institute",
-        branch: app.branch || "Computer Science",
-        year: "3rd Year",
-        skills: isStudentProfile
-          ? profile.skills.map((s) => s.name)
-          : ["React", "TypeScript", "Python"],
-        gaps: isStudentProfile ? [] : ["Testing"],
-        match: app.match ?? 85,
-        appliedFor: app.internship,
-        shortlisted: app.status === "Shortlisted",
-        status: app.status,
-        employabilityScore: isStudentProfile ? 88 : 82,
-        technicalScore: isStudentProfile ? 90 : 85,
-        softSkillScore: isStudentProfile ? 84 : 80,
-        email: isStudentProfile ? profile.email : "candidate@partner.edu",
-        phone: isStudentProfile ? profile.phone : "+91 98765 43210",
-        about: isStudentProfile
-          ? profile.about
-          : "Aspiring software engineer with strong technical foundations.",
-        projects: isStudentProfile
-          ? profile.projects.map((p) => ({
-              title: p.title,
-              tech: p.tech,
-              description: p.description,
-            }))
-          : [
-              {
-                title: "Capstone Project",
-                tech: ["React", "Node.js"],
-                description: "Full-stack web application.",
-              },
-            ],
-        certifications: isStudentProfile
-          ? profile.certifications.map((c) => ({
-              title: c.name || c.title || "Certificate",
-              issuer: c.issuer,
-              year: c.issueDate || "2025",
-            }))
-          : [],
-        appliedDate: app.appliedDate,
-        avatar: isStudentProfile ? profile.avatar : undefined,
-      };
+      let candidateData: Candidate;
+      if (candidateInfo) {
+        candidateData = {
+          ...candidateInfo,
+          match: app.match ?? candidateInfo.match ?? 85,
+          appliedFor: app.internship || candidateInfo.appliedFor,
+          opportunityType: app.opportunityType || candidateInfo.opportunityType || "Internship",
+          status: app.status,
+          shortlisted:
+            app.status === "Shortlisted" ||
+            app.status === "Interview" ||
+            (app.status as string) === "Interview Scheduled" ||
+            (app.status as string) === "Interview Completed" ||
+            app.status === "Offered" ||
+            app.status === "Hired",
+        };
+      } else {
+        candidateData = {
+          id: `cand-${app.id}`,
+          name: app.candidate || "Student Applicant",
+          college: isStudentProfile
+            ? profile.academicProfile?.institution || profile.college
+            : app.branch || "Partner Institute",
+          branch: isStudentProfile
+            ? profile.academicProfile?.program || profile.branch
+            : app.branch || "Computer Science",
+          year: isStudentProfile
+            ? `Batch ${profile.academicProfile?.graduationYear || profile.year || "2026"}`
+            : "3rd Year",
+          skills: isStudentProfile
+            ? (profile.declaredSkills ?? []).map((s) => s.name)
+            : ["React", "TypeScript", "Python"],
+          gaps: isStudentProfile ? [] : ["Testing"],
+          match: app.match ?? 85,
+          appliedFor: app.internship,
+          opportunityType: app.opportunityType || "Internship",
+          shortlisted:
+            app.status === "Shortlisted" ||
+            app.status === "Interview" ||
+            (app.status as string) === "Interview Scheduled" ||
+            (app.status as string) === "Interview Completed" ||
+            app.status === "Offered" ||
+            app.status === "Hired",
+          status: app.status,
+          employabilityScore: isStudentProfile ? careerReadiness.overallScore : 84,
+          technicalScore: isStudentProfile ? careerReadiness.dimensions.technicalSkills : 88,
+          softSkillScore: isStudentProfile ? careerReadiness.dimensions.communication : 80,
+          about: isStudentProfile ? profile.about : "Aspiring Software Engineer",
+          projects: isStudentProfile
+            ? (profile.projects ?? []).map((p) => ({
+                title: p.title,
+                tech: p.tech,
+                description: p.description,
+              }))
+            : [],
+          certifications: isStudentProfile
+            ? (profile.certifications ?? []).map((c) => ({
+                title: c.name,
+                issuer: c.issuer,
+                year: c.issueDate,
+              }))
+            : [],
+          appliedDate: app.appliedDate,
+        };
+      }
 
       return {
-        app,
+        application: app,
         candidate: candidateData,
       };
     });
-  }, [industryApps, candidates, profile]);
+  }, [industryApps, candidates, profile, careerReadiness]);
 
-  // Unique roles for filter dropdown
-  const uniqueRoles = useMemo(() => {
-    const roles = new Set<string>();
-    for (const row of applicantRows) {
-      if (row.app.internship) roles.add(row.app.internship);
-    }
-    return Array.from(roles);
-  }, [applicantRows]);
-
-  // Filter & Sort
+  // Filtered & Sorted Applicant Rows
   const filteredApplicants = useMemo(() => {
     return applicantRows
-      .filter(({ app, candidate }) => {
+      .filter(({ application, candidate }) => {
+        // Query Search across Name, Skills, Degree, Branch, College, Target Role
+        const q = query.toLowerCase().trim();
         const matchesQuery =
-          query.trim() === "" ||
-          candidate.name.toLowerCase().includes(query.toLowerCase()) ||
-          candidate.college.toLowerCase().includes(query.toLowerCase()) ||
-          candidate.branch.toLowerCase().includes(query.toLowerCase()) ||
-          candidate.skills.some((s) => s.toLowerCase().includes(query.toLowerCase()));
+          !q ||
+          candidate.name.toLowerCase().includes(q) ||
+          candidate.college.toLowerCase().includes(q) ||
+          candidate.branch.toLowerCase().includes(q) ||
+          candidate.appliedFor.toLowerCase().includes(q) ||
+          candidate.skills.some((s) => s.toLowerCase().includes(q));
 
-        const matchesRole = roleFilter === "all" || app.internship === roleFilter;
+        // Opportunity filter
+        const matchesOpp =
+          opportunityFilter === "all" ||
+          application.internshipId === opportunityFilter ||
+          application.internship.toLowerCase().includes(opportunityFilter.toLowerCase());
 
-        const matchesStatus = statusFilter === "all" || app.status === statusFilter;
+        // Status Filter
+        const matchesStatus = statusFilter === "all" || application.status === statusFilter;
 
-        const matchesSkill =
-          skillFilter.trim() === "" ||
-          candidate.skills.some((s) => s.toLowerCase().includes(skillFilter.toLowerCase()));
+        // Min Match Filter
+        const matchesMatch = (application.match ?? candidate.match ?? 0) >= minMatchFilter;
 
-        return matchesQuery && matchesRole && matchesStatus && matchesSkill;
+        return matchesQuery && matchesOpp && matchesStatus && matchesMatch;
       })
       .sort((a, b) => {
-        if (sortBy === "match-desc") return (b.app.match ?? 0) - (a.app.match ?? 0);
-        if (sortBy === "match-asc") return (a.app.match ?? 0) - (b.app.match ?? 0);
-        return b.app.id.localeCompare(a.app.id);
+        if (sortBy === "match-desc") {
+          return (b.application.match ?? b.candidate.match ?? 0) - (a.application.match ?? a.candidate.match ?? 0);
+        }
+        if (sortBy === "match-asc") {
+          return (a.application.match ?? a.candidate.match ?? 0) - (b.application.match ?? b.candidate.match ?? 0);
+        }
+        if (sortBy === "readiness-desc") {
+          return (b.candidate.employabilityScore ?? 0) - (a.candidate.employabilityScore ?? 0);
+        }
+        return 0; // default recent
       });
-  }, [applicantRows, query, roleFilter, statusFilter, skillFilter, sortBy]);
+  }, [applicantRows, query, opportunityFilter, statusFilter, minMatchFilter, sortBy]);
 
-  const handleStatusChange = (appId: string, candName: string, status: ApplicationStatus) => {
-    setIndustryStatus(appId, status);
-    toast.success(`Applicant ${candName} marked as "${status}"`);
+  // Handle Multi-Select Checkboxes
+  const handleToggleSelectAll = () => {
+    if (selectedAppIds.length === filteredApplicants.length) {
+      setSelectedAppIds([]);
+    } else {
+      setSelectedAppIds(filteredApplicants.map((r) => r.application.id));
+    }
   };
 
-  const getStatusBadge = (status: ApplicationStatus) => {
-    switch (status) {
-      case "Shortlisted":
-        return (
-          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-            Shortlisted
-          </Badge>
-        );
-      case "Interview":
-        return (
-          <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
-            Interview Scheduled
-          </Badge>
-        );
-      case "Selected":
-        return (
-          <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20">
-            Selected / Hired
-          </Badge>
-        );
-      case "Rejected":
-        return (
-          <Badge variant="outline" className="text-muted-foreground">
-            Rejected
-          </Badge>
-        );
-      case "Under Review":
-        return (
-          <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">Under Review</Badge>
-        );
-      default:
-        return <Badge variant="secondary">Applied</Badge>;
-    }
+  const handleToggleSelectOne = (id: string) => {
+    setSelectedAppIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const handleBulkShortlist = () => {
+    if (selectedAppIds.length === 0) return;
+    bulkShortlistCandidates(selectedAppIds);
+    toast.success(`🎉 ${selectedAppIds.length} candidate(s) shortlisted in bulk!`);
+    setSelectedAppIds([]);
   };
 
   return (
     <div className="space-y-8">
       <WorkspaceHeader
-        eyebrow="Talent Pipeline"
-        title="Applicant Tracking & Review"
-        description="Review student submissions, inspect full dossiers and resumes, and update recruitment stages in real time."
+        eyebrow="Industry Portal"
+        title="Application Inbox & Screening"
+        description="Filter, evaluate, and shortlist campus candidates with real-time match analytics and candidate dossiers."
       />
 
-      {/* Filter & Search Bar */}
-      <SectionCard title="Filter & Search Applicants">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by student name, college..."
-              className="pl-9"
-            />
-          </div>
+      {/* Filter and Search Control Bar */}
+      <Card className="border-border/80 bg-card p-4 shadow-sm">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search candidates by name, skill, degree, department, or college..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
 
-          {/* Role Filter */}
-          <div>
+            {/* Opportunity Filter */}
             <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+              aria-label="Filter by Opportunity"
+              value={opportunityFilter}
+              onChange={(e) => setOpportunityFilter(e.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-xs md:w-56"
             >
-              <option value="all">All Opportunities ({uniqueRoles.length})</option>
-              {uniqueRoles.map((role) => (
-                <option key={role} value={role}>
-                  {role}
+              <option value="all">All Opportunities ({opportunities.length})</option>
+              {opportunities.map((opp) => (
+                <option key={opp.id} value={opp.id}>
+                  {opp.title} ({opp.company})
                 </option>
               ))}
             </select>
-          </div>
 
-          {/* Status Filter */}
-          <div>
+            {/* Status Filter */}
             <select
+              aria-label="Filter by Status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-xs md:w-44"
             >
               <option value="all">All Statuses</option>
               <option value="Applied">Applied</option>
               <option value="Under Review">Under Review</option>
               <option value="Shortlisted">Shortlisted</option>
-              <option value="Interview">Interview Scheduled</option>
-              <option value="Selected">Selected</option>
+              <option value="Assessment">Assessment</option>
+              <option value="Interview Scheduled">Interview Scheduled</option>
+              <option value="Interview Completed">Interview Completed</option>
+              <option value="Offered">Offered</option>
+              <option value="Hired">Hired</option>
               <option value="Rejected">Rejected</option>
             </select>
-          </div>
 
-          {/* Sort By */}
-          <div>
+            {/* Match Filter */}
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "match-desc" | "match-asc" | "recent")}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+              aria-label="Filter by Match Score"
+              value={minMatchFilter}
+              onChange={(e) => setMinMatchFilter(parseInt(e.target.value, 10))}
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-xs md:w-40"
             >
-              <option value="match-desc">Sort: Highest Match %</option>
-              <option value="match-asc">Sort: Lowest Match %</option>
-              <option value="recent">Sort: Most Recent</option>
+              <option value={0}>All Matches</option>
+              <option value={85}>85%+ (Best Match)</option>
+              <option value={75}>75%+ (High Fit)</option>
+              <option value={60}>60%+ (Eligible)</option>
+            </select>
+
+            {/* Sort Selector */}
+            <select
+              aria-label="Sort Candidates"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-xs md:w-44"
+            >
+              <option value="match-desc">Match: High to Low</option>
+              <option value="match-asc">Match: Low to High</option>
+              <option value="readiness-desc">Readiness Score</option>
+              <option value="recent">Most Recent</option>
             </select>
           </div>
-        </div>
 
-        {/* Skill filter chip bar */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 pt-3 border-t border-border">
-          <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
-            <SlidersHorizontal className="size-3.5" /> Quick Skill Filter:
-          </span>
-          {["React", "TypeScript", "Python", "SQL", "Docker", "AWS", "Node.js"].map((skill) => {
-            const active = skillFilter.toLowerCase() === skill.toLowerCase();
-            return (
-              <button
-                key={skill}
-                onClick={() => setSkillFilter(active ? "" : skill)}
-                className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition ${
-                  active
-                    ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {skill}
-              </button>
-            );
-          })}
-          {skillFilter && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => setSkillFilter("")}
-            >
-              Clear Filter
-            </Button>
+          {/* Bulk Action Sticky Bar if any selected */}
+          {selectedAppIds.length > 0 && (
+            <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-xl p-3 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-primary text-primary-foreground font-bold text-xs">
+                  {selectedAppIds.length} Selected
+                </Badge>
+                <span className="text-xs text-foreground font-medium">candidates selected for batch decision</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setSelectedAppIds([])}>
+                  Deselect All
+                </Button>
+                <Button size="sm" className="h-8 text-xs gap-1.5" onClick={handleBulkShortlist}>
+                  <UserCheck className="size-3.5" /> Shortlist Selected ({selectedAppIds.length})
+                </Button>
+              </div>
+            </div>
           )}
         </div>
-      </SectionCard>
+      </Card>
 
-      {/* Applicants List */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing <span className="font-bold text-foreground">{filteredApplicants.length}</span>{" "}
-            applicants
-          </p>
-        </div>
-
+      {/* Applicant Records Table / Cards */}
+      <SectionCard
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="size-5 text-primary" />
+              <h3 className="font-display text-base font-semibold">
+                Candidates ({filteredApplicants.length})
+              </h3>
+            </div>
+            {filteredApplicants.length > 0 && (
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                className="text-xs text-muted-foreground hover:text-foreground font-medium"
+              >
+                {selectedAppIds.length === filteredApplicants.length ? "Deselect All" : "Select All Visible"}
+              </button>
+            )}
+          </div>
+        }
+      >
         {filteredApplicants.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-            <UserRound className="mx-auto size-12 text-muted-foreground/50" />
-            <h3 className="mt-3 font-semibold text-foreground">No applicants found</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Try adjusting your query, role selection, or status filters.
-            </p>
+          <div className="text-center py-12 space-y-3">
+            <UserRound className="size-10 text-muted-foreground/50 mx-auto" />
+            <p className="text-sm font-semibold text-foreground">No applicants matching your criteria.</p>
+            <p className="text-xs text-muted-foreground">Try clearing filters or search terms.</p>
           </div>
         ) : (
-          <div className="grid gap-4">
-            {filteredApplicants.map(({ app, candidate }) => {
-              const match = app.match ?? candidate.match ?? 85;
-              const isExcellent = match >= 85;
-              const isStrong = match >= 70 && match < 85;
+          <div className="divide-y divide-border">
+            {filteredApplicants.map(({ application, candidate }) => {
+              const isSelected = selectedAppIds.includes(application.id);
+              const matchScore = application.match ?? candidate.match ?? 85;
+              const readiness = candidate.employabilityScore ?? 84;
 
               return (
-                <Card
-                  key={app.id}
-                  className="overflow-hidden border-border/80 bg-card/90 transition hover:border-primary/40 hover:shadow-md"
+                <div
+                  key={application.id}
+                  onClick={() => {
+                    setSelectedCandidate(candidate);
+                    setDossierOpen(true);
+                  }}
+                  className={`py-4 px-3 rounded-xl transition cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
+                    isSelected ? "bg-primary/5 border border-primary/30" : "hover:bg-muted/20"
+                  }`}
                 >
-                  <CardContent className="p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                      {/* Left: Avatar & Candidate Info */}
-                      <div className="flex items-start gap-4">
-                        <Avatar className="size-14 border border-border shrink-0">
-                          {candidate.avatar ? (
-                            <AvatarImage src={candidate.avatar} alt={candidate.name} />
-                          ) : null}
-                          <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
-                            {candidate.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
+                  <div className="flex items-start gap-3 min-w-0">
+                    {/* Checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        handleToggleSelectOne(application.id);
+                      }}
+                      className="size-4 rounded mt-1 border-muted-foreground text-primary focus:ring-primary cursor-pointer"
+                    />
 
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="font-display font-semibold text-base text-foreground">
-                              {candidate.name}
-                            </h3>
-                            {getStatusBadge(app.status)}
-                            <Badge
-                              variant="outline"
-                              className={
-                                isExcellent
-                                  ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]"
-                                  : isStrong
-                                    ? "bg-blue-500/10 text-blue-600 border-blue-500/20 text-[10px]"
-                                    : "bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px]"
-                              }
-                            >
-                              <Sparkles className="size-3 mr-1" />
-                              {isExcellent
-                                ? "Excellent Fit"
-                                : isStrong
-                                  ? "Strong Fit"
-                                  : "Moderate Fit"}
-                            </Badge>
-                          </div>
+                    {/* Avatar */}
+                    <Avatar className="size-12 border border-border shrink-0">
+                      {candidate.avatar ? <AvatarImage src={candidate.avatar} /> : null}
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+                        {candidate.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
 
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1 font-medium text-foreground">
-                              <GraduationCap className="size-3.5 text-primary" />
-                              {candidate.college}
-                            </span>
-                            <span>•</span>
-                            <span>{candidate.branch}</span>
-                            <span>•</span>
-                            <span>{candidate.year}</span>
-                            <span>•</span>
-                            <span>Applied: {app.appliedDate}</span>
-                          </div>
-
-                          <p className="text-xs font-semibold text-primary">
-                            Applied For: {app.internship} ({app.opportunityType ?? "Internship"})
-                          </p>
-
-                          {/* Skills preview */}
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {candidate.skills.slice(0, 6).map((skill) => (
-                              <SkillTag key={skill} muted>
-                                {skill}
-                              </SkillTag>
-                            ))}
-                            {candidate.skills.length > 6 && (
-                              <span className="text-[11px] text-muted-foreground font-medium self-center">
-                                +{candidate.skills.length - 6} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                    {/* Information */}
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-semibold text-sm text-foreground hover:text-primary transition truncate">
+                          {candidate.name}
+                        </h4>
+                        <Badge
+                          variant="outline"
+                          className={
+                            application.status === "Shortlisted"
+                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]"
+                              : (application.status as string) === "Interview Scheduled" ||
+                                  (application.status as string) === "Interview Completed" ||
+                                  application.status === "Interview"
+                                ? "bg-blue-500/10 text-blue-600 border-blue-500/20 text-[10px]"
+                                : (application.status as string) === "Assessment"
+                                  ? "bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px]"
+                                  : application.status === "Offered"
+                                    ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 text-[10px]"
+                                    : application.status === "Hired"
+                                      ? "bg-purple-500/10 text-purple-600 border-purple-500/20 text-[10px]"
+                                      : application.status === "Rejected"
+                                        ? "bg-rose-500/10 text-rose-600 border-rose-500/20 text-[10px]"
+                                        : "bg-muted text-muted-foreground text-[10px]"
+                          }
+                        >
+                          {application.status}
+                        </Badge>
                       </div>
 
-                      {/* Right: Match Stats & Actions */}
-                      <div className="flex flex-col sm:flex-row lg:flex-col items-end gap-3 justify-between border-t lg:border-t-0 pt-3 lg:pt-0 border-border">
-                        {/* Score badges */}
-                        <div className="flex items-center gap-3">
-                          <div className="text-right">
-                            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                              AI Match
-                            </p>
-                            <p
-                              className={`text-xl font-bold font-display ${
-                                isExcellent
-                                  ? "text-emerald-600"
-                                  : isStrong
-                                    ? "text-blue-600"
-                                    : "text-amber-600"
-                              }`}
-                            >
-                              {match}%
-                            </p>
-                          </div>
-                          <div className="h-8 w-px bg-border" />
-                          <div className="text-right">
-                            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                              Employability
-                            </p>
-                            <p className="text-xl font-bold font-display text-primary">
-                              {candidate.employabilityScore ?? 84}%
-                            </p>
-                          </div>
-                        </div>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {candidate.college} • {candidate.branch} ({candidate.year})
+                      </p>
 
-                        {/* Action buttons */}
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 gap-1.5 text-xs"
-                            onClick={() => {
-                              setSelectedCandidate(candidate);
-                              setModalType("resume");
-                            }}
-                          >
-                            <FileText className="size-3.5" /> View Resume
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 gap-1.5 text-xs"
-                            onClick={() => {
-                              setSelectedCandidate(candidate);
-                              setModalType("portfolio");
-                            }}
-                          >
-                            <Eye className="size-3.5" /> View Portfolio
-                          </Button>
+                      <p className="text-[11px] text-foreground font-medium flex items-center gap-1.5 pt-0.5">
+                        <Briefcase className="size-3 text-primary" /> Applied for: {application.internship}
+                      </p>
 
-                          {/* Quick Status Dropdown */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button size="sm" className="h-8 gap-1 text-xs">
-                                Action <ChevronDown className="size-3.5" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                className="text-emerald-600 gap-2 font-medium"
-                                onClick={() =>
-                                  handleStatusChange(app.id, candidate.name, "Shortlisted")
-                                }
-                              >
-                                <UserCheck className="size-4" /> Shortlist Candidate
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-blue-600 gap-2 font-medium"
-                                onClick={() =>
-                                  handleStatusChange(app.id, candidate.name, "Interview")
-                                }
-                              >
-                                <Calendar className="size-4" /> Schedule Interview
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-purple-600 gap-2 font-medium"
-                                onClick={() =>
-                                  handleStatusChange(app.id, candidate.name, "Selected")
-                                }
-                              >
-                                <CheckCircle2 className="size-4" /> Make Offer / Select
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive gap-2 font-medium"
-                                onClick={() =>
-                                  handleStatusChange(app.id, candidate.name, "Rejected")
-                                }
-                              >
-                                <UserX className="size-4" /> Reject Application
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {candidate.skills.slice(0, 5).map((s) => (
+                          <SkillTag key={s} muted>
+                            {s}
+                          </SkillTag>
+                        ))}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  {/* Right Metrics & Quick Actions */}
+                  <div
+                    className="flex flex-wrap sm:flex-nowrap items-center justify-between lg:justify-end gap-4 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-border"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Readiness Gauge */}
+                    <div className="text-right">
+                      <div className="text-[11px] text-muted-foreground">Readiness</div>
+                      <div className="font-bold text-xs text-foreground">{readiness}/100</div>
+                    </div>
+
+                    {/* Match Score */}
+                    <div className="text-right">
+                      <div className="text-[11px] text-muted-foreground">AI Match</div>
+                      <div className="font-display font-bold text-sm text-emerald-600">
+                        {matchScore}%
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs gap-1"
+                        onClick={() => {
+                          setSelectedCandidate(candidate);
+                          setDossierOpen(true);
+                        }}
+                      >
+                        <Eye className="size-3.5" /> Dossier
+                      </Button>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="default" className="h-8 text-xs">
+                            Decision <ChevronDown className="size-3 ml-1" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              shortlistCandidate(candidate.id, application.id);
+                              toast.success(`🎉 ${candidate.name} shortlisted!`);
+                            }}
+                          >
+                            <UserCheck className="size-3.5 mr-2 text-emerald-600" /> Shortlist
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setCandidateApplicationStatus(application.id, "Assessment" as any, {
+                                nextStep: "Technical MCQ & Coding Assessment assigned",
+                              });
+                              toast.info(`Assessment assigned to ${candidate.name}.`);
+                            }}
+                          >
+                            <Sparkles className="size-3.5 mr-2 text-amber-600" /> Move to Assessment
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedCandidate(candidate);
+                              setDossierOpen(true);
+                            }}
+                          >
+                            <Calendar className="size-3.5 mr-2 text-blue-600" /> Schedule Interview
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              rejectCandidate(candidate.id, application.id);
+                              toast.error(`${candidate.name} marked as rejected.`);
+                            }}
+                            className="text-rose-600"
+                          >
+                            <UserX className="size-3.5 mr-2" /> Reject Candidate
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
         )}
-      </div>
+      </SectionCard>
 
-      {/* View Resume Modal */}
-      <Dialog
-        open={modalType === "resume" && !!selectedCandidate}
-        onOpenChange={(open) => !open && setModalType(null)}
-      >
-        {selectedCandidate && (
-          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center justify-between gap-2 border-b border-border pb-3">
-                <div className="flex items-center gap-2">
-                  <FileText className="size-5 text-primary" />
-                  <span>Applicant Resume: {selectedCandidate.name}</span>
-                </div>
-                <Badge variant="outline">{selectedCandidate.branch}</Badge>
-              </DialogTitle>
-              <DialogDescription className="sr-only">Resume view for candidate</DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-6 py-2">
-              {/* Header Contact Block */}
-              <div className="rounded-xl bg-muted/40 p-4 space-y-2">
-                <h2 className="text-xl font-bold font-display text-foreground">
-                  {selectedCandidate.name}
-                </h2>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {selectedCandidate.about}
-                </p>
-                <div className="flex flex-wrap gap-4 pt-1 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <Mail className="size-3.5 text-primary" />
-                    {selectedCandidate.email || "student@partner.edu"}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="size-3.5 text-primary" />
-                    {selectedCandidate.phone || "+91 98765 43210"}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <GraduationCap className="size-3.5 text-primary" />
-                    {selectedCandidate.college}
-                  </span>
-                </div>
-              </div>
-
-              {/* Education */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-1.5">
-                  <GraduationCap className="size-4" /> Education
-                </h3>
-                <div className="rounded-xl border border-border p-3 space-y-1">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-semibold text-sm text-foreground">
-                      {selectedCandidate.college}
-                    </h4>
-                    <span className="text-xs text-muted-foreground">2022 - 2026</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedCandidate.branch} • {selectedCandidate.year}
-                  </p>
-                  <p className="text-xs font-semibold text-emerald-600">8.72 CGPA (Verified)</p>
-                </div>
-              </div>
-
-              {/* Skills */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-1.5">
-                  <Code2 className="size-4" /> Technical Proficiency
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedCandidate.skills.map((s) => (
-                    <Badge key={s} variant="secondary" className="text-xs font-medium">
-                      {s}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Projects */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-1.5">
-                  <BookOpen className="size-4" /> Engineering Projects
-                </h3>
-                <div className="space-y-3">
-                  {(selectedCandidate.projects || []).map((p, idx) => (
-                    <div key={idx} className="rounded-xl border border-border p-3 space-y-1">
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-semibold text-sm text-foreground">{p.title}</h4>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {p.description}
-                      </p>
-                      <div className="flex flex-wrap gap-1 pt-1">
-                        {p.tech.map((t) => (
-                          <span
-                            key={t}
-                            className="text-[10px] bg-muted px-2 py-0.5 rounded-sm font-medium"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Certifications */}
-              {(selectedCandidate.certifications || []).length > 0 && (
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-1.5">
-                    <Award className="size-4" /> Verified Credentials
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedCandidate.certifications?.map((c, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-between items-center text-xs p-2 rounded-lg bg-muted/40"
-                      >
-                        <span className="font-semibold text-foreground">{c.title}</span>
-                        <span className="text-muted-foreground">
-                          {c.issuer} ({c.year})
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        )}
-      </Dialog>
-
-      {/* Candidate Profile Dossier Modal */}
-      <CandidateDetailsModal
-        candidate={selectedCandidate}
-        open={modalType === "portfolio" && !!selectedCandidate}
-        onOpenChange={(open) => !open && setModalType(null)}
-      />
+      {/* Candidate Evaluation Dossier Modal */}
+      {selectedCandidate && (
+        <CandidateDetailsModal
+          candidate={selectedCandidate}
+          open={dossierOpen}
+          onOpenChange={setDossierOpen}
+        />
+      )}
     </div>
   );
 }

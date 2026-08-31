@@ -31,6 +31,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectionCard, Stat, WorkspaceHeader } from "@/components/skillbridge/student-ui";
 import { useAppState } from "@/context/app-state";
+import { cn } from "@/lib/utils";
 
 export function InstitutionReports() {
   const { institutionStudents, departmentReports, recruiterPartners, internships } = useAppState();
@@ -180,26 +181,26 @@ export function InstitutionReports() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Export Modules"
-          value="4 Categories"
-          trend="Students, Placements, Interns, Depts"
+          value="4"
+          trend="Categories"
           icon={FileSpreadsheet}
         />
         <Stat
-          label="Accreditation Ready"
+          label="Accreditation Docket"
           value="NAAC & NBA"
-          trend="Tier-1 Compliance formats"
+          trend="Tier-1 Compliant"
           icon={CheckCircle2}
         />
         <Stat
-          label="Total Profiles"
+          label="Student Records"
           value={institutionStudents.length.toString()}
-          trend="In Active Database"
+          trend="Active Database"
           icon={Users}
         />
         <Stat
-          label="Recruiter Records"
+          label="Corporate Partners"
           value={recruiterPartners.length.toString()}
-          trend="Corporate Accounts"
+          trend="Active Recruiter Networks"
           icon={Building2}
         />
       </div>
@@ -235,50 +236,63 @@ export function InstitutionReports() {
             count: "5 Departments",
             exportCsv: handleExportDepartmentsCSV,
           },
-        ].map((rep) => (
-          <Card
-            key={rep.id}
-            className={`border transition hover:shadow-md ${
-              activeReportType === rep.id
-                ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                : "border-border bg-card"
-            }`}
-          >
-            <CardContent className="p-5 space-y-3 flex flex-col justify-between h-full">
-              <div className="space-y-2">
+        ].map((rep) => {
+          const isActive = activeReportType === rep.id;
+          return (
+            <Card
+              key={rep.id}
+              onClick={() => setActiveReportType(rep.id as any)}
+              className={cn(
+                "cursor-pointer rounded-2xl border transition-all duration-200 p-5 flex flex-col justify-between",
+                isActive
+                  ? "border-indigo-500/80 bg-slate-900/90 shadow-[0_0_20px_rgba(99,102,241,0.25)] ring-1 ring-indigo-500/50"
+                  : "border-white/10 bg-slate-900/60 hover:border-white/20 hover:bg-slate-900/80",
+              )}
+            >
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <span className="grid size-9 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300">
                     <FileText className="size-4.5" />
                   </span>
-                  <Badge variant="outline" className="text-[10px]">
+                  <Badge className="border-white/10 bg-slate-800 text-slate-300 text-[10px]">
                     {rep.count}
                   </Badge>
                 </div>
-                <h3 className="font-display text-sm font-bold text-foreground">{rep.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{rep.desc}</p>
+                <h3 className="font-display text-sm font-bold text-white">{rep.title}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">{rep.desc}</p>
               </div>
 
-              <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
+              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between gap-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 text-xs gap-1"
-                  onClick={() => setPdfPreviewModal(rep.id)}
+                  className="h-8 text-xs gap-1 border-white/10 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPdfPreviewModal(rep.id);
+                  }}
                 >
-                  <Eye className="size-3.5" /> View
+                  <Eye className="size-3.5" /> View PDF
                 </Button>
-                <Button size="sm" className="h-8 text-xs gap-1" onClick={rep.exportCsv}>
+                <Button
+                  size="sm"
+                  className="h-8 text-xs gap-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    rep.exportCsv();
+                  }}
+                >
                   <Download className="size-3.5" /> Export CSV
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </div>
 
       {/* Live Data Preview Section */}
       <SectionCard title="Live Institutional Data Feed Preview">
-        <div className="space-y-4 pt-2">
+        <div className="space-y-5 pt-1">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <Tabs
               value={activeReportType}
@@ -286,11 +300,29 @@ export function InstitutionReports() {
                 setActiveReportType(v as "students" | "placements" | "internships" | "departments")
               }
             >
-              <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full sm:w-[540px]">
-                <TabsTrigger value="students">Students ({institutionStudents.length})</TabsTrigger>
-                <TabsTrigger value="placements">Placements</TabsTrigger>
-                <TabsTrigger value="internships">Internships</TabsTrigger>
-                <TabsTrigger value="departments">
+              <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full sm:w-[540px] border border-white/10 bg-slate-950 p-1">
+                <TabsTrigger
+                  value="students"
+                  className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-xs"
+                >
+                  Students ({institutionStudents.length})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="placements"
+                  className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-xs"
+                >
+                  Placements
+                </TabsTrigger>
+                <TabsTrigger
+                  value="internships"
+                  className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-xs"
+                >
+                  Internships
+                </TabsTrigger>
+                <TabsTrigger
+                  value="departments"
+                  className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-xs"
+                >
                   Departments ({departmentReports.length})
                 </TabsTrigger>
               </TabsList>
@@ -300,14 +332,14 @@ export function InstitutionReports() {
               <Button
                 size="sm"
                 variant="outline"
-                className="gap-1 text-xs"
+                className="gap-1.5 text-xs border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white"
                 onClick={() => setPdfPreviewModal(activeReportType)}
               >
                 <Printer className="size-3.5" /> Print / Save PDF
               </Button>
               <Button
                 size="sm"
-                className="gap-1 text-xs"
+                className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-[0_0_12px_rgba(99,102,241,0.3)]"
                 onClick={() => {
                   if (activeReportType === "students") handleExportStudentsCSV();
                   else if (activeReportType === "placements") handleExportPlacementsCSV();
@@ -321,39 +353,46 @@ export function InstitutionReports() {
           </div>
 
           {/* Tab Content Tables */}
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 overflow-hidden">
             {activeReportType === "students" && (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-muted/40 border-b border-border text-muted-foreground">
+                  <thead className="bg-slate-950/80 border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
-                      <th className="p-3">Roll No</th>
-                      <th className="p-3">Student Name</th>
-                      <th className="p-3">Department</th>
-                      <th className="p-3">Year</th>
-                      <th className="p-3 text-center">CGPA</th>
-                      <th className="p-3 text-center">Employability</th>
-                      <th className="p-3 text-center">Placement</th>
-                      <th className="p-3 text-right">Package</th>
+                      <th className="p-3.5">Roll No</th>
+                      <th className="p-3.5">Student Name</th>
+                      <th className="p-3.5">Department</th>
+                      <th className="p-3.5">Year</th>
+                      <th className="p-3.5 text-center">CGPA</th>
+                      <th className="p-3.5 text-center">Employability</th>
+                      <th className="p-3.5 text-center">Placement</th>
+                      <th className="p-3.5 text-right">Package</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
-                    {institutionStudents.slice(0, 6).map((s) => (
-                      <tr key={s.id} className="hover:bg-muted/20">
-                        <td className="p-3 font-mono font-medium">{s.rollNo}</td>
-                        <td className="p-3 font-semibold text-foreground">{s.name}</td>
-                        <td className="p-3 text-muted-foreground">{s.department}</td>
-                        <td className="p-3 text-muted-foreground">{s.year}</td>
-                        <td className="p-3 text-center font-bold">{s.cgpa}</td>
-                        <td className="p-3 text-center font-bold text-primary">
+                  <tbody className="divide-y divide-white/10 text-slate-300">
+                    {institutionStudents.slice(0, 8).map((s) => (
+                      <tr key={s.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3.5 font-mono font-medium text-slate-400">{s.rollNo}</td>
+                        <td className="p-3.5 font-semibold text-white">{s.name}</td>
+                        <td className="p-3.5 text-slate-400">{s.department}</td>
+                        <td className="p-3.5 text-slate-400">{s.year}</td>
+                        <td className="p-3.5 text-center font-bold text-white">{s.cgpa}</td>
+                        <td className="p-3.5 text-center font-bold text-indigo-400">
                           {s.employabilityScore}%
                         </td>
-                        <td className="p-3 text-center">
-                          <Badge variant="outline" className="text-[10px]">
+                        <td className="p-3.5 text-center">
+                          <Badge
+                            className={cn(
+                              "text-[10px]",
+                              s.placementStatus === "Placed"
+                                ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                                : "bg-slate-800 text-slate-400 border-white/10",
+                            )}
+                          >
                             {s.placementStatus}
                           </Badge>
                         </td>
-                        <td className="p-3 text-right font-bold text-emerald-600">
+                        <td className="p-3.5 text-right font-bold text-emerald-400">
                           {s.packageLPA ? `₹${s.packageLPA} LPA` : "—"}
                         </td>
                       </tr>
@@ -366,31 +405,33 @@ export function InstitutionReports() {
             {activeReportType === "placements" && (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-muted/40 border-b border-border text-muted-foreground">
+                  <thead className="bg-slate-950/80 border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
-                      <th className="p-3">Department</th>
-                      <th className="p-3 text-center">Total Students</th>
-                      <th className="p-3 text-center">Placement Rate</th>
-                      <th className="p-3 text-right">Average CTC</th>
-                      <th className="p-3 text-right">Highest CTC</th>
-                      <th className="p-3">Top Recruiting Partners</th>
+                      <th className="p-3.5">Department</th>
+                      <th className="p-3.5 text-center">Total Students</th>
+                      <th className="p-3.5 text-center">Placement Rate</th>
+                      <th className="p-3.5 text-right">Average CTC</th>
+                      <th className="p-3.5 text-right">Highest CTC</th>
+                      <th className="p-3.5">Top Recruiting Partners</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="divide-y divide-white/10 text-slate-300">
                     {departmentReports.map((d) => (
-                      <tr key={d.id} className="hover:bg-muted/20">
-                        <td className="p-3 font-semibold text-foreground">
+                      <tr key={d.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3.5 font-semibold text-white">
                           {d.name} ({d.code})
                         </td>
-                        <td className="p-3 text-center">{d.totalStudents}</td>
-                        <td className="p-3 text-center font-bold text-emerald-600">
+                        <td className="p-3.5 text-center">{d.totalStudents}</td>
+                        <td className="p-3.5 text-center font-bold text-emerald-400">
                           {d.placementRate}%
                         </td>
-                        <td className="p-3 text-right font-semibold">₹{d.averageCTC} LPA</td>
-                        <td className="p-3 text-right font-bold text-primary">
+                        <td className="p-3.5 text-right font-semibold text-slate-200">
+                          ₹{d.averageCTC} LPA
+                        </td>
+                        <td className="p-3.5 text-right font-bold text-indigo-400">
                           ₹{d.highestCTC} LPA
                         </td>
-                        <td className="p-3 text-muted-foreground">
+                        <td className="p-3.5 text-slate-400">
                           Nexora Labs, Quantile AI, Qualcomm
                         </td>
                       </tr>
@@ -403,28 +444,28 @@ export function InstitutionReports() {
             {activeReportType === "internships" && (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-muted/40 border-b border-border text-muted-foreground">
+                  <thead className="bg-slate-950/80 border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
-                      <th className="p-3">Department</th>
-                      <th className="p-3 text-center">Enrollment</th>
-                      <th className="p-3 text-center">Participation Rate</th>
-                      <th className="p-3 text-center">Active Interns</th>
-                      <th className="p-3 text-center">PPO Conversion</th>
+                      <th className="p-3.5">Department</th>
+                      <th className="p-3.5 text-center">Enrollment</th>
+                      <th className="p-3.5 text-center">Participation Rate</th>
+                      <th className="p-3.5 text-center">Active Interns</th>
+                      <th className="p-3.5 text-center">PPO Conversion</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="divide-y divide-white/10 text-slate-300">
                     {departmentReports.map((d) => (
-                      <tr key={d.id} className="hover:bg-muted/20">
-                        <td className="p-3 font-semibold text-foreground">{d.name}</td>
-                        <td className="p-3 text-center">{d.totalStudents}</td>
-                        <td className="p-3 text-center font-bold text-emerald-600">
+                      <tr key={d.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3.5 font-semibold text-white">{d.name}</td>
+                        <td className="p-3.5 text-center">{d.totalStudents}</td>
+                        <td className="p-3.5 text-center font-bold text-emerald-400">
                           {d.internshipParticipation}%
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3.5 text-center">
                           {Math.round((d.totalStudents * d.internshipParticipation) / 100)}
                         </td>
-                        <td className="p-3 text-center">
-                          <Badge variant="secondary" className="text-[10px]">
+                        <td className="p-3.5 text-center">
+                          <Badge className="bg-indigo-500/10 text-indigo-300 border-indigo-500/20 text-[10px]">
                             {d.code === "CSE" ? "88%" : "80%"}
                           </Badge>
                         </td>
@@ -438,25 +479,25 @@ export function InstitutionReports() {
             {activeReportType === "departments" && (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-muted/40 border-b border-border text-muted-foreground">
+                  <thead className="bg-slate-950/80 border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
-                      <th className="p-3">Code</th>
-                      <th className="p-3">Department</th>
-                      <th className="p-3">Head of Department</th>
-                      <th className="p-3 text-center">Faculty</th>
-                      <th className="p-3 text-center">Partners</th>
-                      <th className="p-3 text-center">Employability</th>
+                      <th className="p-3.5">Code</th>
+                      <th className="p-3.5">Department</th>
+                      <th className="p-3.5">Head of Department</th>
+                      <th className="p-3.5 text-center">Faculty</th>
+                      <th className="p-3.5 text-center">Partners</th>
+                      <th className="p-3.5 text-center">Employability</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="divide-y divide-white/10 text-slate-300">
                     {departmentReports.map((d) => (
-                      <tr key={d.id} className="hover:bg-muted/20">
-                        <td className="p-3 font-mono font-bold text-primary">{d.code}</td>
-                        <td className="p-3 font-semibold text-foreground">{d.name}</td>
-                        <td className="p-3 text-muted-foreground">{d.headOfDepartment}</td>
-                        <td className="p-3 text-center">{d.facultyCount}</td>
-                        <td className="p-3 text-center">{d.activeIndustryPartners}</td>
-                        <td className="p-3 text-center font-bold text-primary">
+                      <tr key={d.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3.5 font-mono font-bold text-indigo-400">{d.code}</td>
+                        <td className="p-3.5 font-semibold text-white">{d.name}</td>
+                        <td className="p-3.5 text-slate-400">{d.headOfDepartment}</td>
+                        <td className="p-3.5 text-center">{d.facultyCount}</td>
+                        <td className="p-3.5 text-center">{d.activeIndustryPartners}</td>
+                        <td className="p-3.5 text-center font-bold text-indigo-400">
                           {d.averageEmployability}%
                         </td>
                       </tr>
@@ -472,53 +513,53 @@ export function InstitutionReports() {
       {/* Official Formatted Printable PDF Preview Dialog */}
       <Dialog open={!!pdfPreviewModal} onOpenChange={(open) => !open && setPdfPreviewModal(null)}>
         {pdfPreviewModal && (
-          <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto border-white/10 bg-[#0E1322]/95 text-white">
             <DialogHeader>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="text-primary text-[10px]">
+                <Badge className="border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-[10px]">
                   Official Accreditation Document
                 </Badge>
-                <Badge variant="secondary" className="text-[10px]">
-                  Academic Year 2025-2026
+                <Badge className="border-white/10 bg-slate-800 text-slate-300 text-[10px]">
+                  Academic Year 2026-2027
                 </Badge>
               </div>
-              <DialogTitle className="text-xl font-bold font-display text-foreground">
+              <DialogTitle className="text-xl font-bold font-display text-white">
                 AcadIn Institutional Quality & Placement Report
               </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
+              <DialogDescription className="text-xs text-slate-400">
                 National Board of Accreditation (NBA) & NAAC Compliance Docket
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 py-2 border-y border-border my-2 text-xs">
-              <div className="p-4 rounded-xl bg-muted/30 border border-border space-y-2">
+            <div className="space-y-4 py-2 border-y border-white/10 my-2 text-xs">
+              <div className="p-4 rounded-xl bg-slate-900 border border-white/10 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Institution Name:</span>
-                  <strong className="text-foreground">
-                    National Institute of Technology / AcadIn University
+                  <span className="text-slate-400">Institution Name:</span>
+                  <strong className="text-white">
+                    National Institute of Technology / AcadIn Partner University
                   </strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Report Category:</span>
-                  <strong className="text-primary capitalize">
+                  <span className="text-slate-400">Report Category:</span>
+                  <strong className="text-indigo-400 capitalize">
                     {pdfPreviewModal} Intelligence Audit
                   </strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Date of Compilation:</span>
-                  <strong className="text-foreground">26 August 2026</strong>
+                  <span className="text-slate-400">Date of Compilation:</span>
+                  <strong className="text-white">30 August 2026</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Overall Campus Placement Rate:</span>
-                  <strong className="text-emerald-600 font-bold">86.4% Verified</strong>
+                  <span className="text-slate-400">Overall Campus Placement Rate:</span>
+                  <strong className="text-emerald-400 font-bold">86.4% Verified</strong>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-bold uppercase tracking-wider text-primary text-[11px] mb-2">
+                <h4 className="font-bold uppercase tracking-wider text-indigo-400 text-[11px] mb-2">
                   Executive Summary of Findings
                 </h4>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-slate-300 leading-relaxed">
                   During the current accreditation period, campus-wide average CTC grew by +14.2% to
                   ₹13.4 LPA, with top tier-1 placements registered in Cloud Infrastructure, Applied
                   Machine Learning, and VLSI Systems. Internship-to-PPO conversion stood at 84.8%
@@ -527,32 +568,36 @@ export function InstitutionReports() {
               </div>
 
               <div>
-                <h4 className="font-bold uppercase tracking-wider text-primary text-[11px] mb-2">
+                <h4 className="font-bold uppercase tracking-wider text-indigo-400 text-[11px] mb-2">
                   Department Breakdown Summary
                 </h4>
                 <div className="space-y-1.5">
                   {departmentReports.map((d) => (
                     <div
                       key={d.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-card border border-border"
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-white/10"
                     >
-                      <span className="font-semibold text-foreground">
+                      <span className="font-semibold text-white">
                         {d.name} ({d.code})
                       </span>
-                      <span className="text-emerald-600 font-bold">{d.placementRate}% Placed</span>
-                      <span className="text-muted-foreground">Avg ₹{d.averageCTC} LPA</span>
+                      <span className="text-emerald-400 font-bold">{d.placementRate}% Placed</span>
+                      <span className="text-slate-400">Avg ₹{d.averageCTC} LPA</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setPdfPreviewModal(null)}>
+            <DialogFooter className="border-t border-white/10 pt-3">
+              <Button
+                variant="ghost"
+                onClick={() => setPdfPreviewModal(null)}
+                className="text-slate-400 hover:text-white"
+              >
                 Close
               </Button>
               <Button
-                className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
                 onClick={() => {
                   window.print();
                 }}

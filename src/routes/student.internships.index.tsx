@@ -16,13 +16,13 @@ import { useAppState } from "@/context/app-state";
 export const Route = createFileRoute("/student/internships/")({
   head: () => ({
     meta: [
-      { title: "Internship Matches — SkillBridge" },
+      { title: "Internship Matches — AcadIn" },
       {
         name: "description",
         content:
           "Browse internships ranked by skill match, filter by work type and search across companies and roles.",
       },
-      { property: "og:title", content: "Internship Matches — SkillBridge" },
+      { property: "og:title", content: "Internship Matches — AcadIn" },
       {
         property: "og:description",
         content: "Roles ranked against your assessed skill profile.",

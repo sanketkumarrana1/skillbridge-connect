@@ -30,6 +30,7 @@ import {
   UserX,
   Users,
   Video,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -96,663 +97,438 @@ const STAGES: { id: PipelineStage; label: string; color: string }[] = [
 export function IndustryInterviews() {
   const {
     interviews,
-    scheduleInterview,
-    updateInterviewStage,
-    completeInterview,
-    sendOffer,
-    hireCandidate,
+    scheduleRecruiterInterview,
+    submitInterviewFeedback,
+    createAndSendOffer,
+    corporateOffers,
     candidates,
-    profile,
+    industryApps,
+    setCandidateApplicationStatus,
+    recruiterKPIs,
   } = useAppState();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
 
-  // Modal States
+  // Dossier Modal State
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [dossierOpen, setDossierOpen] = useState(false);
 
-  // Schedule Interview Modal
-  const [scheduleModal, setScheduleModal] = useState<{
-    open: boolean;
-    candidateId: string;
-    candidateName: string;
-    role: string;
-  }>({ open: false, candidateId: "", candidateName: "", role: "" });
-  const [schedDate, setSchedDate] = useState("");
-  const [schedTime, setSchedTime] = useState("");
-  const [schedMode, setSchedMode] = useState<"Google Meet" | "Zoom" | "On-site" | "Phone">(
-    "Google Meet",
-  );
-  const [schedInterviewer, setSchedInterviewer] = useState("");
-  const [schedNotes, setSchedNotes] = useState("");
+  // Quick Schedule Modal State
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [candIdToSchedule, setCandIdToSchedule] = useState("");
+  const [intvDate, setIntvDate] = useState("2026-09-02");
+  const [intvTime, setIntvTime] = useState("02:00 PM - 03:00 PM");
+  const [intvInterviewer, setIntvInterviewer] = useState("Technical Hiring Panel");
 
-  // Complete Interview Modal
-  const [completeModal, setCompleteModal] = useState<{
-    open: boolean;
-    interviewId: string;
-    candidateName: string;
-  }>({ open: false, interviewId: "", candidateName: "" });
-  const [compScore, setCompScore] = useState("90");
-  const [compFeedback, setCompFeedback] = useState("");
+  // Quick Feedback Modal State
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [activeInterviewId, setActiveInterviewId] = useState("");
+  const [fbNotes, setFbNotes] = useState("Excellent problem solving and clear articulation.");
+  const [fbRec, setFbRec] = useState<"Strong Hire" | "Hire" | "Hold" | "No Hire">("Strong Hire");
 
-  // Send Offer Modal
-  const [offerModal, setOfferModal] = useState<{
-    open: boolean;
-    interviewId: string;
-    candidateName: string;
-  }>({ open: false, interviewId: "", candidateName: "" });
-  const [offerDesignation, setOfferDesignation] = useState("");
-  const [offerCTC, setOfferCTC] = useState("");
-  const [offerStartDate, setOfferStartDate] = useState("");
-  const [offerDeadline, setOfferDeadline] = useState("");
-
-  // KPI calculations
-  const totalInPipeline = interviews.length;
-  const scheduledCount = interviews.filter((i) => i.stage === "Interview Scheduled").length;
-  const completedCount = interviews.filter((i) => i.stage === "Interview Completed").length;
-  const offeredCount = interviews.filter((i) => i.stage === "Offered").length;
-  const hiredCount = interviews.filter((i) => i.stage === "Hired").length;
-
-  // Filtered interviews list
+  // Filtered Interviews List
   const filteredInterviews = useMemo(() => {
     return interviews.filter((item) => {
       const matchesSearch =
-        searchQuery.trim() === "" ||
+        !searchQuery ||
         item.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.interviewer.toLowerCase().includes(searchQuery.toLowerCase());
-
+        item.role.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStage = stageFilter === "all" || item.stage === stageFilter;
-
       return matchesSearch && matchesStage;
     });
   }, [interviews, searchQuery, stageFilter]);
 
-  const openCandidateDossier = (candidateName: string) => {
-    const isStudent = candidateName.toLowerCase() === profile.name.toLowerCase();
-    const cand = candidates.find(
-      (c) => c.name.toLowerCase() === candidateName.toLowerCase() || c.id === candidateName,
-    ) || {
-      id: `cand-${Date.now()}`,
-      name: candidateName,
-      college: isStudent ? profile.college : "Partner Institute",
-      branch: isStudent ? profile.branch : "Computer Science",
-      year: isStudent ? profile.year : "3rd Year",
-      skills: isStudent ? profile.skills.map((s) => s.name) : ["React", "TypeScript", "Node.js"],
-      match: 88,
-      appliedFor: "Engineering Role",
-      shortlisted: true,
-      employabilityScore: 86,
-      technicalScore: 88,
-      about: isStudent ? profile.about : "Aspiring engineer with high technical proficiency.",
-      projects: isStudent
-        ? profile.projects.map((p) => ({
-            title: p.title,
-            tech: p.tech,
-            description: p.description,
-          }))
-        : [],
-      certifications: isStudent
-        ? profile.certifications.map((c) => ({
-            title: c.name || c.title || "Certificate",
-            issuer: c.issuer,
-            year: c.issueDate || "2025",
-          }))
-        : [],
-      avatar: isStudent ? profile.avatar : undefined,
-    };
-
-    setSelectedCandidate(cand);
-    setDossierOpen(true);
-  };
-
-  const handleOpenSchedule = (candId: string, candName: string, role: string) => {
-    setScheduleModal({
-      open: true,
-      candidateId: candId,
-      candidateName: candName,
-      role,
+  const handleScheduleSubmit = () => {
+    if (!candIdToSchedule) return;
+    const cand = candidates.find((c) => c.id === candIdToSchedule);
+    scheduleRecruiterInterview(candIdToSchedule, {
+      candidateName: cand?.name || "Candidate",
+      candidateId: candIdToSchedule,
+      role: cand?.appliedFor || "Engineering Opportunity",
+      date: intvDate,
+      time: intvTime,
+      mode: "Google Meet",
+      interviewer: intvInterviewer,
+      notes: "Technical architecture and live coding session.",
     });
-    setSchedDate("24 Sep 2026");
-    setSchedTime("11:00 AM - 12:00 PM");
-    setSchedMode("Google Meet");
-    setSchedInterviewer("Vikram Sharma (Lead Architect)");
-    setSchedNotes("Technical architecture, code quality, and live coding evaluation.");
+    toast.success(`Interview scheduled with ${cand?.name || "Candidate"}.`);
+    setScheduleModalOpen(false);
   };
 
-  const handleConfirmSchedule = () => {
-    if (!schedDate || !schedInterviewer) {
-      toast.error("Please specify an interview date and interviewer.");
-      return;
-    }
-
-    scheduleInterview(scheduleModal.candidateName, {
-      candidateId: scheduleModal.candidateId,
-      role: scheduleModal.role,
-      date: schedDate,
-      time: schedTime,
-      mode: schedMode,
-      interviewer: schedInterviewer,
-      notes: schedNotes,
+  const handleFeedbackSubmit = () => {
+    if (!activeInterviewId) return;
+    submitInterviewFeedback(activeInterviewId, {
+      ratings: { technical: 5, problemSolving: 4, communication: 5, teamwork: 4, roleFit: 5 },
+      strengths: ["Strong architectural foundations"],
+      concerns: [],
+      notes: fbNotes,
+      recommendation: fbRec,
+      submittedBy: "Senior Panel",
     });
-
-    setScheduleModal({ open: false, candidateId: "", candidateName: "", role: "" });
-    toast.success(`📅 Interview scheduled with ${scheduleModal.candidateName}`);
-  };
-
-  const handleConfirmComplete = () => {
-    const scoreNum = parseInt(compScore, 10) || 85;
-    completeInterview(
-      completeModal.interviewId,
-      compFeedback || "Demonstrated strong core principles and problem solving capabilities.",
-      scoreNum,
-    );
-    setCompleteModal({ open: false, interviewId: "", candidateName: "" });
-    toast.success(`Interview marked complete for ${completeModal.candidateName}`);
-  };
-
-  const handleConfirmOffer = () => {
-    if (!offerDesignation || !offerCTC) {
-      toast.error("Please fill in designation and CTC package.");
-      return;
-    }
-
-    sendOffer(offerModal.interviewId, {
-      designation: offerDesignation,
-      ctcOrStipend: offerCTC,
-      startDate: offerStartDate || "01 Nov 2026",
-      deadline: offerDeadline || "15 Oct 2026",
-    });
-
-    setOfferModal({ open: false, interviewId: "", candidateName: "" });
-    toast.success(`💼 Offer letter released for ${offerModal.candidateName}`);
-  };
-
-  const handleQuickHire = (candName: string, intvId: string) => {
-    hireCandidate(candName, intvId);
-    toast.success(`🎉 ${candName} has been officially hired!`);
+    toast.success("Interview feedback recorded successfully.");
+    setFeedbackModalOpen(false);
   };
 
   return (
     <div className="space-y-8">
       <WorkspaceHeader
-        eyebrow="Recruitment Lifecycle"
-        title="Interview Pipeline & Hiring"
-        description="Manage candidate evaluations from initial technical screeners to offer releases and official hires."
+        eyebrow="Industry Portal"
+        title="Interviews & Offer Management"
+        description="Schedule candidate evaluations, submit structured panel scorecards, and extend formal corporate offers."
         action={
-          <Button
-            className="gap-2"
-            onClick={() => handleOpenSchedule("new", "Aarav Menon", "Frontend Engineering Intern")}
-          >
-            <Plus className="size-4" /> Schedule New Interview
+          <Button size="sm" className="gap-1.5" onClick={() => setScheduleModalOpen(true)}>
+            <Plus className="size-3.5" /> Schedule Interview
           </Button>
         }
       />
 
-      {/* KPI Ribbon */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* 4 Pipeline Stat Gauges */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
-          label="Total in Pipeline"
-          value={totalInPipeline.toString()}
-          trend="Active evaluation"
-          icon={Users}
-        />
-        <Stat
-          label="Scheduled"
-          value={scheduledCount.toString()}
-          trend="Interviews pending"
+          label="Interviews Scheduled"
+          value={recruiterKPIs.interviewsCount.toString()}
+          trend="Upcoming sessions"
           icon={Calendar}
         />
         <Stat
-          label="Completed"
-          value={completedCount.toString()}
-          trend="Evaluations ready"
-          icon={CheckCircle2}
+          label="Feedback Recorded"
+          value={interviews.filter((i) => i.stage === "Interview Completed" || i.score).length.toString()}
+          trend="Panel evaluations"
+          icon={MessageSquare}
         />
         <Stat
-          label="Offers Sent"
-          value={offeredCount.toString()}
-          trend="Pending candidate response"
+          label="Formal Offers"
+          value={corporateOffers.length.toString()}
+          trend={`${corporateOffers.filter((o) => o.status === "Accepted").length} Accepted`}
           icon={FileCheck}
         />
         <Stat
-          label="Total Hired"
-          value={hiredCount.toString()}
-          trend="Closed positions"
-          icon={Award}
+          label="Hired Candidates"
+          value={recruiterKPIs.hiresCount.toString()}
+          trend={`${recruiterKPIs.hiringConversion}% Final Conversion`}
+          icon={CheckCircle2}
         />
       </div>
 
-      {/* Filter & Search Bar */}
-      <SectionCard title="Filter Pipeline Stages">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 pt-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
+      {/* Filter and Search Bar */}
+      <Card className="border-border/80 bg-card p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
+              placeholder="Search scheduled interviews by candidate name or position..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search candidate, role, or interviewer..."
-              className="pl-9"
+              className="pl-9 text-xs"
             />
           </div>
 
-          <div>
-            <select
-              value={stageFilter}
-              onChange={(e) => setStageFilter(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="all">All Stages ({totalInPipeline})</option>
-              {STAGES.map((st) => (
-                <option key={st.id} value={st.id}>
-                  {st.label} ({interviews.filter((i) => i.stage === st.id).length})
-                </option>
-              ))}
-            </select>
+          <select
+            aria-label="Filter Stage"
+            value={stageFilter}
+            onChange={(e) => setStageFilter(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-xs sm:w-52"
+          >
+            <option value="all">All Pipeline Stages</option>
+            {STAGES.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </Card>
+
+      {/* Scheduled Interviews List */}
+      <SectionCard
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="size-5 text-primary" />
+              <h3 className="font-display text-base font-semibold">
+                Scheduled Interviews & Feedback Panel ({filteredInterviews.length})
+              </h3>
+            </div>
           </div>
+        }
+      >
+        <div className="divide-y divide-border pt-1">
+          {filteredInterviews.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-8">No scheduled interviews found.</p>
+          ) : (
+            filteredInterviews.map((item) => {
+              const matchedCand = candidates.find(
+                (c) =>
+                  c.id === item.candidateId ||
+                  c.name.toLowerCase() === item.candidateName.toLowerCase(),
+              );
+
+              return (
+                <div
+                  key={item.id}
+                  className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <Avatar className="size-10 border border-border shrink-0">
+                      {matchedCand?.avatar ? <AvatarImage src={matchedCand.avatar} /> : null}
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                        {item.candidateName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-semibold text-sm text-foreground">{item.candidateName}</h4>
+                        <Badge
+                          variant="outline"
+                          className={
+                            item.stage === "Hired"
+                              ? "bg-purple-500/10 text-purple-600 border-purple-500/20 text-[10px]"
+                              : item.stage === "Offered"
+                                ? "bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px]"
+                                : item.stage === "Interview Completed"
+                                  ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 text-[10px]"
+                                  : "bg-blue-500/10 text-blue-600 border-blue-500/20 text-[10px]"
+                          }
+                        >
+                          {item.stage}
+                        </Badge>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        {item.role} • Match: <span className="text-emerald-600 font-bold">{item.match}%</span>
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="size-3 text-primary" /> {item.date || "Scheduled"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="size-3 text-primary" /> {item.time || "11:00 AM"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Video className="size-3 text-emerald-600" /> {item.mode || "Google Meet"}
+                        </span>
+                      </div>
+
+                      {item.feedback && (
+                        <p className="text-xs text-foreground bg-muted/40 p-2 rounded-md mt-1 italic border border-border">
+                          "{item.feedback}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs"
+                      onClick={() => {
+                        if (matchedCand) {
+                          setSelectedCandidate(matchedCand);
+                          setDossierOpen(true);
+                        }
+                      }}
+                    >
+                      Dossier
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-8 text-xs gap-1"
+                      onClick={() => {
+                        setActiveInterviewId(item.id);
+                        setFeedbackModalOpen(true);
+                      }}
+                    >
+                      <MessageSquare className="size-3" /> Record Feedback
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                      onClick={() => {
+                        if (matchedCand) {
+                          createAndSendOffer(matchedCand.id, {
+                            designation: item.role,
+                            compensation: "₹45,000 / mo",
+                            joiningDate: "2026-10-01",
+                          });
+                          toast.success(`Formal offer sent to ${item.candidateName}`);
+                        }
+                      }}
+                    >
+                      <Send className="size-3" /> Send Offer
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </SectionCard>
 
-      {/* Pipeline Kanban Board Columns */}
-      <div className="grid gap-4 lg:grid-cols-7 overflow-x-auto pb-4">
-        {STAGES.map((stage) => {
-          const stageItems = filteredInterviews.filter((i) => i.stage === stage.id);
-
-          return (
-            <div
-              key={stage.id}
-              className="flex flex-col rounded-2xl border border-border/80 bg-muted/20 p-3 min-w-[280px] lg:min-w-0 space-y-3"
-            >
-              {/* Column Header */}
-              <div className="flex items-center justify-between border-b border-border pb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-xs text-foreground">{stage.label}</span>
-                </div>
-                <Badge variant="secondary" className="text-[10px] font-bold px-1.5 py-0.2">
-                  {stageItems.length}
-                </Badge>
-              </div>
-
-              {/* Column Cards */}
-              <div className="flex-1 space-y-2.5 overflow-y-auto max-h-[600px] pr-1">
-                {stageItems.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/60">
-                    No candidates
-                  </div>
-                ) : (
-                  stageItems.map((item) => (
-                    <Card
-                      key={item.id}
-                      className="border border-border/80 bg-card shadow-xs transition hover:border-primary/40 hover:shadow-md"
+      {/* Corporate Offers Ledger */}
+      <SectionCard
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileCheck className="size-5 text-emerald-600" />
+              <h3 className="font-display text-base font-semibold">Extended Corporate Offers ({corporateOffers.length})</h3>
+            </div>
+          </div>
+        }
+      >
+        <div className="divide-y divide-border pt-1">
+          {corporateOffers.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-6">No offers generated yet.</p>
+          ) : (
+            corporateOffers.map((offer) => (
+              <div key={offer.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm text-foreground">{offer.candidateName}</span>
+                    <Badge
+                      className={`text-[10px] ${
+                        offer.status === "Accepted"
+                          ? "bg-purple-500/10 text-purple-600 border-purple-500/20"
+                          : offer.status === "Sent"
+                            ? "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                            : "bg-muted text-muted-foreground"
+                      }`}
                     >
-                      <CardContent className="p-3.5 space-y-2.5">
-                        {/* Top: Name & Fit % */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <button
-                              onClick={() => openCandidateDossier(item.candidateName)}
-                              className="font-semibold text-xs text-foreground hover:text-primary transition text-left line-clamp-1"
-                            >
-                              {item.candidateName}
-                            </button>
-                            <p className="text-[10px] text-muted-foreground line-clamp-1">
-                              {item.role}
-                            </p>
-                          </div>
-                          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded-sm shrink-0">
-                            {item.match}%
-                          </span>
-                        </div>
-
-                        {/* Interview Details if Scheduled/Completed */}
-                        {item.date && (
-                          <div className="rounded-lg bg-muted/40 p-2 space-y-1 text-[11px] text-muted-foreground">
-                            <p className="flex items-center gap-1 font-medium text-foreground">
-                              <Calendar className="size-3 text-primary" /> {item.date}
-                            </p>
-                            <p className="flex items-center gap-1 text-[10px]">
-                              <Clock className="size-3 text-primary" /> {item.time || "11:00 AM"}
-                            </p>
-                            <p className="flex items-center gap-1 text-[10px]">
-                              <Video className="size-3 text-blue-600" /> {item.mode}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground truncate">
-                              Interviewer: {item.interviewer}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Evaluation Score if completed */}
-                        {item.score && (
-                          <div className="flex items-center justify-between text-[11px] bg-emerald-500/5 border border-emerald-500/20 px-2 py-1 rounded-md">
-                            <span className="font-semibold text-emerald-700">
-                              Score: {item.score}/100
-                            </span>
-                            <CheckCircle2 className="size-3 text-emerald-600" />
-                          </div>
-                        )}
-
-                        {/* Offer Details if offered */}
-                        {item.offerDetails && (
-                          <div className="rounded-lg bg-purple-500/5 border border-purple-500/20 p-2 text-[10px] space-y-0.5">
-                            <p className="font-bold text-purple-700">
-                              {item.offerDetails.designation}
-                            </p>
-                            <p className="text-muted-foreground font-semibold">
-                              {item.offerDetails.ctcOrStipend}
-                            </p>
-                            <p className="text-muted-foreground">
-                              Start: {item.offerDetails.startDate}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Card Footer Actions */}
-                        <div className="flex items-center justify-between pt-1 border-t border-border">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-[10px] px-1.5 text-muted-foreground hover:text-foreground"
-                            onClick={() => openCandidateDossier(item.candidateName)}
-                          >
-                            <Eye className="size-3 mr-1" /> Dossier
-                          </Button>
-
-                          {/* Stage Transition Dropdown */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="size-6 text-muted-foreground"
-                              >
-                                <MoreHorizontal className="size-3" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 text-xs">
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleOpenSchedule(
-                                    item.candidateId,
-                                    item.candidateName,
-                                    item.role,
-                                  )
-                                }
-                              >
-                                <Calendar className="size-3.5 mr-2 text-blue-600" /> Schedule
-                                Interview
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setCompleteModal({
-                                    open: true,
-                                    interviewId: item.id,
-                                    candidateName: item.candidateName,
-                                  });
-                                  setCompFeedback("");
-                                  setCompScore("92");
-                                }}
-                              >
-                                <CheckCircle2 className="size-3.5 mr-2 text-indigo-600" /> Mark
-                                Complete & Score
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setOfferModal({
-                                    open: true,
-                                    interviewId: item.id,
-                                    candidateName: item.candidateName,
-                                  });
-                                  setOfferDesignation(item.role);
-                                  setOfferCTC("₹12 - 14 LPA");
-                                  setOfferStartDate("01 Nov 2026");
-                                  setOfferDeadline("15 Oct 2026");
-                                }}
-                              >
-                                <FileCheck className="size-3.5 mr-2 text-purple-600" /> Send Offer
-                                Letter
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem
-                                className="text-emerald-600 font-semibold"
-                                onClick={() => handleQuickHire(item.candidateName, item.id)}
-                              >
-                                <Award className="size-3.5 mr-2" /> Mark as Hired
-                              </DropdownMenuItem>
-
-                              <DropdownMenuSeparator />
-
-                              <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => updateInterviewStage(item.id, "Rejected")}
-                              >
-                                <UserX className="size-3.5 mr-2" /> Move to Rejected
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
+                      Offer {offer.status}
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground">
+                    {offer.designation} • {offer.compensation} • Joining: {offer.joiningDate}
+                  </p>
+                </div>
+                <div className="text-muted-foreground text-right">
+                  <span>Sent: {offer.sentAt || "Recent"}</span>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            ))
+          )}
+        </div>
+      </SectionCard>
 
-      {/* Candidate Profile Dossier Modal */}
-      <CandidateDetailsModal
-        candidate={selectedCandidate}
-        open={dossierOpen}
-        onOpenChange={setDossierOpen}
-        onScheduleInterview={(cand) => handleOpenSchedule(cand.id, cand.name, cand.appliedFor)}
-        onSendOffer={(cand) => {
-          setOfferModal({
-            open: true,
-            interviewId: cand.id,
-            candidateName: cand.name,
-          });
-          setOfferDesignation(cand.appliedFor);
-          setOfferCTC("₹12 - 15 LPA");
-          setOfferStartDate("01 Nov 2026");
-          setOfferDeadline("15 Oct 2026");
-        }}
-      />
-
-      {/* Schedule Interview Modal */}
-      <Dialog
-        open={scheduleModal.open}
-        onOpenChange={(open) => setScheduleModal((prev) => ({ ...prev, open }))}
-      >
+      {/* Quick Schedule Modal */}
+      <Dialog open={scheduleModalOpen} onOpenChange={setScheduleModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Schedule Technical Interview</DialogTitle>
-            <DialogDescription>
-              Assign panel and interview time for{" "}
-              <strong className="text-foreground">{scheduleModal.candidateName}</strong> (
-              {scheduleModal.role})
-            </DialogDescription>
+            <DialogTitle>Schedule Candidate Interview</DialogTitle>
+            <DialogDescription>Set up a panel session with meeting details.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label>Date</Label>
+          <div className="space-y-3 py-2 text-xs">
+            <div className="grid gap-1">
+              <Label className="text-xs">Select Candidate</Label>
+              <select
+                aria-label="Select Candidate"
+                value={candIdToSchedule}
+                onChange={(e) => setCandIdToSchedule(e.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs"
+              >
+                <option value="">Select a candidate...</option>
+                {candidates.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.appliedFor} · {c.match}% Match)
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-1">
+                <Label className="text-xs">Date</Label>
                 <Input
-                  value={schedDate}
-                  onChange={(e) => setSchedDate(e.target.value)}
-                  placeholder="e.g. 24 Sep 2026"
+                  type="date"
+                  value={intvDate}
+                  onChange={(e) => setIntvDate(e.target.value)}
+                  className="h-9 text-xs"
                 />
               </div>
-              <div className="grid gap-2">
-                <Label>Time Window</Label>
+              <div className="grid gap-1">
+                <Label className="text-xs">Time</Label>
                 <Input
-                  value={schedTime}
-                  onChange={(e) => setSchedTime(e.target.value)}
-                  placeholder="e.g. 11:00 AM - 12:00 PM"
+                  value={intvTime}
+                  onChange={(e) => setIntvTime(e.target.value)}
+                  className="h-9 text-xs"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label>Mode</Label>
-                <select
-                  value={schedMode}
-                  onChange={(e) =>
-                    setSchedMode(e.target.value as "Google Meet" | "Zoom" | "On-site" | "Phone")
-                  }
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="Google Meet">Google Meet</option>
-                  <option value="Zoom">Zoom</option>
-                  <option value="On-site">On-site</option>
-                  <option value="Phone">Phone</option>
-                </select>
-              </div>
-              <div className="grid gap-2">
-                <Label>Lead Interviewer</Label>
-                <Input
-                  value={schedInterviewer}
-                  onChange={(e) => setSchedInterviewer(e.target.value)}
-                  placeholder="e.g. Vikram Sharma"
-                />
-              </div>
+            <div className="grid gap-1">
+              <Label className="text-xs">Interviewer / Panel Name</Label>
+              <Input
+                value={intvInterviewer}
+                onChange={(e) => setIntvInterviewer(e.target.value)}
+                className="h-9 text-xs"
+              />
             </div>
-            <div className="grid gap-2">
-              <Label>Interview Agenda & Technical Notes</Label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScheduleModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleScheduleSubmit}>Confirm & Notify</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Record Feedback Modal */}
+      <Dialog open={feedbackModalOpen} onOpenChange={setFeedbackModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Panel Feedback</DialogTitle>
+            <DialogDescription>Submit evaluation comments and hiring recommendation.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <div className="grid gap-1">
+              <Label className="text-xs">Recommendation</Label>
+              <select
+                aria-label="Recommendation"
+                value={fbRec}
+                onChange={(e) => setFbRec(e.target.value as any)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs"
+              >
+                <option value="Strong Hire">Strong Hire</option>
+                <option value="Hire">Hire</option>
+                <option value="Hold">Hold</option>
+                <option value="No Hire">No Hire</option>
+              </select>
+            </div>
+            <div className="grid gap-1">
+              <Label className="text-xs">Panel Notes & Strengths</Label>
               <Textarea
                 rows={3}
-                value={schedNotes}
-                onChange={(e) => setSchedNotes(e.target.value)}
-                placeholder="State key topics, algorithms, or system design scenarios to evaluate..."
+                value={fbNotes}
+                onChange={(e) => setFbNotes(e.target.value)}
+                className="text-xs"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setScheduleModal((prev) => ({ ...prev, open: false }))}
-            >
+            <Button variant="outline" onClick={() => setFeedbackModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleConfirmSchedule}>Confirm & Schedule</Button>
+            <Button onClick={handleFeedbackSubmit}>Save Evaluation</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Complete & Score Modal */}
-      <Dialog
-        open={completeModal.open}
-        onOpenChange={(open) => setCompleteModal((prev) => ({ ...prev, open }))}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Record Interview Evaluation</DialogTitle>
-            <DialogDescription>
-              Submit score and recruiter remarks for{" "}
-              <strong className="text-foreground">{completeModal.candidateName}</strong>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="grid gap-2">
-              <Label>Technical Evaluation Score (0 - 100)</Label>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                value={compScore}
-                onChange={(e) => setCompScore(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Interviewer Feedback & Recommendation</Label>
-              <Textarea
-                rows={3}
-                value={compFeedback}
-                onChange={(e) => setCompFeedback(e.target.value)}
-                placeholder="Candidate demonstrated clean code structure, solid TypeScript foundations, and high problem solving agility..."
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCompleteModal((prev) => ({ ...prev, open: false }))}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleConfirmComplete}>Save Feedback</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Send Offer Modal */}
-      <Dialog
-        open={offerModal.open}
-        onOpenChange={(open) => setOfferModal((prev) => ({ ...prev, open }))}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Generate Offer Letter</DialogTitle>
-            <DialogDescription>
-              Define employment package for{" "}
-              <strong className="text-foreground">{offerModal.candidateName}</strong>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="grid gap-2">
-              <Label>Designation / Role Title</Label>
-              <Input
-                value={offerDesignation}
-                onChange={(e) => setOfferDesignation(e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label>Compensation (CTC / Stipend)</Label>
-                <Input
-                  value={offerCTC}
-                  onChange={(e) => setOfferCTC(e.target.value)}
-                  placeholder="e.g. ₹12 - 14 LPA"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Joining Date</Label>
-                <Input
-                  value={offerStartDate}
-                  onChange={(e) => setOfferStartDate(e.target.value)}
-                  placeholder="e.g. 01 Nov 2026"
-                />
-              </div>
-            </div>
-            <div className="grid gap-2">
-              <Label>Offer Expiry / Response Deadline</Label>
-              <Input
-                value={offerDeadline}
-                onChange={(e) => setOfferDeadline(e.target.value)}
-                placeholder="e.g. 15 Oct 2026"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setOfferModal((prev) => ({ ...prev, open: false }))}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmOffer}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              Release Offer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Candidate Evaluation Dossier Modal */}
+      {selectedCandidate && (
+        <CandidateDetailsModal
+          candidate={selectedCandidate}
+          open={dossierOpen}
+          onOpenChange={setDossierOpen}
+        />
+      )}
     </div>
   );
 }

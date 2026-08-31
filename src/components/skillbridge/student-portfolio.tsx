@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Award,
   Briefcase,
@@ -17,6 +18,7 @@ import {
   Pencil,
   Phone,
   Plus,
+  ShieldCheck,
   Sparkles,
   Trash2,
   User,
@@ -483,9 +485,16 @@ export function StudentPortfolio() {
           </div>
         }
         action={
-          <Button size="sm" onClick={() => handleOpenSkillModal()} className="gap-1">
-            <Plus className="size-3.5" /> Add Skill
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild size="sm" variant="outline" className="gap-1 text-xs">
+              <Link to="/student/passport">
+                <ShieldCheck className="size-3.5" /> Skill Passport
+              </Link>
+            </Button>
+            <Button size="sm" onClick={() => handleOpenSkillModal()} className="gap-1">
+              <Plus className="size-3.5" /> Add Skill
+            </Button>
+          </div>
         }
       >
         <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">

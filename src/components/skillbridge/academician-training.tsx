@@ -39,8 +39,13 @@ import { useAppState } from "@/context/app-state";
 import type { FacultyTraining } from "@/types";
 
 export function AcademicianTraining() {
-  const { facultyTrainings, registerFacultyTraining, updateTrainingProgress, profile } =
-    useAppState();
+  const {
+    facultyTrainings,
+    registerFacultyTraining,
+    cancelFacultyTraining,
+    updateTrainingProgress,
+    profile,
+  } = useAppState();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTraining, setSelectedTraining] = useState<FacultyTraining | null>(null);
@@ -54,6 +59,16 @@ export function AcademicianTraining() {
         prev
           ? { ...prev, registered: true, enrolledCount: prev.enrolledCount + 1, progress: 10 }
           : null,
+      );
+    }
+  };
+
+  const handleCancelEnrollment = (id: string, title: string) => {
+    cancelFacultyTraining(id);
+    toast.info(`Unenrolled from "${title}".`);
+    if (selectedTraining && selectedTraining.id === id) {
+      setSelectedTraining((prev) =>
+        prev ? { ...prev, registered: false, progress: 0 } : null,
       );
     }
   };

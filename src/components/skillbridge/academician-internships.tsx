@@ -36,10 +36,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectionCard, Stat, WorkspaceHeader } from "@/components/skillbridge/student-ui";
 import { useAppState } from "@/context/app-state";
+import { matchFacultyToOpportunity } from "@/utils/faculty-matching";
 import type { FacultyInternship } from "@/types";
 
 export function AcademicianInternships() {
-  const { facultyInternships, applyFacultyInternship } = useAppState();
+  const { facultyInternships, applyFacultyInternship, facultyProfile } = useAppState();
 
   const [activeTab, setActiveTab] = useState<"marketplace" | "my-applications">("marketplace");
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,23 +58,33 @@ export function AcademicianInternships() {
   }, [facultyInternships]);
 
   const filteredInternships = useMemo(() => {
-    return facultyInternships.filter((item) => {
-      const matchesSearch =
-        searchQuery.trim() === "" ||
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.domain.toLowerCase().includes(searchQuery.toLowerCase());
+    return facultyInternships
+      .map((item) => {
+        const match = matchFacultyToOpportunity(facultyProfile, {
+          title: item.title,
+          domain: item.domain,
+          description: item.description,
+          type: "Faculty Internship",
+        });
+        return { item, match };
+      })
+      .filter(({ item }) => {
+        const matchesSearch =
+          searchQuery.trim() === "" ||
+          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.domain.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesDomain = domainFilter === "all" || item.domain === domainFilter;
-      const matchesMode = modeFilter === "all" || item.mode === modeFilter;
+        const matchesDomain = domainFilter === "all" || item.domain === domainFilter;
+        const matchesMode = modeFilter === "all" || item.mode === modeFilter;
 
-      if (activeTab === "my-applications") {
-        return matchesSearch && (item.registered || item.applicationStatus);
-      }
+        if (activeTab === "my-applications") {
+          return matchesSearch && (item.registered || item.applicationStatus);
+        }
 
-      return matchesSearch && matchesDomain && matchesMode;
-    });
-  }, [facultyInternships, searchQuery, domainFilter, modeFilter, activeTab]);
+        return matchesSearch && matchesDomain && matchesMode;
+      });
+  }, [facultyInternships, facultyProfile, searchQuery, domainFilter, modeFilter, activeTab]);
 
   const handleApply = (id: string, title: string) => {
     applyFacultyInternship(id);
@@ -192,7 +203,7 @@ export function AcademicianInternships() {
               No faculty internships match the current filter or application history.
             </div>
           ) : (
-            filteredInternships.map((opp) => {
+            filteredInternships.map(({ item: opp, match }) => {
               const isApplied = opp.registered || opp.applicationStatus;
 
               return (
@@ -203,12 +214,17 @@ export function AcademicianInternships() {
                   <CardContent className="p-5 space-y-3.5 flex flex-col justify-between h-full">
                     <div className="space-y-2">
                       <div className="flex items-start justify-between gap-2">
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] text-primary border-primary/30"
-                        >
-                          {opp.domain}
-                        </Badge>
+                        <div className="flex items-center gap-1.5">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] text-primary border-primary/30"
+                          >
+                            {opp.domain}
+                          </Badge>
+                          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]">
+                            {match.matchScore}% Fit
+                          </Badge>
+                        </div>
                         <Badge
                           variant="outline"
                           className={

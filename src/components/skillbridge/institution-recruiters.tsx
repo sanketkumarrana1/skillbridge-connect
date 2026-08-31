@@ -127,25 +127,25 @@ export function InstitutionRecruiters() {
         <Stat
           label="Partner Enterprises"
           value={recruiterPartners.length.toString()}
-          trend="Active hiring accounts"
+          trend="Hiring Accounts"
           icon={Building2}
         />
         <Stat
-          label="Total Hires Confirmed"
-          value={`${totalHires} Students`}
-          trend="Across all tiers"
+          label="Hires Confirmed"
+          value={totalHires.toString()}
+          trend="All Tiers"
           icon={UserCheck}
         />
         <Stat
           label="Open Opportunities"
-          value={`${totalJobs} Active Openings`}
-          trend="Jobs & Fellowships"
+          value={totalJobs.toString()}
+          trend="Active Postings"
           icon={Briefcase}
         />
         <Stat
-          label="Corporate Masterclasses"
-          value={`${totalWorkshops} Workshops`}
-          trend="Pedagogy touchpoints"
+          label="Corporate Workshops"
+          value={totalWorkshops.toString()}
+          trend="Industry Sessions"
           icon={BookOpen}
         />
       </div>

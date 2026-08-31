@@ -5,6 +5,7 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  BookmarkCheck,
   BriefcaseBusiness,
   Building2,
   Check,
@@ -22,10 +23,14 @@ import {
   Lock,
   Menu,
   Pencil,
+  AlertTriangle,
+  CheckCircle2,
+  TrendingUp,
   Plus,
   Rocket,
   Search,
   Settings,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Target,
@@ -34,8 +39,10 @@ import {
   Users,
   Workflow,
   Zap,
+  Calendar,
+  Clock,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useMemo, type ReactNode } from "react";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -57,6 +64,8 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { cn } from "@/lib/utils";
 import type { Role } from "@/types";
 import { useAppState } from "@/context/app-state";
+import { useAuth } from "@/context/auth-context";
+import type { AppRole } from "@/lib/database.types";
 import {
   FunctionalStudentModule,
   StudentAssessment,
@@ -77,6 +86,7 @@ import { AcademicianConsultancy } from "@/components/skillbridge/academician-con
 import { AcademicianResearch } from "@/components/skillbridge/academician-research";
 import { AcademicianLectures } from "@/components/skillbridge/academician-lectures";
 import { AcademicianMentorship } from "@/components/skillbridge/academician-mentorship";
+import { IndustryMentorship } from "@/components/skillbridge/industry-mentorship";
 import { InstitutionOverview } from "@/components/skillbridge/institution-overview";
 import { InstitutionStudents } from "@/components/skillbridge/institution-students";
 import { InstitutionPlacements } from "@/components/skillbridge/institution-placements";
@@ -260,7 +270,13 @@ function PageFooter() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-slate-500 sm:flex-row">
           <p>© 2026 AcadIn Platform. Built for academia and industry collaboration.</p>
-          <p className="text-slate-400">Dark Enterprise SaaS Edition</p>
+          <div className="flex items-center gap-4 text-slate-400">
+            <Link to="/admin/login" className="hover:text-indigo-300 transition">
+              Platform Admin
+            </Link>
+            <span>·</span>
+            <span>Dark Enterprise SaaS Edition</span>
+          </div>
         </div>
       </div>
     </footer>
@@ -812,12 +828,14 @@ function OpportunityCard({
 export function MarketplacePage({ job }: { job?: boolean }) {
   const [query, setQuery] = useState("");
   const raw = job ? jobs : internships;
-  const data = raw.filter((item) =>
-    query
-      ? item[0]?.toLowerCase().includes(query.toLowerCase()) ||
-        item[1]?.toLowerCase().includes(query.toLowerCase())
-      : true,
-  );
+  const data = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return raw;
+    return raw.filter((item) =>
+      item[0]?.toLowerCase().includes(q) ||
+      item[1]?.toLowerCase().includes(q)
+    );
+  }, [raw, query]);
 
   return (
     <PublicLayout>
@@ -861,7 +879,7 @@ export function MarketplacePage({ job }: { job?: boolean }) {
           )}
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {data.map((item) => (
+          {data.map((item: any) => (
             <OpportunityCard key={item[0]} item={item} job={job} />
           ))}
         </div>
@@ -872,16 +890,20 @@ export function MarketplacePage({ job }: { job?: boolean }) {
 
 const studentItems = [
   ["/student", "Overview", LayoutDashboard],
+  ["/student/passport", "Skill Passport", ShieldCheck],
   ["/student/assessment", "AI Assessment", ClipboardCheck],
   ["/student/analysis", "Skill Report", BarChart3],
   ["/student/roadmap", "Learning Roadmap", BookOpen],
   ["/student/internships", "Internship Search", BriefcaseBusiness],
   ["/student/jobs", "Job Search", Search],
   ["/student/applications", "Applications", FileText],
+  ["/student/timeline", "Placement Timeline", Clock],
+  ["/student/mentorship", "Mentor Scheduling", Users],
   ["/student/portfolio", "Portfolio", UserRound],
   ["/student/resume", "Resume Builder", Pencil],
   ["/student/certificates", "Certificates", Award],
   ["/student/settings", "Profile Settings", Settings],
+  ["/student/onboarding", "Setup Onboarding", Sparkles],
 ] as const;
 
 const roleItems: Record<
@@ -894,7 +916,8 @@ const roleItems: Record<
     ["/industry/applications", "Applicants", FileText],
     ["/industry/candidates", "AI Shortlisting", Sparkles],
     ["/industry/interviews", "Interview Pipeline", ClipboardCheck],
-    ["/industry/workshops", "Workshops & Mentorship", Users],
+    ["/industry/mentorship", "Mentorship Hub", Users],
+    ["/industry/workshops", "Workshops & Training", Users],
     ["/industry/analytics", "Analytics", LineChart],
   ],
   academician: [
@@ -1058,12 +1081,39 @@ export function PortalShell({ role, children }: { role: Role; children: ReactNod
 export function RoleLayout({ role }: { role: Role }) {
   const navigate = useNavigate();
   const { isAuthenticated, role: activeRole } = useAppState();
+  const { user, role: supabaseRole, isConfigured, loading } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated || activeRole !== role) navigate({ to: "/login" });
-  }, [activeRole, isAuthenticated, navigate, role]);
+    if (loading) return;
 
-  if (!isAuthenticated || activeRole !== role) return null;
+    if (isConfigured) {
+      if (!user) {
+        navigate({ to: "/login" });
+        return;
+      }
+      if (supabaseRole && supabaseRole !== role && supabaseRole !== "admin") {
+        navigate({ to: destination(supabaseRole as Role) });
+      }
+    } else {
+      if (!isAuthenticated || activeRole !== role) {
+        navigate({ to: "/login" });
+      }
+    }
+  }, [activeRole, isAuthenticated, isConfigured, loading, navigate, role, supabaseRole, user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#070A13] flex items-center justify-center text-slate-400">
+        <div className="flex items-center gap-3">
+          <div className="size-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+          <span className="text-sm font-medium">Validating workspace session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isConfigured && !user) return null;
+  if (!isConfigured && (!isAuthenticated || activeRole !== role)) return null;
 
   return (
     <PortalShell role={role}>
@@ -1107,19 +1157,38 @@ export function Stat({
 }: {
   label: string;
   value: string;
-  trend: string;
-  icon: typeof Target;
+  trend?: string;
+  icon: typeof Target | any;
 }) {
   return (
-    <div className="glass-card-interactive rounded-2xl p-5">
-      <div className="flex items-center justify-between">
-        <span className="grid size-10 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
+    <div className="glass-card-interactive rounded-2xl p-5 flex flex-col justify-between min-h-[126px]">
+      <div className="flex items-start justify-between gap-2">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
           <Icon className="size-5" />
         </span>
-        <span className="text-xs font-semibold text-emerald-400">{trend}</span>
+        {trend && (
+          <span
+            className={cn(
+              "text-[11px] font-semibold text-right leading-tight max-w-[140px] truncate px-2 py-0.5 rounded-full border border-white/5 bg-white/5",
+              trend === "Pending" ? "text-slate-400" : "text-emerald-400",
+            )}
+            title={trend}
+          >
+            {trend}
+          </span>
+        )}
       </div>
-      <p className="mt-4 font-display text-3xl font-bold text-white">{value}</p>
-      <p className="mt-1 text-xs text-slate-400">{label}</p>
+      <div className="mt-3 min-w-0">
+        <p
+          className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white truncate"
+          title={value}
+        >
+          {value}
+        </p>
+        <p className="mt-0.5 text-xs text-slate-400 truncate" title={label}>
+          {label}
+        </p>
+      </div>
     </div>
   );
 }
@@ -1145,32 +1214,177 @@ export function SectionCard({
 }
 
 function StudentOverview() {
+  const {
+    profile,
+    careerReadiness,
+    targetRoleAnalyses,
+    skillGaps,
+    dynamicRoadmapItems,
+    rankedOpportunities,
+    bestMatchOpportunities,
+    quickWinOpportunities,
+    skillBuildingOpportunities,
+    savedOpportunityIds,
+    applications,
+  } = useAppState();
+
+  const declaredSkills = profile.declaredSkills ?? [];
+  const declaredCount = declaredSkills.length;
+  const assessedCount = declaredSkills.filter((s) => s.assessedScore !== undefined).length;
+  const targetRoles = profile.careerPreferences?.targetRoles || [
+    "Full Stack Developer",
+    "Frontend Developer",
+  ];
+
+  // Strongest Skill
+  const sortedSkills = [...declaredSkills].sort(
+    (a, b) => (b.assessedScore ?? b.proficiencyLevel) - (a.assessedScore ?? a.proficiencyLevel),
+  );
+  const strongestSkill = sortedSkills[0];
+  const strongestSkillName = strongestSkill ? strongestSkill.name : "React";
+  const strongestSkillScore = strongestSkill
+    ? (strongestSkill.assessedScore ?? strongestSkill.proficiencyLevel)
+    : 85;
+
+  // Top Target Role
+  const topRole = targetRoleAnalyses[0];
+  const topRoleTitle = topRole ? topRole.title : "Full Stack Developer";
+  const topRoleReadiness = topRole ? topRole.readinessPercentage : 78;
+
+  // Top Opportunity Match
+  const topOpportunity = rankedOpportunities[0];
+
+  // Curated 3 Cards for Overview: 1 Best Match, 1 Quick Win, 1 Skill Building / Live Project
+  const showcaseOpportunities = [
+    bestMatchOpportunities[0] || rankedOpportunities[0],
+    quickWinOpportunities[0] || rankedOpportunities[1],
+    skillBuildingOpportunities[0] || rankedOpportunities[2],
+  ].filter((item): item is NonNullable<(typeof rankedOpportunities)[number]> => Boolean(item));
+
+  // Roadmap Progress
+  const roadmapCompletion =
+    dynamicRoadmapItems.length > 0
+      ? Math.round(
+          dynamicRoadmapItems.reduce((acc, i) => acc + i.progress, 0) / dynamicRoadmapItems.length,
+        )
+      : 0;
+  const completedRoadmapMilestones = dynamicRoadmapItems.filter(
+    (i) => i.status === "completed",
+  ).length;
+
   return (
     <>
       <WorkspaceHeader
         eyebrow="Student Command Center"
-        title="Good morning, Sanket."
-        description="Your verified competency graph and live applications are actively matching top partner teams."
+        title={`Welcome back, ${profile.name.split(" ")[0] || "Sanket"}.`}
+        description="Your verified competency graph, declared skills, and career trajectory are actively matching partner teams."
         action={
-          <Button
-            asChild
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)]"
-          >
-            <Link to="/student/assessment">
-              Take AI Assessment <ArrowRight className="size-4 ml-1.5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              asChild
+              variant="outline"
+              className="border-indigo-500/30 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 text-xs"
+            >
+              <Link to="/student/passport">
+                <ShieldCheck className="size-4 mr-1.5" /> Skill Passport
+              </Link>
+            </Button>
+            <Button
+              asChild
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-xs shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+            >
+              <Link to="/student/internships">
+                Explore Opportunities <ArrowRight className="size-4 ml-1.5" />
+              </Link>
+            </Button>
+          </div>
         }
       />
+
+      {/* Stage 4: Top Opportunity Intelligence Hero Banner */}
+      {topOpportunity && (
+        <div className="rounded-3xl border border-indigo-500/40 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/60 p-6 sm:p-7 shadow-[0_0_30px_rgba(99,102,241,0.2)] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/20 px-3 py-1 text-xs font-bold text-indigo-300">
+                <Sparkles className="size-3.5" /> Stage 4 · Top Recommended Fit
+              </span>
+              <Badge className="border-emerald-500/40 bg-emerald-500/20 text-emerald-300 text-xs">
+                {topOpportunity.match.overallMatch}% Match Index ({topOpportunity.match.categoryTag}
+                )
+              </Badge>
+              <span className="text-xs text-slate-400">
+                {topOpportunity.opportunity.workMode} ·{" "}
+                {topOpportunity.opportunity.compensation.formatted}
+              </span>
+            </div>
+
+            <h3 className="font-display text-xl font-bold text-white">
+              {topOpportunity.opportunity.title} @ {topOpportunity.opportunity.company}
+            </h3>
+
+            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+              {topOpportunity.match.whyYouMatch[0] ||
+                "High competency fit in your declared and assessed core technologies."}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <Button
+              asChild
+              size="sm"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-xs shadow-md"
+            >
+              <Link to="/student/internships">
+                View Deep Match <ArrowRight className="size-3.5 ml-1.5" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="border-white/10 bg-slate-900/60 text-slate-300 hover:text-white text-xs"
+            >
+              <Link to="/student/analysis">
+                <BarChart3 className="size-3.5 mr-1.5" /> Skill Report
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Live Computed Metric Stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Profile Strength" value="94%" trend="+12% verified" icon={UserRound} />
-        <Stat label="Skill Readiness" value="88 pts" trend="+8 this month" icon={Sparkles} />
-        <Stat label="Recommended Roles" value="28" trend="6 high fit" icon={Target} />
-        <Stat label="Active Applications" value="08" trend="3 shortlisted" icon={FileText} />
+        <Stat
+          label="Career Readiness"
+          value={`${careerReadiness.overallScore}%`}
+          trend={careerReadiness.tier}
+          icon={TrendingUp}
+        />
+        <Stat
+          label="Top Target Role"
+          value={topRoleTitle}
+          trend={`${topRoleReadiness}% Ready`}
+          icon={Target}
+        />
+        <Stat
+          label="High-Fit Opportunities"
+          value={rankedOpportunities.filter((r) => r.match.overallMatch >= 70).length.toString()}
+          trend={`${bestMatchOpportunities.length} Best Fits`}
+          icon={Sparkles}
+        />
+        <Stat
+          label="Active Applications"
+          value={applications.length.toString()}
+          trend={`${savedOpportunityIds.length} Bookmarked`}
+          icon={BookmarkCheck}
+        />
       </div>
+
+      {/* Two Central Matrix Cards */}
       <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
         <SectionCard
-          title="Capability Readiness Matrix"
+          title="Live 8-Dimension Readiness Breakdown"
           action={
             <Button
               asChild
@@ -1179,17 +1393,18 @@ function StudentOverview() {
               className="text-indigo-400 hover:text-indigo-300"
             >
               <Link to="/student/analysis">
-                Full Report <ArrowRight className="size-4 ml-1" />
+                Deep Dive <ArrowRight className="size-4 ml-1" />
               </Link>
             </Button>
           }
         >
           <div className="space-y-4">
             {[
-              ["Problem Solving & DSA", 92],
-              ["Frontend & React Systems", 95],
-              ["Python & ML Pipelines", 86],
-              ["Cloud Infrastructure & APIs", 78],
+              ["Technical Depth", careerReadiness.dimensions.technicalSkills],
+              ["Diagnostic Test Score", careerReadiness.dimensions.assessmentPerformance],
+              ["Problem Solving & DSA", careerReadiness.dimensions.problemSolving],
+              ["Portfolio Strength", careerReadiness.dimensions.portfolioStrength],
+              ["Evidence Trail", careerReadiness.dimensions.evidenceQuality],
             ].map(([name, value]) => (
               <div key={name as string}>
                 <div className="flex justify-between text-sm">
@@ -1208,24 +1423,27 @@ function StudentOverview() {
             ))}
           </div>
         </SectionCard>
-        <SectionCard title="Targeted Weekly Focus">
+
+        <SectionCard title="Personalized Learning Roadmap">
           <div className="flex items-center gap-6">
-            <div className="grid size-28 place-items-center rounded-full border-[8px] border-indigo-500/20 bg-slate-950 shadow-[0_0_20px_rgba(99,102,241,0.25)]">
-              <div className="font-display text-3xl font-extrabold text-white">
-                4<span className="text-sm text-indigo-300">/5</span>
+            <div className="grid size-28 place-items-center rounded-full border-[8px] border-indigo-500/20 bg-slate-950 shadow-[0_0_20px_rgba(99,102,241,0.25)] shrink-0">
+              <div className="font-display text-2xl font-extrabold text-white">
+                {roadmapCompletion}%
               </div>
             </div>
             <div>
               <p className="font-display text-base font-bold text-white">
-                High Placement Trajectory
+                {completedRoadmapMilestones} of {dynamicRoadmapItems.length} Milestones Done
               </p>
               <p className="mt-1 text-xs leading-relaxed text-slate-400">
-                Complete 1 cloud fundamentals module to unlock Tier-1 engineering requisitions.
+                {skillGaps.length > 0
+                  ? `Focusing on ${skillGaps[0]?.skillName || "core skills"} to unlock Tier-1 engineering requisitions.`
+                  : "All target role prerequisites currently satisfied."}
               </p>
               <Button
                 asChild
                 variant="link"
-                className="mt-2 h-auto p-0 text-indigo-400 hover:text-indigo-300"
+                className="mt-2 h-auto p-0 text-indigo-400 hover:text-indigo-300 text-xs"
               >
                 <Link to="/student/roadmap">
                   Open Learning Roadmap <ArrowRight className="size-3.5 ml-1" />
@@ -1235,24 +1453,93 @@ function StudentOverview() {
           </div>
         </SectionCard>
       </div>
+
+      {/* Recommended Opportunities Carousel / Grid */}
       <SectionCard
-        title="High-Fit Opportunities For You"
+        title="Recommended Opportunities For You"
         action={
           <Button
             asChild
             variant="ghost"
             size="sm"
-            className="text-indigo-400 hover:text-indigo-300"
+            className="text-indigo-400 hover:text-indigo-300 text-xs"
           >
             <Link to="/student/internships">
-              View All <ArrowRight className="size-4 ml-1" />
+              View All ({rankedOpportunities.length}) <ArrowRight className="size-3.5 ml-1" />
             </Link>
           </Button>
         }
       >
         <div className="grid gap-4 lg:grid-cols-3">
-          {internships.slice(0, 3).map((item) => (
-            <OpportunityCard key={item[0]} item={item} />
+          {showcaseOpportunities.map(({ opportunity, match }) => (
+            <div
+              key={opportunity.id}
+              className="glass-card-interactive rounded-2xl p-5 flex flex-col justify-between border border-white/10 hover:border-indigo-500/30 transition-all"
+            >
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className="grid size-10 place-items-center rounded-xl border border-white/10 text-sm font-bold text-white shrink-0"
+                      style={{
+                        backgroundColor: `hsl(${opportunity.companyLogoHue || 220}, 75%, 25%)`,
+                      }}
+                    >
+                      {opportunity.company.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-slate-400 truncate">
+                        {opportunity.company}
+                      </p>
+                      <h4 className="font-display text-sm font-bold text-white truncate">
+                        {opportunity.title}
+                      </h4>
+                    </div>
+                  </div>
+
+                  <Badge
+                    className={cn(
+                      "text-[10px] shrink-0 font-bold",
+                      match.categoryTag === "Best Match"
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                        : match.categoryTag === "Quick Win"
+                          ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
+                          : "bg-amber-500/20 text-amber-300 border-amber-500/40",
+                    )}
+                  >
+                    {match.overallMatch}% {match.categoryTag}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-slate-400 flex-wrap">
+                  <span className="font-semibold text-emerald-400">
+                    {opportunity.compensation.formatted}
+                  </span>
+                  <span>•</span>
+                  <span>{opportunity.workMode}</span>
+                  <span>•</span>
+                  <span>{opportunity.type}</span>
+                </div>
+
+                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                  {opportunity.description}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+                <span className="text-[10px] text-slate-500">
+                  {match.matchingSkills.length} Matching Skills
+                </span>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="border-white/10 bg-slate-900/60 text-slate-300 hover:text-white text-xs h-7"
+                >
+                  <Link to="/student/internships">View Match</Link>
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       </SectionCard>
@@ -1272,6 +1559,7 @@ function IndustrySection({ section }: { section: string }) {
   if (section === "applications") return <IndustryApplicants />;
   if (section === "candidates") return <IndustryCandidates />;
   if (section === "interviews") return <IndustryInterviews />;
+  if (section === "mentorship") return <IndustryMentorship />;
   if (section === "workshops") return <IndustryWorkshops />;
   if (section === "analytics") return <IndustryAnalytics />;
   return <IndustryOverview />;
@@ -1324,7 +1612,7 @@ function FieldError({ message }: { message?: string | undefined }) {
   return message ? <p className="text-xs text-rose-400 mt-1">{message}</p> : null;
 }
 
-function AuthFrame({
+export function AuthFrame({
   title,
   description,
   children,
@@ -1404,15 +1692,28 @@ function RolePicker({ value, onChange }: { value: Role; onChange: (role: Role) =
 function LoginForm() {
   const navigate = useNavigate();
   const { authenticate } = useAppState();
+  const { signIn, isConfigured, loading } = useAuth();
   const [role, setRole] = useState<Role>("student");
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "demo@acadin.in", password: "password" },
   });
-  const submit = () => {
-    authenticate(role);
-    toast.success(`Signed in as ${roles.find((item) => item.value === role)?.label}`);
-    navigate({ to: destination(role) });
+
+  const submit = async (values: z.infer<typeof loginSchema>) => {
+    if (isConfigured) {
+      const res = await signIn(values.email, values.password);
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      authenticate(role);
+      toast.success("Welcome back to AcadIn!");
+      navigate({ to: destination(role) });
+    } else {
+      authenticate(role);
+      toast.success(`Signed in as ${roles.find((item) => item.value === role)?.label}`);
+      navigate({ to: destination(role) });
+    }
   };
 
   return (
@@ -1454,8 +1755,9 @@ function LoginForm() {
         <Button
           className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:brightness-110"
           type="submit"
+          disabled={loading}
         >
-          Sign In to Workspace <ArrowRight className="size-4 ml-1.5" />
+          {loading ? "Authenticating..." : "Sign In to Workspace"} <ArrowRight className="size-4 ml-1.5" />
         </Button>
       </form>
       <p className="mt-6 text-center text-xs text-slate-400">
@@ -1464,6 +1766,14 @@ function LoginForm() {
           Create an account
         </Link>
       </p>
+      <div className="mt-8 pt-4 border-t border-white/10 text-center">
+        <Link
+          to="/admin/login"
+          className="text-xs text-slate-500 hover:text-indigo-400 transition-colors"
+        >
+          Platform Governance · Admin Sign-In
+        </Link>
+      </div>
     </AuthFrame>
   );
 }
@@ -1471,15 +1781,40 @@ function LoginForm() {
 function RegisterForm() {
   const navigate = useNavigate();
   const { authenticate } = useAppState();
+  const { signUp, isConfigured, loading } = useAuth();
   const [role, setRole] = useState<Role>("student");
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: { name: "", email: "", password: "", accepted: false },
   });
-  const submit = (values: z.infer<typeof registerSchema>) => {
-    void values;
-    authenticate(role);
-    navigate({ to: "/verify-email" });
+
+  const submit = async (values: z.infer<typeof registerSchema>) => {
+    if (isConfigured) {
+      const res = await signUp({
+        email: values.email,
+        password: values.password,
+        fullName: values.name,
+        role: role as AppRole,
+      });
+
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+
+      authenticate(role);
+      if (res.data?.session) {
+        toast.success("Account created successfully!");
+        navigate({ to: destination(role) });
+      } else {
+        toast.success("Registration successful! Please verify your email.");
+        navigate({ to: "/verify-email" });
+      }
+    } else {
+      authenticate(role);
+      toast.success("Demo account created!");
+      navigate({ to: "/verify-email" });
+    }
   };
 
   return (
@@ -1536,8 +1871,9 @@ function RegisterForm() {
         <Button
           className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:brightness-110"
           type="submit"
+          disabled={loading}
         >
-          Create Account <ArrowRight className="size-4 ml-1.5" />
+          {loading ? "Creating Account..." : "Create Account"} <ArrowRight className="size-4 ml-1.5" />
         </Button>
       </form>
       <p className="mt-6 text-center text-xs text-slate-400">
@@ -1552,24 +1888,36 @@ function RegisterForm() {
 
 function ForgotPasswordForm() {
   const [sent, setSent] = useState(false);
+  const { resetPassword, isConfigured, loading } = useAuth();
   const form = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
     defaultValues: { email: "" },
   });
-  const submit = () => setSent(true);
+
+  const submit = async (values: z.infer<typeof emailSchema>) => {
+    if (isConfigured) {
+      const res = await resetPassword(values.email);
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+    }
+    setSent(true);
+    toast.success("Password recovery link dispatched!");
+  };
 
   return (
     <AuthFrame
       title={sent ? "Check your inbox" : "Reset your password"}
       description={
         sent
-          ? "A mock reset link has been dispatched to your email address."
+          ? "A password reset link has been dispatched to your email address."
           : "Enter your registered email and we will send a recovery link."
       }
     >
       {sent ? (
         <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-xs text-emerald-300 leading-relaxed">
-          Reset instructions sent. In this demo workspace, you can directly sign in.
+          Reset instructions sent. Please check your inbox and click the reset link to choose a new password.
         </div>
       ) : (
         <form className="mt-6 space-y-4" onSubmit={form.handleSubmit(submit)}>
@@ -1588,8 +1936,9 @@ function ForgotPasswordForm() {
           <Button
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold"
             type="submit"
+            disabled={loading}
           >
-            Send Reset Link <ArrowRight className="size-4 ml-1.5" />
+            {loading ? "Sending link..." : "Send Reset Link"} <ArrowRight className="size-4 ml-1.5" />
           </Button>
         </form>
       )}
@@ -1605,7 +1954,16 @@ function ForgotPasswordForm() {
 function VerifyEmailPage() {
   const navigate = useNavigate();
   const { role, authenticate } = useAppState();
+  const { user, resetPassword, isConfigured, isEmailVerified } = useAuth();
   const [resent, setResent] = useState(false);
+
+  const handleResend = async () => {
+    if (user?.email && isConfigured) {
+      await resetPassword(user.email);
+    }
+    setResent(true);
+    toast.info("Verification link resent to your email address.");
+  };
 
   return (
     <AuthFrame
@@ -1637,7 +1995,7 @@ function VerifyEmailPage() {
       <Button
         variant="outline"
         className="mt-3 w-full border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
-        onClick={() => setResent(true)}
+        onClick={handleResend}
       >
         {resent ? "Verification link resent" : "Resend Verification Link"}
       </Button>

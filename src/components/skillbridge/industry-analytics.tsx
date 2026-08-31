@@ -38,25 +38,16 @@ import { useAppState } from "@/context/app-state";
 const PIE_COLORS = ["#6366f1", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
 
 export function IndustryAnalytics() {
-  const { jobs, internships, industryApps, candidates, interviews, companyProfile } = useAppState();
+  const { opportunities, industryApps, candidates, interviews, companyProfile, recruiterKPIs } =
+    useAppState();
 
-  // KPIs
-  const activeOpportunities =
-    jobs.filter((j) => j.status !== "Draft").length +
-    internships.filter((i) => i.status !== "Draft").length;
-  const totalApplicants = industryApps.length;
-  const shortlistedCount =
-    industryApps.filter((a) => a.status === "Shortlisted").length ||
-    candidates.filter((c) => c.shortlisted).length;
-  const interviewsCount = interviews.filter(
-    (i) => i.stage === "Interview Scheduled" || i.stage === "Interview Completed",
-  ).length;
-  const offersCount = interviews.filter((i) => i.stage === "Offered").length;
-  const hiresCount =
-    interviews.filter((i) => i.stage === "Hired").length ||
-    industryApps.filter((a) => a.status === "Selected" || a.status === "Hired").length;
-
-  const conversionRate = totalApplicants > 0 ? Math.round((hiresCount / totalApplicants) * 100) : 0;
+  const activeOpportunities = recruiterKPIs.activeOpportunities;
+  const totalApplicants = recruiterKPIs.totalApplicants;
+  const shortlistedCount = recruiterKPIs.shortlistedCount;
+  const interviewsCount = recruiterKPIs.interviewsCount;
+  const offersCount = recruiterKPIs.offersCount;
+  const hiresCount = recruiterKPIs.hiresCount;
+  const conversionRate = recruiterKPIs.hiringConversion;
 
   // 1. Hiring Funnel Data
   const funnelData = useMemo(() => {
@@ -136,8 +127,8 @@ export function IndustryAnalytics() {
     const demandCount: Record<string, number> = {};
     const supplyCount: Record<string, number> = {};
 
-    [...jobs, ...internships].forEach((opp) => {
-      opp.requiredSkills.forEach((s) => {
+    opportunities.forEach((opp) => {
+      opp.requiredSkills.forEach((s: string) => {
         demandCount[s] = (demandCount[s] || 0) + 1;
       });
     });
@@ -164,7 +155,7 @@ export function IndustryAnalytics() {
       Required: demandCount[skill] || Math.floor(Math.random() * 3) + 2,
       Applicants: supplyCount[skill] || Math.floor(Math.random() * 5) + 3,
     }));
-  }, [jobs, internships, candidates]);
+  }, [opportunities, candidates]);
 
   // 4. Internship vs Job Applications Ratio
   const opportunityTypeData = useMemo(() => {
@@ -214,43 +205,43 @@ export function IndustryAnalytics() {
         <Stat
           label="Opportunities"
           value={activeOpportunities.toString()}
-          trend="Active listings"
+          trend="Active Listings"
           icon={Briefcase}
         />
         <Stat
           label="Applicants"
           value={totalApplicants.toString()}
-          trend="Total submissions"
+          trend="Submissions"
           icon={Users}
         />
         <Stat
           label="Shortlisted"
           value={shortlistedCount.toString()}
-          trend="Pre-screened pool"
+          trend="Screened"
           icon={UserCheck}
         />
         <Stat
           label="Interviews"
           value={interviewsCount.toString()}
-          trend="Evaluations"
+          trend="Scheduled"
           icon={Calendar}
         />
         <Stat
           label="Offers Sent"
           value={offersCount.toString()}
-          trend="Offer letters released"
+          trend="Released"
           icon={FileCheck}
         />
         <Stat
           label="Total Hired"
           value={hiresCount.toString()}
-          trend="Offers accepted"
+          trend="Accepted"
           icon={CheckCircle2}
         />
         <Stat
-          label="Conversion Rate"
+          label="Conversion"
           value={`${conversionRate}%`}
-          trend="Applicant to hire"
+          trend="Funnel Rate"
           icon={TrendingUp}
         />
       </div>

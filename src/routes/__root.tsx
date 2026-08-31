@@ -6,11 +6,13 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  ScrollRestoration,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/context/auth-context";
 import { AppStateProvider } from "@/context/app-state";
 
 function NotFoundComponent() {
@@ -133,10 +135,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AppStateProvider>
-        <Outlet />
-        <Toaster position="top-right" theme="dark" />
-      </AppStateProvider>
+      <AuthProvider>
+        <AppStateProvider>
+          <ScrollRestoration />
+          <Outlet />
+          <Toaster position="top-right" theme="dark" />
+        </AppStateProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

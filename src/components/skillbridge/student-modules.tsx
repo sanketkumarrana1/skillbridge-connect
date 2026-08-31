@@ -8,6 +8,7 @@ import {
   Briefcase,
   Calendar,
   Check,
+  CheckCircle2,
   Clock,
   Download,
   FileText,
@@ -44,6 +45,14 @@ import { SectionCard, Stat, WorkspaceHeader } from "@/components/skillbridge/stu
 import { StudentPortfolio } from "@/components/skillbridge/student-portfolio";
 import { StudentCertificates } from "@/components/skillbridge/student-certificates";
 import { StudentResumeBuilder } from "@/components/skillbridge/student-resume-builder";
+import { StudentSkillPassport } from "@/components/skillbridge/student-skill-passport";
+import { StudentSettings } from "@/components/skillbridge/student-settings";
+import { StudentOnboarding } from "@/components/skillbridge/student-onboarding";
+import { StudentSkillAnalysis } from "@/components/skillbridge/student-analysis";
+import { StudentLearningRoadmap } from "@/components/skillbridge/student-roadmap";
+import { OpportunityMarketplace } from "@/components/skillbridge/opportunities/opportunity-marketplace";
+import { StudentMentorship } from "@/components/skillbridge/student-mentorship";
+import { StudentPlacementTimeline } from "@/components/skillbridge/student-placement-timeline";
 import { useAppState } from "@/context/app-state";
 import { mcqAssessmentQuestions } from "@/data/mock";
 import type { Application, ApplicationStatus, Internship, Job } from "@/types";
@@ -51,205 +60,10 @@ import type { Application, ApplicationStatus, Internship, Job } from "@/types";
 const formatTime = (seconds: number) =>
   `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 
-export function StudentAssessment() {
-  const navigate = useNavigate();
-  const { answers, setAnswer, submitFullAssessment, resetAnswers, assessmentSubmitted } =
-    useAppState();
-  const [current, setCurrent] = useState(0);
-  const [remaining, setRemaining] = useState(15 * 60);
-  const question = mcqAssessmentQuestions[current];
-  const answered = Object.keys(answers).length;
-  const total = mcqAssessmentQuestions.length;
-
-  const submit = useCallback(
-    (automatic = false) => {
-      if (assessmentSubmitted) return;
-      if (!automatic) {
-        if (answered < total) {
-          const unanswered = total - answered;
-          if (
-            !window.confirm(
-              `You have ${unanswered} unanswered question${unanswered > 1 ? "s" : ""} — submit anyway?`,
-            )
-          )
-            return;
-        }
-        if (!window.confirm("Submit your assessment?")) return;
-      }
-      submitFullAssessment(answers);
-      toast.success("Assessment submitted. Your Skill Report is ready.");
-      navigate({ to: "/student/analysis" });
-    },
-    [answers, answered, assessmentSubmitted, navigate, submitFullAssessment, total],
-  );
-
-  useEffect(() => {
-    if (assessmentSubmitted) return;
-    const timer = window.setInterval(
-      () =>
-        setRemaining((value) => {
-          if (value <= 1) {
-            window.clearInterval(timer);
-            submit(true);
-            return 0;
-          }
-          return value - 1;
-        }),
-      1000,
-    );
-    return () => window.clearInterval(timer);
-  }, [assessmentSubmitted, submit]);
-
-  if (assessmentSubmitted) {
-    return (
-      <>
-        <WorkspaceHeader
-          eyebrow="Timed assessment"
-          title="AI Skill Assessment"
-          description="Your assessment has already been submitted."
-        />
-        <SectionCard title="Already submitted">
-          <div className="mt-4 rounded-2xl border border-dashed border-border bg-muted/40 p-8 text-center">
-            <Check className="mx-auto size-8 text-primary" />
-            <p className="mt-4 font-display text-xl font-semibold">
-              Your assessment has been submitted
-            </p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-              You can retake the assessment to generate a fresh Skill Report at any time.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Button onClick={() => resetAnswers()}>Retake Assessment</Button>
-              <Button variant="outline" onClick={() => navigate({ to: "/student/analysis" })}>
-                View Skill Report <ArrowRight />
-              </Button>
-            </div>
-          </div>
-        </SectionCard>
-      </>
-    );
-  }
-
-  if (!question) return null;
-
-  return (
-    <>
-      <WorkspaceHeader
-        eyebrow="Timed assessment"
-        title="AI Skill Assessment"
-        description="20 industry-oriented questions. Your report is generated when you submit."
-        action={
-          <Badge
-            className={
-              remaining < 60
-                ? "bg-destructive text-destructive-foreground"
-                : "bg-primary/10 text-primary"
-            }
-          >
-            {formatTime(remaining)} remaining
-          </Badge>
-        }
-      />
-      <div className="h-2 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all"
-          style={{ width: `${(answered / total) * 100}%` }}
-        />
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_220px]">
-        <section className="rounded-3xl border border-border bg-card p-6 sm:p-9">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-              Question {current + 1} of {total}
-            </p>
-            <span className="text-sm text-muted-foreground">{question.category}</span>
-          </div>
-          <h2 className="mt-5 font-display text-2xl font-semibold leading-tight sm:text-3xl">
-            {question.question}
-          </h2>
-          <div className="mt-8 grid gap-3">
-            {question.options.map((option, index) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => setAnswer(question.id, index)}
-                className={`flex items-center gap-3 rounded-2xl border p-4 text-left text-sm transition ${
-                  answers[question.id] === index
-                    ? "border-primary bg-primary/10 ring-2 ring-primary/15"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <span className="grid size-8 place-items-center rounded-lg bg-muted font-semibold">
-                  {String.fromCharCode(65 + index)}
-                </span>
-                <span className="flex-1">{option}</span>
-                {answers[question.id] === index && <Check className="size-4 text-primary" />}
-              </button>
-            ))}
-          </div>
-          <div className="mt-8 flex flex-wrap justify-between gap-3">
-            <Button
-              variant="outline"
-              disabled={current === 0}
-              onClick={() => setCurrent((value) => value - 1)}
-            >
-              <ArrowLeft /> Previous
-            </Button>
-            {current === total - 1 ? (
-              <Button onClick={() => submit()}>
-                Submit Assessment <Check />
-              </Button>
-            ) : (
-              <Button onClick={() => setCurrent((value) => value + 1)}>
-                Next <ArrowRight />
-              </Button>
-            )}
-          </div>
-        </section>
-        <aside className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display font-semibold">Question palette</h2>
-            <span className="text-xs text-muted-foreground">
-              {answered}/{total}
-            </span>
-          </div>
-          <div className="mt-4 grid grid-cols-5 gap-2">
-            {mcqAssessmentQuestions.map((item, index) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setCurrent(index)}
-                className={`grid aspect-square place-items-center rounded-lg text-xs font-semibold ${
-                  current === index
-                    ? "bg-primary text-primary-foreground"
-                    : answers[item.id] !== undefined
-                      ? "bg-primary/15 text-primary"
-                      : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            {answered < total
-              ? `Answer ${total - answered} more to submit.`
-              : "All questions answered."}
-          </p>
-          <Button className="mt-5 w-full" onClick={() => submit()}>
-            Submit Assessment <Check />
-          </Button>
-          <Button
-            variant="ghost"
-            className="mt-2 w-full text-destructive hover:text-destructive"
-            onClick={resetAnswers}
-          >
-            Reset assessment
-          </Button>
-        </aside>
-      </div>
-    </>
-  );
-}
+export { StudentAssessment } from "@/components/skillbridge/assessment";
+export { StudentSkillAnalysis } from "@/components/skillbridge/student-analysis";
+export { StudentLearningRoadmap } from "@/components/skillbridge/student-roadmap";
+export { OpportunityMarketplace } from "@/components/skillbridge/opportunities/opportunity-marketplace";
 
 const TIMELINE_STAGES: ApplicationStatus[] = [
   "Applied",
@@ -360,6 +174,8 @@ export function FunctionalStudentModule({ section }: { section: string }) {
     roadmapItems,
     updateRoadmapItem,
     getRoadmapCompletion,
+    respondToOffer,
+    corporateOffers,
   } = useAppState();
 
   const [query, setQuery] = useState("");
@@ -436,253 +252,47 @@ export function FunctionalStudentModule({ section }: { section: string }) {
 
   if (section === "internships")
     return (
-      <>
-        <WorkspaceHeader
-          eyebrow="Marketplace"
-          title="Internship Search"
-          description="Search roles, filter by preferences, and apply with one clear action."
-          action={
-            <Badge className="bg-primary/10 text-primary">
-              <Bookmark className="mr-1 size-3 inline" />
-              Saving {savedInternships.length} bookmarked
-            </Badge>
-          }
-        />
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search roles, companies, skills..."
-              />
-            </div>
-            <div className="relative sm:w-64">
-              <MapPin className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                value={locationFilter}
-                onChange={(event) => setLocationFilter(event.target.value)}
-                placeholder="Location (e.g. Bengaluru)"
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(["All", "Remote", "Hybrid", "On-site"] as const).map((item) => (
-              <Button
-                key={item}
-                size="sm"
-                variant={filter === item ? "default" : "outline"}
-                onClick={() => setFilter(item)}
-              >
-                {item}
-              </Button>
-            ))}
-            <span className="mx-2 w-px bg-border" />
-            {(["All", "Paid", "Unpaid"] as const).map((item) => (
-              <Button
-                key={item}
-                size="sm"
-                variant={paidFilter === item ? "default" : "outline"}
-                onClick={() => setPaidFilter(item)}
-              >
-                {item}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          {filteredInternships.map((item) => (
-            <InternshipCard key={item.id} internship={item} />
-          ))}
-        </div>
-        {filteredInternships.length === 0 && (
-          <div className="mt-6">
-            <EmptyState
-              title="No internships match your filters"
-              description="Try clearing some filters or broadening your search keywords."
-            />
-          </div>
-        )}
-      </>
+      <OpportunityMarketplace
+        initialTypeFilter="Internship"
+        initialTitle="Internship Intelligence Discovery"
+        initialEyebrow="Industry Internships"
+      />
     );
 
   if (section === "jobs")
     return (
-      <>
-        <WorkspaceHeader
-          eyebrow="Marketplace"
-          title="Job Search"
-          description="Explore early-career full-time roles matched to your profile."
-          action={
-            <Badge className="bg-primary/10 text-primary">
-              <Bookmark className="mr-1 size-3 inline" />
-              {savedJobs.length} saved
-            </Badge>
-          }
-        />
-        <div className="flex flex-col gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search job titles, companies, or skills..."
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Work
-            </span>
-            {(["All", "Remote", "Hybrid", "On-site"] as const).map((item) => (
-              <Button
-                key={`wt-${item}`}
-                size="sm"
-                variant={workTypeFilter === item ? "default" : "outline"}
-                onClick={() => setWorkTypeFilter(item)}
-              >
-                {item}
-              </Button>
-            ))}
-            <span className="mx-2 w-px bg-border" />
-            <span className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Exp
-            </span>
-            {(["All", "Freshers", "0-1 yr", "1-2 yr"] as const).map((item) => (
-              <Button
-                key={`exp-${item}`}
-                size="sm"
-                variant={experienceFilter === item ? "default" : "outline"}
-                onClick={() => setExperienceFilter(item)}
-              >
-                {item}
-              </Button>
-            ))}
-            <span className="mx-2 w-px bg-border" />
-            <span className="inline-flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              CTC
-            </span>
-            {(["All", "<₹8L", "₹8-12L", ">₹12L"] as const).map((item) => (
-              <Button
-                key={`ctc-${item}`}
-                size="sm"
-                variant={ctcFilter === item ? "default" : "outline"}
-                onClick={() => setCtcFilter(item)}
-              >
-                {item}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {filteredJobs.map((job) => {
-            const jobSaved = isJobSaved(job.id);
-            const jobApplied = hasApplied(job.id);
-            const appEntry = applications.find(
-              (a) => a.internshipId === job.id && a.opportunityType === "Job",
-            );
-            const toggleSave = () => {
-              if (jobSaved) {
-                unsaveJob(job.id);
-                toast.success(`Removed ${job.title} from saved`);
-              } else {
-                saveJob(job.id);
-                toast.success(`Saved ${job.title}`);
-              }
-            };
-            const handleApply = () => {
-              const added = applyToJob(job.id);
-              if (added) {
-                toast.success(`Applied to ${job.title}`);
-              } else {
-                toast.info("You have already applied to this job");
-              }
-            };
-            return (
-              <SectionCard
-                key={job.id}
-                title={
-                  <div className="flex items-start gap-3">
-                    <CompanyMark name={job.company} hue={job.companyLogoHue} />
-                    <div className="min-w-0">
-                      <h3 className="truncate font-display text-base font-semibold">{job.title}</h3>
-                      <p className="truncate text-sm text-muted-foreground">{job.company}</p>
-                    </div>
-                  </div>
-                }
-                action={
-                  <div className="flex flex-col items-end gap-2">
-                    <Badge className="bg-primary/10 text-primary tabular-nums">
-                      {job.match}% match
-                    </Badge>
-                    {jobApplied && appEntry && <StatusBadge status={appEntry.status} />}
-                    {!jobApplied && <Badge className="bg-success/10 text-success">Open</Badge>}
-                  </div>
-                }
-              >
-                <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{job.description}</p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {job.requiredSkills.slice(0, 5).map((s) => (
-                    <SkillTag key={s} muted>
-                      {s}
-                    </SkillTag>
-                  ))}
-                  {job.requiredSkills.length > 5 && (
-                    <SkillTag muted>+{job.requiredSkills.length - 5}</SkillTag>
-                  )}
-                </div>
-                <dl className="mt-4 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <IndianRupee className="size-3.5 shrink-0 text-emerald-600" />
-                    <span className="truncate font-medium text-foreground">{job.ctc}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Briefcase className="size-3.5 shrink-0 text-primary" />
-                    <span className="truncate">{job.experience}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="size-3.5 shrink-0 text-amber-600" />
-                    <span className="truncate">{job.location.split(",")[0]}</span>
-                  </div>
-                </dl>
-                <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
-                  {!jobApplied ? (
-                    <Button size="sm" onClick={handleApply}>
-                      Apply now <Check className="ml-1 size-3.5" />
-                    </Button>
-                  ) : (
-                    <Badge className="bg-success/10 text-success">Applied</Badge>
-                  )}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={toggleSave}
-                    aria-label={jobSaved ? "Unsave job" : "Save job"}
-                  >
-                    {jobSaved ? <BookmarkX className="size-4" /> : <Bookmark className="size-4" />}
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/student/jobs">
-                      View Job <ArrowRight className="ml-1 size-3.5" />
-                    </Link>
-                  </Button>
-                </div>
-              </SectionCard>
-            );
-          })}
-        </div>
-        {filteredJobs.length === 0 && (
-          <div className="mt-6">
-            <EmptyState
-              title="No jobs match your filters"
-              description="Try broadening your search or clearing some experience/CTC filters."
-            />
-          </div>
-        )}
-      </>
+      <OpportunityMarketplace
+        initialTypeFilter="Job"
+        initialTitle="Career Opportunities & Full-Time Jobs"
+        initialEyebrow="Early-Career Roles"
+      />
+    );
+
+  if (section === "opportunities")
+    return (
+      <OpportunityMarketplace
+        initialTypeFilter="All"
+        initialTitle="Opportunity Intelligence Discovery"
+        initialEyebrow="AcadIn Opportunity Network"
+      />
+    );
+
+  if (section === "live_projects")
+    return (
+      <OpportunityMarketplace
+        initialTypeFilter="Live Project"
+        initialTitle="Live Industry Projects"
+        initialEyebrow="Academia-Industry Collaboration"
+      />
+    );
+
+  if (section === "training")
+    return (
+      <OpportunityMarketplace
+        initialTypeFilter="Training Program"
+        initialTitle="Industry Training & Bootcamps"
+        initialEyebrow="Skill Gap Closure Programs"
+      />
     );
 
   if (section === "applications")
@@ -805,28 +415,90 @@ export function FunctionalStudentModule({ section }: { section: string }) {
                     </div>
                   </div>
 
-                  {app.status === "Interview" && (
+                  {/* Offer Received Interactive Acceptance Card */}
+                  {app.status === "Offered" && (
+                    <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-5 text-emerald-400" />
+                          <p className="text-sm font-bold font-display text-emerald-300">
+                            🎉 Formal Employment Offer Received!
+                          </p>
+                        </div>
+                        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs">
+                          Action Required
+                        </Badge>
+                      </div>
+
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        {company || "The enterprise"} has extended an official corporate offer for{" "}
+                        <strong className="text-white">{title}</strong> ({salaryOrStipend || "Competitive"}).
+                      </p>
+
+                      <div className="flex items-center gap-3 pt-2">
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md"
+                          onClick={() => {
+                            respondToOffer(app.id, "Accepted");
+                            toast.success(`🎉 Congratulations! You have accepted the offer for ${title}! Status updated to Hired.`);
+                          }}
+                        >
+                          Accept Formal Offer
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10 text-xs"
+                          onClick={() => {
+                            respondToOffer(app.id, "Declined");
+                            toast.info(`You have declined the offer for ${title}.`);
+                          }}
+                        >
+                          Decline Offer
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hired State Celebration */}
+                  {(app.status === "Hired" || app.status === "Selected") && (
+                    <div className="mt-4 rounded-xl border border-purple-500/30 bg-purple-500/10 p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="size-4 text-purple-400" />
+                        <span className="text-xs font-semibold text-purple-300">
+                          Offer Accepted · Placement Confirmed!
+                        </span>
+                      </div>
+                      <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/40 text-xs">
+                        Hired
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Scheduled Interview Card */}
+                  {(app.status === "Interview" || app.status === "Interview Scheduled") && (
                     <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                        Interview Details
+                      <p className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                        <Calendar className="size-3.5" /> Scheduled Interview Session
                       </p>
                       <div className="mt-3 grid gap-3 sm:grid-cols-3 text-sm">
                         <div>
                           <p className="text-xs text-muted-foreground">Date</p>
-                          <p className="font-medium">
-                            {app.interviewDetails?.date ?? "To be shared via email"}
+                          <p className="font-medium text-foreground">
+                            {app.interviewDetails?.date ?? "31 Aug 2026"}
                           </p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Time</p>
-                          <p className="font-medium">
-                            {app.interviewDetails?.time ?? "11:00 AM (tentative)"}
+                          <p className="font-medium text-foreground">
+                            {app.interviewDetails?.time ?? "02:00 PM - 03:00 PM"}
                           </p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Mode</p>
-                          <p className="font-medium">
-                            {app.interviewDetails?.mode ?? "Virtual · Google Meet"}
+                          <p className="font-medium text-foreground">
+                            {app.interviewDetails?.mode ?? "Google Meet (Link in inbox)"}
                           </p>
                         </div>
                       </div>
@@ -839,7 +511,7 @@ export function FunctionalStudentModule({ section }: { section: string }) {
                   )}
 
                   <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
-                    {app.status !== "Selected" && app.status !== "Rejected" && (
+                    {app.status !== "Selected" && app.status !== "Hired" && app.status !== "Rejected" && app.status !== "Offered" && (
                       <Button size="sm" onClick={handleAdvance}>
                         Advance Status <ArrowRight className="ml-1 size-3.5" />
                       </Button>
@@ -857,7 +529,35 @@ export function FunctionalStudentModule({ section }: { section: string }) {
         )}
       </>
     );
-  if (section === "portfolio" || section === "settings") {
+  if (section === "analysis") {
+    return <StudentSkillAnalysis />;
+  }
+
+  if (section === "roadmap") {
+    return <StudentLearningRoadmap />;
+  }
+
+  if (section === "passport") {
+    return <StudentSkillPassport />;
+  }
+
+  if (section === "timeline") {
+    return <StudentPlacementTimeline />;
+  }
+
+  if (section === "mentorship") {
+    return <StudentMentorship />;
+  }
+
+  if (section === "onboarding") {
+    return <StudentOnboarding />;
+  }
+
+  if (section === "settings") {
+    return <StudentSettings />;
+  }
+
+  if (section === "portfolio" || section === "profile") {
     return <StudentPortfolio />;
   }
 

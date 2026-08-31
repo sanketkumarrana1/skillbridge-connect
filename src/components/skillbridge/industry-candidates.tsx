@@ -97,7 +97,9 @@ export function IndustryCandidates() {
       .map((cand) => {
         // If candidate is logged in student, use real profile data
         const isStudent = cand.name.toLowerCase() === profile.name.toLowerCase();
-        const candSkills = isStudent ? profile.skills.map((s) => s.name) : cand.skills;
+        const candSkills = isStudent
+          ? (profile.declaredSkills ?? profile.skills ?? []).map((s) => s.name)
+          : cand.skills;
         const candSkillsLower = candSkills.map((s) => s.toLowerCase());
 
         // Find matching skills

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AcademicianRouteImport } from './routes/academician'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndustryRouteImport } from './routes/industry'
@@ -20,6 +21,7 @@ import { Route as InternshipsRouteImport } from './routes/internships'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RolesRouteImport } from './routes/roles'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
@@ -34,11 +36,23 @@ import { Route as AcademicianLecturesRouteImport } from './routes/academician.le
 import { Route as AcademicianMentorshipRouteImport } from './routes/academician.mentorship'
 import { Route as AcademicianResearchRouteImport } from './routes/academician.research'
 import { Route as AcademicianTrainingRouteImport } from './routes/academician.training'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminCompaniesRouteImport } from './routes/admin.companies'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminInstitutionsRouteImport } from './routes/admin.institutions'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
+import { Route as AdminOpportunitiesRouteImport } from './routes/admin.opportunities'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as IndustryIndexRouteImport } from './routes/industry.index'
 import { Route as IndustryAnalyticsRouteImport } from './routes/industry.analytics'
 import { Route as IndustryApplicationsRouteImport } from './routes/industry.applications'
 import { Route as IndustryCandidatesRouteImport } from './routes/industry.candidates'
 import { Route as IndustryInterviewsRouteImport } from './routes/industry.interviews'
+import { Route as IndustryMentorshipRouteImport } from './routes/industry.mentorship'
 import { Route as IndustryPostRouteImport } from './routes/industry.post'
 import { Route as IndustryWorkshopsRouteImport } from './routes/industry.workshops'
 import { Route as InstitutionIndexRouteImport } from './routes/institution.index'
@@ -57,10 +71,14 @@ import { Route as StudentAssessmentRouteImport } from './routes/student.assessme
 import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
 import { Route as StudentInternshipsRouteImport } from './routes/student.internships'
 import { Route as StudentJobsRouteImport } from './routes/student.jobs'
+import { Route as StudentMentorshipRouteImport } from './routes/student.mentorship'
+import { Route as StudentOnboardingRouteImport } from './routes/student.onboarding'
+import { Route as StudentPassportRouteImport } from './routes/student.passport'
 import { Route as StudentPortfolioRouteImport } from './routes/student.portfolio'
 import { Route as StudentResumeRouteImport } from './routes/student.resume'
 import { Route as StudentRoadmapRouteImport } from './routes/student.roadmap'
 import { Route as StudentSettingsRouteImport } from './routes/student.settings'
+import { Route as StudentTimelineRouteImport } from './routes/student.timeline'
 import { Route as StudentInternshipsIndexRouteImport } from './routes/student.internships.index'
 import { Route as StudentInternshipsIdRouteImport } from './routes/student.internships.$id'
 
@@ -77,6 +95,11 @@ const AboutRoute = AboutRouteImport.update({
 const AcademicianRoute = AcademicianRouteImport.update({
   id: '/academician',
   path: '/academician',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -117,6 +140,11 @@ const LoginRoute = LoginRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesRoute = RolesRouteImport.update({
@@ -189,6 +217,61 @@ const AcademicianTrainingRoute = AcademicianTrainingRouteImport.update({
   path: '/training',
   getParentRoute: () => AcademicianRoute,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCompaniesRoute = AdminCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInstitutionsRoute = AdminInstitutionsRouteImport.update({
+  id: '/institutions',
+  path: '/institutions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminModerationRoute = AdminModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOpportunitiesRoute = AdminOpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSkillsRoute = AdminSkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
 const IndustryIndexRoute = IndustryIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -212,6 +295,11 @@ const IndustryCandidatesRoute = IndustryCandidatesRouteImport.update({
 const IndustryInterviewsRoute = IndustryInterviewsRouteImport.update({
   id: '/interviews',
   path: '/interviews',
+  getParentRoute: () => IndustryRoute,
+} as any)
+const IndustryMentorshipRoute = IndustryMentorshipRouteImport.update({
+  id: '/mentorship',
+  path: '/mentorship',
   getParentRoute: () => IndustryRoute,
 } as any)
 const IndustryPostRoute = IndustryPostRouteImport.update({
@@ -304,6 +392,21 @@ const StudentJobsRoute = StudentJobsRouteImport.update({
   path: '/jobs',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentMentorshipRoute = StudentMentorshipRouteImport.update({
+  id: '/mentorship',
+  path: '/mentorship',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentOnboardingRoute = StudentOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentPassportRoute = StudentPassportRouteImport.update({
+  id: '/passport',
+  path: '/passport',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentPortfolioRoute = StudentPortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -324,6 +427,11 @@ const StudentSettingsRoute = StudentSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentTimelineRoute = StudentTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentInternshipsIndexRoute = StudentInternshipsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -339,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/academician': typeof AcademicianRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/industry': typeof IndustryRouteWithChildren
@@ -347,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/jobs': typeof JobsRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/roles': typeof RolesRoute
   '/student': typeof StudentRouteWithChildren
   '/verify-email': typeof VerifyEmailRoute
@@ -360,10 +470,21 @@ export interface FileRoutesByFullPath {
   '/academician/mentorship': typeof AcademicianMentorshipRoute
   '/academician/research': typeof AcademicianResearchRoute
   '/academician/training': typeof AcademicianTrainingRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/companies': typeof AdminCompaniesRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/moderation': typeof AdminModerationRoute
+  '/admin/opportunities': typeof AdminOpportunitiesRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/skills': typeof AdminSkillsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/industry/analytics': typeof IndustryAnalyticsRoute
   '/industry/applications': typeof IndustryApplicationsRoute
   '/industry/candidates': typeof IndustryCandidatesRoute
   '/industry/interviews': typeof IndustryInterviewsRoute
+  '/industry/mentorship': typeof IndustryMentorshipRoute
   '/industry/post': typeof IndustryPostRoute
   '/industry/workshops': typeof IndustryWorkshopsRoute
   '/institution/departments': typeof InstitutionDepartmentsRoute
@@ -380,11 +501,16 @@ export interface FileRoutesByFullPath {
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/internships': typeof StudentInternshipsRouteWithChildren
   '/student/jobs': typeof StudentJobsRoute
+  '/student/mentorship': typeof StudentMentorshipRoute
+  '/student/onboarding': typeof StudentOnboardingRoute
+  '/student/passport': typeof StudentPassportRoute
   '/student/portfolio': typeof StudentPortfolioRoute
   '/student/resume': typeof StudentResumeRoute
   '/student/roadmap': typeof StudentRoadmapRoute
   '/student/settings': typeof StudentSettingsRoute
+  '/student/timeline': typeof StudentTimelineRoute
   '/academician/': typeof AcademicianIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/industry/': typeof IndustryIndexRoute
   '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
@@ -400,6 +526,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof JobsRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/roles': typeof RolesRoute
   '/verify-email': typeof VerifyEmailRoute
   '/academician/assessments': typeof AcademicianAssessmentsRoute
@@ -412,10 +539,21 @@ export interface FileRoutesByTo {
   '/academician/mentorship': typeof AcademicianMentorshipRoute
   '/academician/research': typeof AcademicianResearchRoute
   '/academician/training': typeof AcademicianTrainingRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/companies': typeof AdminCompaniesRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/moderation': typeof AdminModerationRoute
+  '/admin/opportunities': typeof AdminOpportunitiesRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/skills': typeof AdminSkillsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/industry/analytics': typeof IndustryAnalyticsRoute
   '/industry/applications': typeof IndustryApplicationsRoute
   '/industry/candidates': typeof IndustryCandidatesRoute
   '/industry/interviews': typeof IndustryInterviewsRoute
+  '/industry/mentorship': typeof IndustryMentorshipRoute
   '/industry/post': typeof IndustryPostRoute
   '/industry/workshops': typeof IndustryWorkshopsRoute
   '/institution/departments': typeof InstitutionDepartmentsRoute
@@ -431,11 +569,16 @@ export interface FileRoutesByTo {
   '/student/assessment': typeof StudentAssessmentRoute
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/jobs': typeof StudentJobsRoute
+  '/student/mentorship': typeof StudentMentorshipRoute
+  '/student/onboarding': typeof StudentOnboardingRoute
+  '/student/passport': typeof StudentPassportRoute
   '/student/portfolio': typeof StudentPortfolioRoute
   '/student/resume': typeof StudentResumeRoute
   '/student/roadmap': typeof StudentRoadmapRoute
   '/student/settings': typeof StudentSettingsRoute
+  '/student/timeline': typeof StudentTimelineRoute
   '/academician': typeof AcademicianIndexRoute
+  '/admin': typeof AdminIndexRoute
   '/industry': typeof IndustryIndexRoute
   '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
@@ -447,6 +590,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/academician': typeof AcademicianRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/industry': typeof IndustryRouteWithChildren
@@ -455,6 +599,7 @@ export interface FileRoutesById {
   '/jobs': typeof JobsRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/roles': typeof RolesRoute
   '/student': typeof StudentRouteWithChildren
   '/verify-email': typeof VerifyEmailRoute
@@ -468,10 +613,21 @@ export interface FileRoutesById {
   '/academician/mentorship': typeof AcademicianMentorshipRoute
   '/academician/research': typeof AcademicianResearchRoute
   '/academician/training': typeof AcademicianTrainingRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/companies': typeof AdminCompaniesRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/moderation': typeof AdminModerationRoute
+  '/admin/opportunities': typeof AdminOpportunitiesRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/skills': typeof AdminSkillsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/industry/analytics': typeof IndustryAnalyticsRoute
   '/industry/applications': typeof IndustryApplicationsRoute
   '/industry/candidates': typeof IndustryCandidatesRoute
   '/industry/interviews': typeof IndustryInterviewsRoute
+  '/industry/mentorship': typeof IndustryMentorshipRoute
   '/industry/post': typeof IndustryPostRoute
   '/industry/workshops': typeof IndustryWorkshopsRoute
   '/institution/departments': typeof InstitutionDepartmentsRoute
@@ -488,11 +644,16 @@ export interface FileRoutesById {
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/internships': typeof StudentInternshipsRouteWithChildren
   '/student/jobs': typeof StudentJobsRoute
+  '/student/mentorship': typeof StudentMentorshipRoute
+  '/student/onboarding': typeof StudentOnboardingRoute
+  '/student/passport': typeof StudentPassportRoute
   '/student/portfolio': typeof StudentPortfolioRoute
   '/student/resume': typeof StudentResumeRoute
   '/student/roadmap': typeof StudentRoadmapRoute
   '/student/settings': typeof StudentSettingsRoute
+  '/student/timeline': typeof StudentTimelineRoute
   '/academician/': typeof AcademicianIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/industry/': typeof IndustryIndexRoute
   '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
@@ -505,6 +666,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/academician'
+    | '/admin'
     | '/features'
     | '/forgot-password'
     | '/industry'
@@ -513,6 +675,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/roles'
     | '/student'
     | '/verify-email'
@@ -526,10 +689,21 @@ export interface FileRouteTypes {
     | '/academician/mentorship'
     | '/academician/research'
     | '/academician/training'
+    | '/admin/audit'
+    | '/admin/companies'
+    | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/login'
+    | '/admin/moderation'
+    | '/admin/opportunities'
+    | '/admin/reports'
+    | '/admin/skills'
+    | '/admin/users'
     | '/industry/analytics'
     | '/industry/applications'
     | '/industry/candidates'
     | '/industry/interviews'
+    | '/industry/mentorship'
     | '/industry/post'
     | '/industry/workshops'
     | '/institution/departments'
@@ -546,11 +720,16 @@ export interface FileRouteTypes {
     | '/student/certificates'
     | '/student/internships'
     | '/student/jobs'
+    | '/student/mentorship'
+    | '/student/onboarding'
+    | '/student/passport'
     | '/student/portfolio'
     | '/student/resume'
     | '/student/roadmap'
     | '/student/settings'
+    | '/student/timeline'
     | '/academician/'
+    | '/admin/'
     | '/industry/'
     | '/institution/'
     | '/student/'
@@ -566,6 +745,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/roles'
     | '/verify-email'
     | '/academician/assessments'
@@ -578,10 +758,21 @@ export interface FileRouteTypes {
     | '/academician/mentorship'
     | '/academician/research'
     | '/academician/training'
+    | '/admin/audit'
+    | '/admin/companies'
+    | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/login'
+    | '/admin/moderation'
+    | '/admin/opportunities'
+    | '/admin/reports'
+    | '/admin/skills'
+    | '/admin/users'
     | '/industry/analytics'
     | '/industry/applications'
     | '/industry/candidates'
     | '/industry/interviews'
+    | '/industry/mentorship'
     | '/industry/post'
     | '/industry/workshops'
     | '/institution/departments'
@@ -597,11 +788,16 @@ export interface FileRouteTypes {
     | '/student/assessment'
     | '/student/certificates'
     | '/student/jobs'
+    | '/student/mentorship'
+    | '/student/onboarding'
+    | '/student/passport'
     | '/student/portfolio'
     | '/student/resume'
     | '/student/roadmap'
     | '/student/settings'
+    | '/student/timeline'
     | '/academician'
+    | '/admin'
     | '/industry'
     | '/institution'
     | '/student'
@@ -612,6 +808,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/academician'
+    | '/admin'
     | '/features'
     | '/forgot-password'
     | '/industry'
@@ -620,6 +817,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/roles'
     | '/student'
     | '/verify-email'
@@ -633,10 +831,21 @@ export interface FileRouteTypes {
     | '/academician/mentorship'
     | '/academician/research'
     | '/academician/training'
+    | '/admin/audit'
+    | '/admin/companies'
+    | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/login'
+    | '/admin/moderation'
+    | '/admin/opportunities'
+    | '/admin/reports'
+    | '/admin/skills'
+    | '/admin/users'
     | '/industry/analytics'
     | '/industry/applications'
     | '/industry/candidates'
     | '/industry/interviews'
+    | '/industry/mentorship'
     | '/industry/post'
     | '/industry/workshops'
     | '/institution/departments'
@@ -653,11 +862,16 @@ export interface FileRouteTypes {
     | '/student/certificates'
     | '/student/internships'
     | '/student/jobs'
+    | '/student/mentorship'
+    | '/student/onboarding'
+    | '/student/passport'
     | '/student/portfolio'
     | '/student/resume'
     | '/student/roadmap'
     | '/student/settings'
+    | '/student/timeline'
     | '/academician/'
+    | '/admin/'
     | '/industry/'
     | '/institution/'
     | '/student/'
@@ -669,6 +883,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AcademicianRoute: typeof AcademicianRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
   FeaturesRoute: typeof FeaturesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   IndustryRoute: typeof IndustryRouteWithChildren
@@ -677,6 +892,7 @@ export interface RootRouteChildren {
   JobsRoute: typeof JobsRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RolesRoute: typeof RolesRoute
   StudentRoute: typeof StudentRouteWithChildren
   VerifyEmailRoute: typeof VerifyEmailRoute
@@ -703,6 +919,13 @@ declare module '@tanstack/react-router' {
       path: '/academician'
       fullPath: '/academician'
       preLoaderRoute: typeof AcademicianRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -759,6 +982,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles': {
@@ -859,6 +1089,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcademicianTrainingRouteImport
       parentRoute: typeof AcademicianRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/companies': {
+      id: '/admin/companies'
+      path: '/companies'
+      fullPath: '/admin/companies'
+      preLoaderRoute: typeof AdminCompaniesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/institutions': {
+      id: '/admin/institutions'
+      path: '/institutions'
+      fullPath: '/admin/institutions'
+      preLoaderRoute: typeof AdminInstitutionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/moderation': {
+      id: '/admin/moderation'
+      path: '/moderation'
+      fullPath: '/admin/moderation'
+      preLoaderRoute: typeof AdminModerationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/opportunities': {
+      id: '/admin/opportunities'
+      path: '/opportunities'
+      fullPath: '/admin/opportunities'
+      preLoaderRoute: typeof AdminOpportunitiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/skills': {
+      id: '/admin/skills'
+      path: '/skills'
+      fullPath: '/admin/skills'
+      preLoaderRoute: typeof AdminSkillsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/industry/': {
       id: '/industry/'
       path: '/'
@@ -892,6 +1199,13 @@ declare module '@tanstack/react-router' {
       path: '/interviews'
       fullPath: '/industry/interviews'
       preLoaderRoute: typeof IndustryInterviewsRouteImport
+      parentRoute: typeof IndustryRoute
+    }
+    '/industry/mentorship': {
+      id: '/industry/mentorship'
+      path: '/mentorship'
+      fullPath: '/industry/mentorship'
+      preLoaderRoute: typeof IndustryMentorshipRouteImport
       parentRoute: typeof IndustryRoute
     }
     '/industry/post': {
@@ -1020,6 +1334,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentJobsRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/mentorship': {
+      id: '/student/mentorship'
+      path: '/mentorship'
+      fullPath: '/student/mentorship'
+      preLoaderRoute: typeof StudentMentorshipRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/onboarding': {
+      id: '/student/onboarding'
+      path: '/onboarding'
+      fullPath: '/student/onboarding'
+      preLoaderRoute: typeof StudentOnboardingRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/passport': {
+      id: '/student/passport'
+      path: '/passport'
+      fullPath: '/student/passport'
+      preLoaderRoute: typeof StudentPassportRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/portfolio': {
       id: '/student/portfolio'
       path: '/portfolio'
@@ -1046,6 +1381,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/student/settings'
       preLoaderRoute: typeof StudentSettingsRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/timeline': {
+      id: '/student/timeline'
+      path: '/timeline'
+      fullPath: '/student/timeline'
+      preLoaderRoute: typeof StudentTimelineRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/internships/': {
@@ -1097,11 +1439,42 @@ const AcademicianRouteWithChildren = AcademicianRoute._addFileChildren(
   AcademicianRouteChildren,
 )
 
+interface AdminRouteChildren {
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminCompaniesRoute: typeof AdminCompaniesRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminInstitutionsRoute: typeof AdminInstitutionsRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminModerationRoute: typeof AdminModerationRoute
+  AdminOpportunitiesRoute: typeof AdminOpportunitiesRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSkillsRoute: typeof AdminSkillsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditRoute: AdminAuditRoute,
+  AdminCompaniesRoute: AdminCompaniesRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminInstitutionsRoute: AdminInstitutionsRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminModerationRoute: AdminModerationRoute,
+  AdminOpportunitiesRoute: AdminOpportunitiesRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSkillsRoute: AdminSkillsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface IndustryRouteChildren {
   IndustryAnalyticsRoute: typeof IndustryAnalyticsRoute
   IndustryApplicationsRoute: typeof IndustryApplicationsRoute
   IndustryCandidatesRoute: typeof IndustryCandidatesRoute
   IndustryInterviewsRoute: typeof IndustryInterviewsRoute
+  IndustryMentorshipRoute: typeof IndustryMentorshipRoute
   IndustryPostRoute: typeof IndustryPostRoute
   IndustryWorkshopsRoute: typeof IndustryWorkshopsRoute
   IndustryIndexRoute: typeof IndustryIndexRoute
@@ -1112,6 +1485,7 @@ const IndustryRouteChildren: IndustryRouteChildren = {
   IndustryApplicationsRoute: IndustryApplicationsRoute,
   IndustryCandidatesRoute: IndustryCandidatesRoute,
   IndustryInterviewsRoute: IndustryInterviewsRoute,
+  IndustryMentorshipRoute: IndustryMentorshipRoute,
   IndustryPostRoute: IndustryPostRoute,
   IndustryWorkshopsRoute: IndustryWorkshopsRoute,
   IndustryIndexRoute: IndustryIndexRoute,
@@ -1169,10 +1543,14 @@ interface StudentRouteChildren {
   StudentCertificatesRoute: typeof StudentCertificatesRoute
   StudentInternshipsRoute: typeof StudentInternshipsRouteWithChildren
   StudentJobsRoute: typeof StudentJobsRoute
+  StudentMentorshipRoute: typeof StudentMentorshipRoute
+  StudentOnboardingRoute: typeof StudentOnboardingRoute
+  StudentPassportRoute: typeof StudentPassportRoute
   StudentPortfolioRoute: typeof StudentPortfolioRoute
   StudentResumeRoute: typeof StudentResumeRoute
   StudentRoadmapRoute: typeof StudentRoadmapRoute
   StudentSettingsRoute: typeof StudentSettingsRoute
+  StudentTimelineRoute: typeof StudentTimelineRoute
   StudentIndexRoute: typeof StudentIndexRoute
 }
 
@@ -1183,10 +1561,14 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentCertificatesRoute: StudentCertificatesRoute,
   StudentInternshipsRoute: StudentInternshipsRouteWithChildren,
   StudentJobsRoute: StudentJobsRoute,
+  StudentMentorshipRoute: StudentMentorshipRoute,
+  StudentOnboardingRoute: StudentOnboardingRoute,
+  StudentPassportRoute: StudentPassportRoute,
   StudentPortfolioRoute: StudentPortfolioRoute,
   StudentResumeRoute: StudentResumeRoute,
   StudentRoadmapRoute: StudentRoadmapRoute,
   StudentSettingsRoute: StudentSettingsRoute,
+  StudentTimelineRoute: StudentTimelineRoute,
   StudentIndexRoute: StudentIndexRoute,
 }
 
@@ -1197,6 +1579,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AcademicianRoute: AcademicianRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
   FeaturesRoute: FeaturesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   IndustryRoute: IndustryRouteWithChildren,
@@ -1205,6 +1588,7 @@ const rootRouteChildren: RootRouteChildren = {
   JobsRoute: JobsRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RolesRoute: RolesRoute,
   StudentRoute: StudentRouteWithChildren,
   VerifyEmailRoute: VerifyEmailRoute,

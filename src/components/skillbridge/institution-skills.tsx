@@ -38,7 +38,8 @@ import { SectionCard, Stat, WorkspaceHeader } from "@/components/skillbridge/stu
 import { useAppState } from "@/context/app-state";
 
 export function InstitutionSkills() {
-  const { departmentReports, institutionStudents } = useAppState();
+  const { departmentReports, institutionStudents, industrySkillDemand, skillDemandVsSupply } =
+    useAppState();
 
   const [selectedDeptId, setSelectedDeptId] = useState("all");
 
@@ -101,27 +102,27 @@ export function InstitutionSkills() {
       {/* KPI Ribbon */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
-          label="Strongest Competency"
-          value="Domain Knowledge"
-          trend="87% Campus Average"
+          label="Top Competency"
+          value="Domain Core"
+          trend="87% Average"
           icon={Award}
         />
         <Stat
           label="Primary Skill Gap"
-          value="Low-Level & Cloud"
-          trend="38% Deficit in Core"
+          value="Cloud & DevOps"
+          trend="38% Deficit"
           icon={AlertTriangle}
         />
         <Stat
           label="Problem Solving Fitness"
-          value="85 / 100"
-          trend="Algorithmic DSA score"
+          value="85%"
+          trend="Algorithmic DSA"
           icon={Target}
         />
         <Stat
           label="Remedial Interventions"
-          value="6 Active Tracks"
-          trend="Bridging curriculum gaps"
+          value="6"
+          trend="Active Tracks"
           icon={Sparkles}
         />
       </div>
@@ -244,6 +245,77 @@ export function InstitutionSkills() {
           </SectionCard>
         </div>
       </div>
+
+      {/* Industry Demand vs. Student Supply Intelligence */}
+      <SectionCard
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-5 text-primary" />
+              <h3 className="font-display text-base font-semibold">
+                Industry Market Demand vs. Campus Student Proficiency
+              </h3>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              Live Opportunity Aggregation
+            </Badge>
+          </div>
+        }
+      >
+        <div className="space-y-3 pt-2">
+          <p className="text-xs text-muted-foreground">
+            Comparing aggregated skills demanded across published industry roles against average assessed student proficiencies.
+          </p>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {skillDemandVsSupply.map((item) => (
+              <div
+                key={item.skill}
+                className="rounded-xl border border-border/80 bg-card p-3.5 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-foreground">{item.skill}</span>
+                    <Badge
+                      className={`text-[10px] ${
+                        item.status === "Critical Gap"
+                          ? "bg-rose-500/10 text-rose-600 border-rose-500/20"
+                          : item.status === "Moderate Gap"
+                            ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                            : item.status === "Surplus"
+                              ? "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                      }`}
+                    >
+                      {item.status} ({item.gap > 0 ? `+${item.gap}% Need` : "Balanced"})
+                    </Badge>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Proficiency: <strong className="text-foreground">{item.studentProficiencyScore}%</strong> / Demand: <strong className="text-primary">{item.industryDemandScore}%</strong>
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>Student Supply</span>
+                    <span>Industry Demand Benchmark</span>
+                  </div>
+                  <div className="relative h-2 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="absolute top-0 bottom-0 left-0 bg-primary/40 rounded-full"
+                      style={{ width: `${item.industryDemandScore}%` }}
+                    />
+                    <div
+                      className="absolute top-0 bottom-0 left-0 bg-primary rounded-full"
+                      style={{ width: `${item.studentProficiencyScore}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </SectionCard>
 
       {/* Strongest vs Weakest Skill Insights per Department */}
       <SectionCard title="Departmental Strengths vs. Curriculum Blindspots">

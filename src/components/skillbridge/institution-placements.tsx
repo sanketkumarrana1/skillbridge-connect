@@ -94,25 +94,25 @@ export function InstitutionPlacements() {
         <Stat
           label="Highest Domestic Package"
           value="₹44.0 LPA"
-          trend="Google Cloud & Nexora"
+          trend="Tier-1 Dream"
           icon={Award}
         />
         <Stat
           label="Average Campus CTC"
           value="₹13.4 LPA"
-          trend="+14.2% over last season"
+          trend="+14.2% YoY"
           icon={IndianRupee}
         />
         <Stat
           label="Total Offers Released"
-          value="344 Offers"
-          trend="86.4% of eligible cohort"
+          value="344"
+          trend="86.4% Placed"
           icon={TrendingUp}
         />
         <Stat
           label="Hiring Enterprises"
-          value="64 Companies"
-          trend="Tier 1, 2, and Core"
+          value="64"
+          trend="Active Partners"
           icon={Building2}
         />
       </div>
